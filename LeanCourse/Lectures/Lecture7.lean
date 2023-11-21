@@ -150,6 +150,11 @@ example : (∑ i in range (n + 1), i : ℚ) = n * (n + 1) / 2 := by {
 
 /- Let's define the Fibonacci sequence -/
 
+def An : Nat -> Nat
+| 0 => 1
+| (n + 1) => (n) + 1
+
+
 def fib : ℕ → ℕ
   | 0 => 0
   | 1 => 1
@@ -183,17 +188,29 @@ def ψ : ℝ := (1 - sqrt 5) / 2
 `P n → P (n + 1) → P (n + 2)`. -/
 
 @[simp] lemma ϕ_sub_ψ_ne_zero : ϕ - ψ ≠ 0 := by
-  simp [ϕ, ψ, sub_eq_zero]
-  simp [sub_eq_add_neg]
+  -- simp [ϕ, ψ, sub_eq_zero]
+  simp [ϕ]
+  simp [ψ]
+  simp [sub_eq_zero]
+  rw [sub_eq_add_neg]
+  -- simp only [add_right_inj, eq_neg_self_iff, sqrt_eq_zero', not_le]
+  rw[add_right_inj]
+  simp only [eq_neg_self_iff, sqrt_eq_zero', not_le]
   norm_num
+  done
 
 @[simp] lemma ϕ_sq : ϕ ^ 2 = ϕ + 1 := by
-  simp [ϕ, add_sq]
+  -- simp [ϕ, add_sq]
+  simp [ϕ]
+  simp [add_sq]
   field_simp
   ring
+  done
 
 @[simp] lemma ψ_sq : ψ ^ 2 = ψ + 1 := by
-  simp [ψ, sub_sq]
+  -- simp [ψ, sub_sq]
+  simp [ψ]
+  simp [sub_sq]
   field_simp
   ring
 
@@ -204,10 +221,25 @@ lemma coe_fib_eq (n : ℕ) : (fib n : ℝ) = (ϕ ^ n - ψ ^ n) / (ϕ - ψ) := by
   case zero => simp
   case one => simp
   case step k ih1 ih2 =>
-    simp [fib, ih1, ih2]
+    -- simp [fib, ih1, ih2]
+    simp [fib]
+    simp [ih1]
+    simp [ih2]
     field_simp
     simp [pow_add]
-    ring
+    -- set a₁:= ϕ ^ k * ϕ
+    -- set a₂:= ψ ^ k * ψ
+    set a₃:= ψ ^ k
+    set a₄:= ϕ ^ k
+    rw[add_sub,mul_add,mul_add]
+    rw[← sub_sub]
+    repeat rw[mul_one]
+    -- rw[sub_right_cancel]
+    rw[sub_left_inj]
+    -- apply?
+    -- exact sub_add_eq_add_sub (a₄ * ϕ) (a₃ * ψ) a₄
+    rw[sub_add_eq_add_sub]
+    -- ring
 
 /- The following lemmas will be useful for this.
 `field_simp` is a useful tactic that can often cancel denominators. -/

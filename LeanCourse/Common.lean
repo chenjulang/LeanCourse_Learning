@@ -7,6 +7,8 @@ set_option warningAsError false
 section
 open Lean Parser Tactic
 
+#check add_right_inj
+
 macro (name := ring) "ring" : tactic =>
   `(tactic| first | ring1 | ring_nf)
 
@@ -14,6 +16,8 @@ macro (name := ring_at) "ring" cfg:config ? loc:location : tactic =>
   `(tactic| ring_nf $cfg ? $loc)
 
 end
+
+
 
 namespace Nat
 open Lean Elab Term Meta
