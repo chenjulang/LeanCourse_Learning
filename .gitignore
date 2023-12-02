@@ -1,9 +1,0 @@
-/build
-/.cache
-.DS_Store
-/lakefile.olean
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.synctex.gz
