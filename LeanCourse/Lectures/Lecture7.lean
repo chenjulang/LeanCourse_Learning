@@ -259,7 +259,8 @@ lemma coe_fib_eq (n : ℕ) : (fib n : ℝ) = (ϕ ^ n - ψ ^ n) / (ϕ - ψ) := by
 * (in)equalities in different types are not the same statement.
 * you can use `norm_cast` to simplify (in)equalities involving casts. -/
 
-example (n : ℤ) (h : (n : ℚ) = 3) : 3 = n := by
+example (n : ℤ) (h : (n : ℚ) = 3)
+: 3 = n := by
   norm_cast at h
   rw [h]
 
@@ -292,7 +293,8 @@ a specific collection of sets. It is defined inductively. -/
 
 open TopologicalSpace
 theorem le_generateFrom_iff_subset_isOpen {α : Type*} {t : TopologicalSpace α}
-    {g : Set (Set α)} (h : g ⊆ { s | IsOpen[t] s }) :
+    {g : Set (Set α)} (h : g ⊆ { s | IsOpen[t] s })
+    :
     { s | IsOpen[generateFrom g] s } ⊆ { s | IsOpen[t] s } := by
   intro s hs
   simp

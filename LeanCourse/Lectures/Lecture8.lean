@@ -52,6 +52,7 @@ section
 
 /- Given a point, we get access to its coordinates / projections. -/
 variable (a : Point)
+#check (Point)
 #check a.x
 #check a.y
 #check a.z
@@ -183,6 +184,7 @@ structure PosPoint where
   y_pos : 0 < y
   z_pos : 0 < z
 
+-- 定义也要证明，因为需要合理的定义，才能符合PosPoint的Structure的6条要求
 def PointPoint.add (a b : PosPoint) : PosPoint :=
 { x := a.x + b.x
   y := a.y + b.y
@@ -219,7 +221,7 @@ def set_of_positive_reals : Set ℝ :=
 /- However, that doesn't give you nice projections names (automatically).
 And it gets ugly when you have more than 2 projections. -/
 
-example (x : PosReal) : x.1 > 0 := x.2
+example (x : PosReal) : x.1 > 0 := x.2 -- 这里的PosReal指的是最近的PosReal
 
 def PosPoint'' : Type :=
   { x : ℝ × (ℝ × ℝ) // x.1 > 0 ∧ x.2.1 > 0 ∧ x.2.2 > 0 }
@@ -247,7 +249,7 @@ def PosPoint'' : Type :=
 Lean has a hierarchy of universes. -/
 
 #check ℝ
-#check Type 0
+#check Type 0 -- 和 Type 一样
 #check Type 1
 #check Type 2
 
@@ -257,7 +259,7 @@ universe u v
 #check Type u
 #check Type (v + 3)
 #check Type (max u v)
-#check fun (α : Type u) (β : Type v) ↦ α → β
+#check fun (α : Type u) (β : Type v) ↦ α → β --？
 -- #check Type (u + v) -- the operations on universes are very limited.
 
 /-
@@ -277,8 +279,8 @@ example : Type (u + 3) = Type _ := rfl
 
 #check Prop
 
-example : Sort 0 = Prop := rfl
-example : Sort 1 = Type := rfl
+example : Sort 0 = Prop := by rfl
+example : Sort 1 = Type := by rfl -- Type的别称是(Type 0)
 example : Sort 2 = Type 1 := rfl
 example : Sort (u + 1) = Type u := rfl
 example : Sort _ = Type u := rfl
@@ -294,11 +296,19 @@ This exists in the library as `Equiv α β` or `α ≃ β`.  -/
 
 #check Equiv
 
-example {α β : Type*} (e : α ≃ β) (x : α) : β := e.toFun x
-example {α β : Type*} (e : α ≃ β) (x : α) : β := e x
+example {α β : Type*} (e : α ≃ β) (x : α)
+: β
+:= e.toFun x
+example {α β : Type*} (e : α ≃ β) (x : α)
+: β
+:= e x
 
-example {α β : Type*} (e : α ≃ β) : β ≃ α := e.symm
-example {α β : Type*} (e : α ≃ β) (y : β) : α := e.symm y
+example {α β : Type*} (e : α ≃ β)
+: β ≃ α
+:= e.symm
+example {α β : Type*} (e : α ≃ β) (y : β)
+: α
+:= e.symm.toFun y
 
 
 
@@ -307,7 +317,7 @@ example {α β : Type*} (e : α ≃ β) (y : β) : α := e.symm y
 /- # Abelian groups
 Let's define abelians group in Lean. -/
 
-structure AbelianGroup where
+structure AbelianGroup where -- 太美了
   G : Type*
   add (x : G) (y : G) : G
   comm (x y : G) : add x y = add y x
@@ -325,10 +335,12 @@ def IntGroup : AbelianGroup where
   zero := 0
   add_zero := by simp
   neg := fun a ↦ -a
-  add_neg := by exact?
+  add_neg := by exact fun x ↦ Int.add_right_neg x -- exact?
 
-lemma AbelianGroup.zero_add (g : AbelianGroup) (x : g.G) :
-    g.add g.zero x = x := by
+lemma AbelianGroup.zero_add (g : AbelianGroup) (x : g.G)
+--这里完全可以改成其他名字foo1，写成这样是为了后面方便调用，或者其他抽象的使用
+: g.add g.zero x = x
+:= by
   rw [g.comm, g.add_zero]
 
 
@@ -344,14 +356,24 @@ Using `class` instead of `structure` tells Lean to create a database of "instanc
 The `instance` command allows to add entries to this database.
 -/
 
-class AbelianGroup' (G : Type*) where
-  add (x : G) (y : G) : G
-  comm (x y : G) : add x y = add y x
-  assoc (x y z : G) : add (add x y) z = add x (add y z)
-  zero : G
-  add_zero : ∀ x : G, add x zero = x
-  neg : G → G
-  add_neg : ∀ x : G, add x (neg x) = zero
+-- class AbelianGroup' (G : Type*) where -- 对比structure发现G的写的位置不同了，写在了第一行
+--   add (x : G) (y : G) : G
+--   comm (x y : G) : add x y = add y x
+--   assoc (x y z : G) : add (add x y) z = add x (add y z)
+--   zero : G
+--   add_zero : ∀ x : G, add x zero = x
+--   neg : G → G
+--   add_neg : ∀ x : G, add x (neg x) = zero
+
+-- 这里我故意将G改成H，说明add的第一个参数x：H中的H其实只是一个形参，可以是任意的类型
+class AbelianGroup' (H : Type*) where
+  add (x : H) (y : H) : H
+  comm (x y : H) : add x y = add y x
+  assoc (x y z : H) : add (add x y) z = add x (add y z)
+  zero : H
+  add_zero : ∀ x : H, add x zero = x
+  neg : H → H
+  add_neg : ∀ x : H, add x (neg x) = zero
 
 instance : AbelianGroup' ℤ where
   add := fun a b ↦ a + b
@@ -360,11 +382,11 @@ instance : AbelianGroup' ℤ where
   zero := 0
   add_zero := by simp
   neg := fun a ↦ -a
-  add_neg := by exact?
+  add_neg := by exact fun x ↦ Int.add_right_neg x
 
-#eval AbelianGroup'.add (2 : ℤ) 5
+#eval AbelianGroup'.add (2 : ℤ) 5 -- 然后这里就开始找instance，找到了上面这个instance : AbelianGroup' ℤ
 
-infixl:70 " +' " => AbelianGroup'.add
+infixl:70 " +' " => AbelianGroup'.add -- infixl指的是在两个对象A，B中间的运算符，实际效果相当于AbelianGroup'.add A B
 
 #eval (-2) +' 5
 
@@ -380,8 +402,8 @@ Lean will provide them automatically by searching the corresponding database.
 
 #check AbelianGroup'.add
 
-instance AbelianGroup'.prod (G G' : Type*) [AbelianGroup' G] [AbelianGroup' G'] :
-    AbelianGroup' (G × G') where
+instance AbelianGroup'.prod (G G' : Type*) [AbelianGroup' G] [AbelianGroup' G']
+:AbelianGroup' (G × G') where
   add := fun a b ↦ (a.1 +' b.1, a.2 +' b.2)
   comm := sorry
   assoc := sorry
@@ -390,7 +412,7 @@ instance AbelianGroup'.prod (G G' : Type*) [AbelianGroup' G] [AbelianGroup' G'] 
   neg := fun a ↦ (-' a.1, -' a.2)
   add_neg := sorry
 
-set_option trace.Meta.synthInstance true in
+set_option trace.Meta.synthInstance true in -- lean的思考过程都可以看出来，这就是元编程，有几乎最高的编程权限
 #eval ((2, 3) : ℤ × ℤ) +' (4, 5)
 
 #check (3 : ℝ) * 5
@@ -477,6 +499,13 @@ for numbers.
 recall PosReal := {x : ℝ // x > 0}
 
 instance : Coe PosReal Real := ⟨fun x ↦ x.1⟩
+--?总之缺了这一行下面#check fun (x : PosReal) ↦ (x : ℂ)会强制转换报错
+-- instance : Coe PosReal Real where
+--   coe := fun
+--     | .mk val property => {
+--       cauchy := by
+--         done
+--     }
 
 def diff (x y : PosReal) : ℝ := x - y
 
@@ -501,7 +530,9 @@ structure PointedFunction (X Y : PointedType) where
 
 infix:50 " →. " => PointedFunction
 
-instance {X Y : PointedType} : CoeFun (X →. Y) (fun _ ↦ X → Y) := ⟨fun e ↦ e.toFun⟩
+instance {X Y : PointedType} --?
+: CoeFun (X →. Y) (fun _ ↦ X → Y)
+:= ⟨fun e ↦ e.toFun⟩
 
 -- these two are hints to the pretty printer to print these operations a bit nicer.
 attribute [pp_dot] PointedType.pt
@@ -511,9 +542,13 @@ namespace PointedFunction
 
 variable {X Y Z : PointedType}
 
-@[simp] lemma coe_pt (f : X →. Y) : f X.pt = Y.pt := f.toFun_pt
+@[simp] lemma coe_pt (f : X →. Y)
+: f X.pt = Y.pt
+:= f.toFun_pt
 
-lemma comp (g : Y →. Z) (f : X →. Y) : X →. Z :=
+lemma comp (g : Y →. Z) (f : X →. Y)
+: X →. Z
+:=
 { toFun := g ∘ f
   toFun_pt := by sorry }
 
