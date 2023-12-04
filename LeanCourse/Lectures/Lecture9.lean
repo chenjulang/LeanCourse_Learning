@@ -99,9 +99,13 @@ The additive notation version is `AddMonoid`. The commutative versions add the `
 prefix before `Monoid`.
 -/
 
-example {M : Type*} [Monoid M] (x : M) : x * 1 = x := mul_one x
+example {M : Type*} [Monoid M] (x : M)
+: x * 1 = x
+:= mul_one x
 
-example {M : Type*} [AddCommMonoid M] (x y : M) : x + y = y + x := add_comm x y
+example {M : Type*} [AddCommMonoid M] (x y : M)
+: x + y = y + x
+:= add_comm x y
 
 /-
 Note in particular that `AddMonoid` exists, although it would be very confusing to use
@@ -115,9 +119,12 @@ The type of morphisms between monoids `M` and `N` is called `MonoidHom M N` and 
 They both have a coercion to functions.
 -/
 
-example {M N : Type*} [Monoid M] [Monoid N] (x y : M) (f : M →* N) : f (x * y) = f x * f y := by exact f.map_mul x y
+example {M N : Type*} [Monoid M] [Monoid N] (x y : M) (f : M →* N)
+: f (x * y) = f x * f y
+:= by exact f.map_mul x y
 
-example {M N : Type*} [AddMonoid M] [AddMonoid N] (f : M →+ N) : f 0 = 0 :=
+example {M N : Type*} [AddMonoid M] [AddMonoid N] (f : M →+ N)
+: f 0 = 0 :=
   f.map_zero
 
 /-
@@ -128,7 +135,8 @@ composition. We need to use `MonoidHom.comp` and `AddMonoidHom.comp`.
 -/
 
 example {M N P : Type*} [AddMonoid M] [AddMonoid N] [AddMonoid P]
-    (f : M →+ N) (g : N →+ P) : M →+ P := g.comp f
+    (f : M →+ N) (g : N →+ P)
+: M →+ P := g.comp f
 
 
 /- # Groups and their morphisms -/
