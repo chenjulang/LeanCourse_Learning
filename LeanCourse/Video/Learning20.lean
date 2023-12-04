@@ -1,1 +1,0 @@
--- 分治定理 mathlib4/Archive/Wiedijk100Theorems/Partition.lean

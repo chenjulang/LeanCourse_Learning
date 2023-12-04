@@ -171,9 +171,11 @@ example {α : Type*} [PartialOrder α]
     (x y : α) (hxy : x < y) :
     ∃ z₁ z₂ : α, x < z₁ ∧ z₁ < z₂ ∧ z₂ < y := by {
   -- specialize IsDense x y hxy
-  obtain ⟨z, h1z, h2z⟩ := IsDense x y hxy
+  have h1:= IsDense x y hxy
+  obtain ⟨z, h1z, h2z⟩ := h1
   use z
-  obtain ⟨z', h1z', h2z'⟩ := IsDense z y h2z
+  have h2:= IsDense z y h2z
+  obtain ⟨z', h1z', h2z'⟩ := h2
   use z'
 }
 

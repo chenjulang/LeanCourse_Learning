@@ -182,6 +182,9 @@ Unfortunate clash in terminology:
 def Statement1 : Prop :=
   ∃ p, Prime p ∧ Prime (p + 2) ∧ Prime (p + 4)
 
+-- def Statement1_wrong : Prop :=
+  -- ∀ p, Prime p ∧ Prime (p + 2) ∧ Prime (p + 4)
+
 def Statement2 : Prop :=
   ∀ n : ℕ, ∃ p ≥ n, Prime p ∧ Prime (p + 2) ∧ Prime (p + 4)
 

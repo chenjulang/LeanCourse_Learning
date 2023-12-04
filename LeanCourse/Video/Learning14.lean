@@ -1,1 +1,0 @@
--- 三次方的解# mathlib4/Archive/Wiedijk100Theorems/SolutionOfCubic.lean

@@ -50,7 +50,10 @@ def Odds : Set ℕ := {n | ¬ Even n}
 
 example : Evens ∪ Odds = univ := by
   ext n
-  simp [Evens, Odds]
+  simp only [mem_union]
+  simp only [mem_univ]
+  simp only [iff_true]
+  -- simp [Evens, Odds]
   exact em (Even n)
 
 
@@ -82,7 +85,9 @@ if `s ⊆ ℝ` then s ∈ 𝒫 ℝ and 𝒫 s ∈ 𝒫 (𝒫 ℝ)
 
 
 example (s t : Set α) : 𝒫 (s ∩ t) = 𝒫 s ∩ 𝒫 t := by
-  ext; simp
+  ext;
+  simp only [mem_powerset_iff, subset_inter_iff, mem_inter_iff]
+  -- simp
 
 
 
@@ -94,9 +99,20 @@ example (s t : Set α) : 𝒫 (s ∩ t) = 𝒫 s ∩ 𝒫 t := by
   we can take the union and intersection of `C i`
   as `i` ranges over all elements of `ι`.
 -/
-example (C : ι → Set α) : ⋃ i : ι, C i = {x : α | ∃ i : ι, x ∈ C i} := by ext; simp
+example (C : ι → Set α) : ⋃ i : ι, C i = {x : α | ∃ i : ι, x ∈ C i} := by
+ ext;
+ simp only [mem_iUnion, mem_setOf_eq]
 
-example (C : ι → Set α) : ⋂ i : ι, C i = {x : α | ∀ i : ι, x ∈ C i} := by ext; simp
+example (C : t → Set α) : ⋃ i : t, C i = {x : α | ∃ i : t, x ∈ C i} := by
+ ext y;
+ simp only [mem_iUnion]
+ simp only [mem_setOf_eq]
+
+example (C : ι → Set α) : ⋂ i : ι, C i = {x : α | ∀ i : ι, x ∈ C i} := by
+ext;
+simp only [mem_iInter]
+simp only [mem_setOf_eq]
+-- simp
 
 /-
 * Given a family of sets `C : ι → Set α` and `s : Set ι`
@@ -107,14 +123,27 @@ example (s : Set ι) (C : ι → Set α) : ⋃ i ∈ s, C i = {x : α | ∃ i �
 
 
 /- Proof irrelevance: two proofs of the same proposition are equal. -/
-example (s : Set ι) (i : ι) (h h₂ : i ∈ s) : h = h₂ := by
+lemma foo1 (s : Set ι) (i : ι) (h h₂ : i ∈ s) : h = h₂ := by
   rfl
+#print foo1
+
+theorem foo2 : ∀ {ι : Type u_1} (s : Set ι) (i : ι) (h h₂ : i ∈ s), h = h₂ :=
+  fun {ι} s i h h₂ ↦ Eq.refl h
+
+-- theorem foo3 : ∀ {ι : Type u_1} (s : Set ι) (i : ι) (h h₂ :Prop := i ∈ s), h = h₂ := by
+--   intros h1 h2 h3 h4 h5
+--   refine (Iff.to_eq ?h).symm
+--   constructor
+--   intro  h6
+
+
 
 example (s : Set ι) (C : ι → Set α) :
   ⋃ i : ι, ⋃ h : i ∈ s, C i = {x : α | ∃ i : ι, i ∈ s ∧ x ∈ C i} := by ext; simp
 
 
-example (s : Set ι) (C : ι → Set α) : ⋂ i ∈ s, C i = {x : α | ∀ i ∈ s, x ∈ C i} := by ext; simp
+example (s : Set ι) (C : ι → Set α) :
+⋂ i ∈ s, C i = {x : α | ∀ i ∈ s, x ∈ C i} := by ext; simp
 
 /-
 * Given a collection of sets `C : Set (Set α)`
@@ -122,15 +151,20 @@ example (s : Set ι) (C : ι → Set α) : ⋂ i ∈ s, C i = {x : α | ∀ i �
   for all `c ∈ C`
 -/
 
-example (𝓒 : Set (Set α)) : ⋃₀ 𝓒 = {x : α | ∃ s ∈ 𝓒, x ∈ s} := by rfl
+example (𝓒 : Set (Set α))
+: ⋃₀ 𝓒 = {x : α | ∃ s ∈ 𝓒, x ∈ s} := by rfl
 
-example (𝓒 : Set (Set α)) : ⋂₀ 𝓒 = {x : α | ∀ s ∈ 𝓒, x ∈ s} := by rfl
+example (𝓒 : Set (Set α))
+: ⋂₀ 𝓒 = {x : α | ∀ s ∈ 𝓒, x ∈ s} := by rfl
 
-example (𝓒 : Set (Set α)) : ⋃₀ 𝓒 = ⋃ c ∈ 𝓒, c := by ext; simp
+example (𝓒 : Set (Set α))
+: ⋃₀ 𝓒 = ⋃ c ∈ 𝓒, c := by ext; simp
 
 
 
-example (C : ι → Set α) (s : Set α) : s ∩ (⋃ i, C i) = ⋃ i, (C i ∩ s) := by
+example (C : ι → Set α) (s : Set α)
+: s ∩ (⋃ i, C i) = ⋃ i, (C i ∩ s)
+:= by
   ext x
   simp
   rw [@and_comm]
@@ -141,13 +175,19 @@ example (C : ι → Set α) (s : Set α) : s ∩ (⋃ i, C i) = ⋃ i, (C i ∩ 
 `f ⁻¹' s` is the preimage of `s` under `f`.
 `f '' s` is the image of `s` under `f`. -/
 
-example (f : α → β) (s : Set β) : f ⁻¹' s = { x : α | f x ∈ s } := by rfl
+example (f : α → β) (s : Set β)
+: f ⁻¹' s = { x : α | f x ∈ s }
+:= by rfl
 
 /- f '' s can also written as { f x | x ∈ s} -/
-example (f : α → β) (s : Set α) : { f x | x ∈ s} = { y : β | ∃ x ∈ s, f x = y } := by rfl
+example (f : α → β) (s : Set α)
+: { f x | x ∈ s} = { y : β | ∃ x ∈ s, f x = y }
+:= by rfl
 
 
-example {s : Set α} {t : Set β} {f : α → β} : f '' s ⊆ t ↔ s ⊆ f ⁻¹' t := by
+example {s : Set α} {t : Set β} {f : α → β}
+: f '' s ⊆ t ↔ s ⊆ f ⁻¹' t
+:= by
   constructor
   · intro h x hx
     simp
@@ -172,7 +212,9 @@ This can also be done by `obtain` and `intro` by naming the equality `rfl`.
 
 
 /- We have another name for `f '' univ`, namely `range f`. -/
-example (f : α → β) : f '' univ = range f := image_univ
+example (f : α → β)
+: f '' univ = range f
+:= image_univ
 
 
 
@@ -187,10 +229,16 @@ example (f : α → β) : f '' univ = range f := image_univ
 
 open Pointwise
 
-example (s t : Set ℝ) : s + t = {x : ℝ | ∃ a b, a ∈ s ∧ b ∈ t ∧ a + b = x } := by rfl
-example (s t : Set ℝ) : -s = {x : ℝ | -x ∈ s } := by rfl
+example (s t : Set ℝ)
+: s + t = {x : ℝ | ∃ a b, a ∈ s ∧ b ∈ t ∧ a + b = x }
+:= by rfl
+example (s t : Set ℝ)
+: -s = {x : ℝ | -x ∈ s }
+:= by rfl
 
-example : ({1, 3, 5} : Set ℝ) + {0, 10} = {1, 3, 5, 11, 13, 15} := by
+example
+: ({1, 3, 5} : Set ℝ) + {0, 10} = {1, 3, 5, 11, 13, 15}
+:= by
   ext x
   simp [mem_add]
   norm_num
@@ -248,7 +296,8 @@ lemma invFun_spec (y : β) (h : ∃ x, f x = y) :
 variable [Inhabited α]
 def inverse (f : α → β) (y : β) : α :=
   if h : ∃ x : α, f x = y then
-    conditionalInverse f y h else
+    conditionalInverse f y h
+  else
     default
 
 local notation "g" => inverse f -- let's call this function `g`

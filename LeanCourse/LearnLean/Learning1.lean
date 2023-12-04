@@ -5,7 +5,7 @@ open Real
 -- 数学归纳法之一：二步归纳
 namespace Nat
 open Lean Elab Term Meta
-  @[elab_as_elim]
+  -- @[elab_as_elim]
   def two_step_induction
   {P : ℕ → Sort*}
   (zero : P 0)
@@ -109,6 +109,8 @@ lemma coe_fib_eq (n : ℕ)
     -- exact sub_add_eq_add_sub (a₄ * ϕ) (a₃ * ψ) a₄
     rw[sub_add_eq_add_sub]
     -- ring
+
+#print coe_fib_eq
 
     -- 推荐一下自然数游戏，可以从零推理出自然数的运算法则。体验一下从零搭建公理化地基的过程。
     -- 点赞超100，三天内更新下一个初等定理的形式化，后面希望能够边学习边介绍大学数学的形式化，比如线性代数抽象代数微积分等。

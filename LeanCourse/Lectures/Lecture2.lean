@@ -92,13 +92,14 @@ variable (g h : G)
 
 lemma inverse_of_a_commutator : ⁅g, h⁆⁻¹ = ⁅h, g⁆ := by {
   rw [commutatorElement_def, commutatorElement_def]
-  rw [mul_inv_rev (g * h * g⁻¹) h⁻¹]
+  have h1 := mul_inv_rev (g * h * g⁻¹) h⁻¹
+  rw [h1]
   rw [mul_inv_rev]
   rw [mul_inv_rev]
   rw [inv_inv, inv_inv]
   rw [mul_assoc]
   rw [mul_assoc]
-
+  done
 }
 
 end
@@ -124,11 +125,10 @@ example (a b c d : ℝ) (h : c = a*d - 1) (h' : b = a*d) : c = b - 1 := by {
 
 example (a b c d : ℝ) (h : a + c = b*a - d) (h' : d = a*b) : a + c = 0 := by {
   calc a + c
-      = b * a - d := by
-        rw [h]
-    _ = a * b - d := by rw [mul_comm]
-    _ = d - d := by rw [← h']
-    _ = 0 := by rw [@sub_eq_zero]
+  = b * a - d := by rw [h]
+  _ = a * b - d := by rw [mul_comm]
+  _ = d - d := by rw [← h']
+  _ = 0 := by rw [@sub_eq_zero]
 
 }
 
@@ -176,9 +176,10 @@ example (a b c d : ℝ) (h1 : c = d * a + b) (h2 : b = a * d) : c = 2 * a * d :=
 
 }
 
-example (a b c : ℝ) (h1 : 2 * a ≤ 3 * b) (h2 : 1 ≤ a) (h3 : c = 2) :
+lemma hhh1 (a b c : ℝ) (h1 : 2 * a ≤ 3 * b) (h2 : 1 ≤ a) (h3 : c = 2) :
     c + a ≤ 5 * b := by linarith
 
+#print hhh1
 
 
 

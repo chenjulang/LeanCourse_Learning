@@ -24,6 +24,7 @@ We also defined the inverse of a function.
 Let's start by defining our own factorial function.
 Note that there is no `:=` -/
 
+
 def fac : ℕ → ℕ
   | 0       => 1
   | (n + 1) => (n + 1) * fac n
@@ -36,7 +37,8 @@ def fac : ℕ → ℕ
 
 lemma fac_zero : fac 0 = 1 := rfl
 
-lemma fac_succ (n : ℕ) : fac (n + 1) = (n + 1) * fac n := rfl
+lemma fac_succ (n : ℕ) :
+fac (n + 1) = (n + 1) * fac n := rfl
 
 example : fac 4 = 24 := rfl
 
@@ -85,10 +87,12 @@ open BigOperators Finset
 example (f : ℕ → ℝ) : ∑ i in range 0, f i = 0 :=
   sum_range_zero f
 
-example (f : ℕ → ℝ) (n : ℕ) : ∑ i in range (n + 1), f i = (∑ i in range n, f i) + f n :=
+example (f : ℕ → ℝ) (n : ℕ)
+: ∑ i in range (n + 1), f i = (∑ i in range n, f i) + f n :=
   sum_range_succ f n
 
-example (n : ℕ) : fac n = ∏ i in range n, (i + 1) := by
+example (n : ℕ)
+: fac n = ∏ i in range n, (i + 1) := by
   induction n
   case zero => simp
   case succ k ih =>

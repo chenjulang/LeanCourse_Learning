@@ -1,1 +1,0 @@
--- 施罗德-伯恩斯坦定理 mathlib4/Mathlib/SetTheory/Cardinal/SchroederBernstein.lean

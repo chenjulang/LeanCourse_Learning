@@ -1,2 +1,0 @@
--- 所有素数 (1 mod 4) 等于两个平方和#
--- mathlib4/Mathlib/NumberTheory/SumTwoSquares.lean

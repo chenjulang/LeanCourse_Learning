@@ -1,1 +1,0 @@
--- 凯莱-汉密尔顿定理 mathlib4/Mathlib/LinearAlgebra/Matrix/Charpoly/Basic.lean

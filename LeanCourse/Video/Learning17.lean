@@ -1,1 +1,0 @@
--- 闵可夫斯基基本定理 mathlib4/Mathlib/MeasureTheory/Group/GeometryOfNumbers.lean

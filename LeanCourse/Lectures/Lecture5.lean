@@ -214,6 +214,8 @@ corresponds by definition to conjunction, disjunction or negation. -/
 
 -- example (r : ℕ) (s : Set ℝ) : r ∈ s := _
 
+-- #check (mem_inter_iff)
+
 /- There are various ways to prove this:
 * use lemma `mem_inter_iff`
 * use `simp`
@@ -222,8 +224,13 @@ corresponds by definition to conjunction, disjunction or negation. -/
 -/
 example (hxs : x ∈ s) (hxt : x ∈ t) :
     x ∈ s ∩ t := by
+    -- simp only [mem_inter_iff]
+  have h1:= mem_inter_iff x s t
+  have h0:x ∈ s ∧ x ∈ t := by exact { left := hxs, right := hxt }
+  have h2:= h1.2 h0
+  exact h2
   -- rw [mem_inter_iff]
-  simp [hxs, hxt]
+  -- simp [hxs, hxt]
   -- exact ⟨hxs, hxt⟩
 
 
