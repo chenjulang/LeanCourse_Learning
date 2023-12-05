@@ -476,10 +476,16 @@ one written using `(*,1,⁻¹)` and one using `(+, 0, -)`. -/
 `(ℝ, +, 0)` and `(ℝ, *, 1)` are both monoids, and we want to have a distinction in notation and
 lemma names of these two structures. -/
 
-example : Monoid ℝ := by infer_instance
-example : AddMonoid ℝ := by infer_instance
-example (x : ℝ) : x + 0 = x := add_zero x
-example (x : ℝ) : x * 1 = x := mul_one x
+example : Monoid ℝ := by
+  exact instMonoidReal
+--  exact inferInstance
+example : AddMonoid ℝ := by
+  exact instAddMonoidReal
+  -- infer_instance
+example (x : ℝ) : x + 0 = x :=
+  add_zero x
+example (x : ℝ) : x * 1 = x :=
+  mul_one x
 
 #check Monoid
 #check AddMonoid
@@ -541,15 +547,16 @@ of another type. We've already seen the coercions
 for numbers.
 -/
 
-recall PosReal := {x : ℝ // x > 0}
+recall PosReal := {x : ℝ // x > 0} -- 正实数
 
-instance : Coe PosReal Real := ⟨fun x ↦ x.1⟩
+instance
+: Coe PosReal Real
+:= ⟨fun x ↦ x.1⟩ -- 大概意思就是将PosReal的第一项x : R直接强制转成R使用
 --?总之缺了这一行下面#check fun (x : PosReal) ↦ (x : ℂ)会强制转换报错
 -- instance : Coe PosReal Real where
 --   coe := fun
---     | .mk val property => {
---       cauchy := by
---         done
+--     | .mk val property =>  {
+--       cauchy := _
 --     }
 
 def diff (x y : PosReal) : ℝ := x - y
@@ -565,23 +572,25 @@ def diff (x y : PosReal) : ℝ := x - y
 -/
 structure PointedType where
   carrier : Type*
-  pt : carrier
+  pt : carrier -- pt < carrier < Type*
 
-instance : CoeSort PointedType Type* := ⟨fun α ↦ α.carrier⟩
+instance
+: CoeSort PointedType Type*
+:= ⟨fun α ↦ α.carrier⟩ -- 因为PointedType的第一项正好是carrier : Type*，能墙转成Type*
 
 structure PointedFunction (X Y : PointedType) where
   toFun : X → Y
   toFun_pt : toFun X.pt = Y.pt
 
-infix:50 " →. " => PointedFunction
+infix:50 " →. " => PointedFunction -- A →. B 相当于 PointedFunction A B
 
-instance {X Y : PointedType} --?
+instance {X Y : PointedType}
 : CoeFun (X →. Y) (fun _ ↦ X → Y)
-:= ⟨fun e ↦ e.toFun⟩
+:= ⟨fun e ↦ e.toFun⟩ -- 因为X →. Y类的toFun刚好就是toFun : X → Y，可以强转成(fun _ ↦ X → Y)，即 X → Y
 
--- these two are hints to the pretty printer to print these operations a bit nicer.
-attribute [pp_dot] PointedType.pt
-attribute [coe] PointedFunction.toFun
+-- these two are hints to the pretty printer to print these operations a bit nicer. --？
+attribute [pp_dot] PointedType.pt --？
+attribute [coe] PointedFunction.toFun --？
 
 namespace PointedFunction
 
@@ -589,12 +598,17 @@ variable {X Y Z : PointedType}
 
 @[simp] lemma coe_pt (f : X →. Y)
 : f X.pt = Y.pt
-:= f.toFun_pt
+:= by
+  have h1 := f.toFun_pt --?
+  exact h1
 
 lemma comp (g : Y →. Z) (f : X →. Y)
 : X →. Z
-:=
-{ toFun := g ∘ f
-  toFun_pt := by sorry }
+:= by
+ refine { toFun := ?toFun, toFun_pt := ?toFun_pt }
+ · exact fun a ↦ Z.pt
+ · exact rfl
+-- { toFun := g ∘ f
+--   toFun_pt := by sorry }
 
 end PointedFunction

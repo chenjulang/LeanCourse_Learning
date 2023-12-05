@@ -99,13 +99,16 @@ The additive notation version is `AddMonoid`. The commutative versions add the `
 prefix before `Monoid`.
 -/
 
-example {M : Type*} [Monoid M] (x : M)
+example {M : Type*}
+[Monoid M]
+(x : M)
 : x * 1 = x
 := mul_one x
 
 example {M : Type*} [AddCommMonoid M] (x y : M)
 : x + y = y + x
-:= add_comm x y
+:= add_comm x y -- 点击这个跳转add_comm到@[to_additive]说明，mul_comm证明以后，同时会把这个证明应用到相同结构的加法，
+-- 也就是加法也能有这个定理add_comm，而且名字是固定的，mul_comm就会自动生成add_comm
 
 /-
 Note in particular that `AddMonoid` exists, although it would be very confusing to use
@@ -119,12 +122,19 @@ The type of morphisms between monoids `M` and `N` is called `MonoidHom M N` and 
 They both have a coercion to functions.
 -/
 
+-- MonoidHom M N 等价于M →* N
+-- AddMonoidHom M N 等价于M →+ N
+
+#check AddMonoidHom
+
 example {M N : Type*} [Monoid M] [Monoid N] (x y : M) (f : M →* N)
 : f (x * y) = f x * f y
-:= by exact f.map_mul x y
+:= by
+exact f.map_mul x y
 
 example {M N : Type*} [AddMonoid M] [AddMonoid N] (f : M →+ N)
-: f 0 = 0 :=
+: f 0 = 0
+:=
   f.map_zero
 
 /-
@@ -136,7 +146,8 @@ composition. We need to use `MonoidHom.comp` and `AddMonoidHom.comp`.
 
 example {M N P : Type*} [AddMonoid M] [AddMonoid N] [AddMonoid P]
     (f : M →+ N) (g : N →+ P)
-: M →+ P := g.comp f
+: M →+ P
+:= g.comp f
 
 
 /- # Groups and their morphisms -/
@@ -149,8 +160,10 @@ every identity which follows from the group axioms with any extra assumption
 (hence one can see it as a tactic proving identities that hold in free groups).
 -/
 
-example {G : Type*} [Group G] (x y z : G) : x * (y * z) * (x*z)⁻¹ * (x * y * x⁻¹)⁻¹ = 1 := by
+lemma foo1 {G : Type*} [Group G] (x y z : G) : x * (y * z) * (x*z)⁻¹ * (x * y * x⁻¹)⁻¹ = 1 := by
   group
+
+#print foo1
 
 -- And there is similar a tactic for identities in commutative additive groups called `abel`.
 
@@ -283,25 +296,33 @@ example {G H : Type*} [Group G] [Group H] (f : G →* H) (h : H) :
 
 section QuotientGroup
 
-example {G : Type*} [Group G] (H : Subgroup G) [H.Normal] : Group (G ⧸ H) := inferInstance
+example {G : Type*} [Group G] (H : Subgroup G) [H.Normal]
+: Group (G ⧸ H) := inferInstance
 
 
-example {G : Type*} [Group G] (H : Subgroup G) [H.Normal] : G →* G ⧸ H :=
+example {G : Type*} [Group G] (H : Subgroup G) [H.Normal]
+: G →* G ⧸ H :=
 QuotientGroup.mk' H
 
 -- The universal property of quotient groups
 example {G : Type*} [Group G] (N : Subgroup G) [N.Normal] {M : Type*}
-  [Group M] (φ : G →* M) (h : N ≤ MonoidHom.ker φ) : G ⧸ N →* M :=
+  [Group M] (φ : G →* M) (h : N ≤ MonoidHom.ker φ)
+  : G ⧸ N →* M :=
 QuotientGroup.lift N φ h
 
 -- First isomorphism theorem
-example {G : Type*} [Group G] {M : Type*} [Group M] (φ : G →* M) :
-    G ⧸ MonoidHom.ker φ →* MonoidHom.range φ :=
+example {G : Type*} [Group G] {M : Type*} [Group M] (φ : G →* M)
+:
+    G ⧸ MonoidHom.ker φ
+    →*
+    MonoidHom.range φ
+:=
   QuotientGroup.quotientKerEquivRange φ
 
 example {G G': Type*} [Group G] [Group G']
     {N : Subgroup G} [N.Normal] {N' : Subgroup G'} [N'.Normal]
-    {φ : G →* G'} (h : N ≤ Subgroup.comap φ N') : G ⧸ N →* G'⧸ N':=
+    {φ : G →* G'} (h : N ≤ Subgroup.comap φ N')
+: G ⧸ N →* G'⧸ N':=
   QuotientGroup.map N N' φ h
 
 end QuotientGroup
@@ -324,7 +345,8 @@ example {G X : Type*} [Group G] [MulAction G X] (g g' : G) (x : X) :
 
 open MulAction
 
-example {G X : Type*} [Group G] [MulAction G X] : G →* Equiv.Perm X :=
+example {G X : Type*} [Group G] [MulAction G X]
+: G →* Equiv.Perm X :=
   toPermHom G X
 
 /-
@@ -332,8 +354,10 @@ As an illustration let us see how to define the Cayley isomorphism that embeds a
 a permutation group, namely `Perm G`.
 -/
 
-def CayleyIsoMorphism (G : Type*) [Group G] : G ≃* (toPermHom G G).range := by
-  exact?
+def CayleyIsoMorphism (G : Type*) [Group G]
+: G ≃* (toPermHom G G).range
+:= by
+  exact Equiv.Perm.subgroupOfMulAction G G
 
 /-
 Note that nothing before the above definition required having a group rather than a monoid (or any
@@ -344,10 +368,13 @@ The corresponding equivalence relation on `X` is called `MulAction.orbitRel`.
 It is not declared as a global instance.
 -/
 
-example {G X : Type*} [Group G] [MulAction G X] : Setoid X := orbitRel G X
+example {G X : Type*} [Group G] [MulAction G X]
+: Setoid X := orbitRel G X
 
-example {G X : Type*} [Group G] [MulAction G X] :
-    X ≃ (ω : orbitRel.Quotient G X) × (orbit G (Quotient.out' ω)) :=
+example {G X : Type*} [Group G] [MulAction G X]
+:
+    X ≃ (ω : orbitRel.Quotient G X) × (orbit G (Quotient.out' ω))
+:=
   MulAction.selfEquivSigmaOrbits G X
 
 example {G X : Type*} [Group G] [MulAction G X] (x : X) :
@@ -355,7 +382,8 @@ example {G X : Type*} [Group G] [MulAction G X] (x : X) :
   MulAction.orbitEquivQuotientStabilizer G x
 
 -- Lagrange theorem
-example {G : Type*} [Group G] (H : Subgroup G) : G ≃ (G ⧸ H) × H :=
+example {G : Type*} [Group G] (H : Subgroup G)
+: G ≃ (G ⧸ H) × H :=
   Subgroup.groupEquivQuotientProdSubgroup
 
 end GroupActions
