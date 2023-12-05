@@ -82,7 +82,7 @@ example (a b : Point) (hx : a.x = b.x) (hy : a.y = b.y) (hz : a.z = b.z) :
 /- There are multiple ways to define a point (or more generally an instance of a structure).
 
 Tip: if you write `_` for a Point, a lightbulb 💡 will appear.
-Clicking it will give you the skeleton -/
+Clicking it will give you the skeleton -/]
 
 def myPoint1 : Point where
   x := 1
@@ -162,11 +162,16 @@ In that case, we have to write lemmas stating how `+` computes. -/
 
 instance : Add Point := ⟨add⟩
 
-@[simp] lemma add_x (a b : Point) : (a + b).x = a.x + b.x := by rfl
-@[simp] lemma add_y (a b : Point) : (a + b).y = a.y + b.y := by rfl
-@[simp] lemma add_z (a b : Point) : (a + b).z = a.z + b.z := by rfl
+@[simp]
+lemma add_x (a b : Point) : (a + b).x = a.x + b.x := by rfl
+@[simp]
+lemma add_y (a b : Point) : (a + b).y = a.y + b.y := by rfl
+@[simp]
+lemma add_z (a b : Point) : (a + b).z = a.z + b.z := by rfl
 
-example (a b : Point) : a + b = b + a := by ext <;> simp [add_comm]
+example (a b : Point) : a + b = b + a := by
+  ext
+  <;> simp [add_comm]
 
 end Point
 
@@ -184,7 +189,7 @@ structure PosPoint where
   y_pos : 0 < y
   z_pos : 0 < z
 
--- 定义也要证明，因为需要合理的定义，才能符合PosPoint的Structure的6条要求
+-- 下面这个def定义由部分属性也要证明的，因为需要合理的定义（即well-founded），需要符合PosPoint的Structure的6条要求
 def PointPoint.add (a b : PosPoint) : PosPoint :=
 { x := a.x + b.x
   y := a.y + b.y
@@ -201,13 +206,20 @@ structure PosPoint' extends Point where
   y_pos : 0 < y
   z_pos : 0 < z
 
-#check PosPoint'.toPoint
+#check PosPoint'.toPoint -- 这个应该是固定写法“to”+“Point”
 
 def PointPoint'.add (a b : PosPoint') : PosPoint' :=
-{ a.toPoint + b.toPoint with
-  x_pos := by dsimp; linarith [a.x_pos, b.x_pos]
-  y_pos := by dsimp; linarith [a.y_pos, b.y_pos]
-  z_pos := by dsimp; linarith [a.z_pos, b.z_pos] }
+--这里又是一个大括号的特殊定义方法
+{
+  a.toPoint + b.toPoint
+  with
+  x_pos := by
+    dsimp; linarith [a.x_pos, b.x_pos]
+  y_pos := by
+    dsimp; linarith [a.y_pos, b.y_pos]
+  z_pos := by
+    dsimp; linarith [a.z_pos, b.z_pos]
+}
 
 /- We could also define a type like this using a subtype. It's notation is very similar to sets,
 but written as `{x : α // p x}` instead of `{x : α | p x}`. -/
@@ -318,7 +330,7 @@ example {α β : Type*} (e : α ≃ β) (y : β)
 Let's define abelians group in Lean. -/
 
 structure AbelianGroup where -- 太美了
-  G : Type*
+  G : Type* -- 这是等待被推断的类型，或者直接定义的
   add (x : G) (y : G) : G
   comm (x y : G) : add x y = add y x
   assoc (x y z : G) : add (add x y) z = add x (add y z)
@@ -337,11 +349,11 @@ def IntGroup : AbelianGroup where
   neg := fun a ↦ -a
   add_neg := by exact fun x ↦ Int.add_right_neg x -- exact?
 
+--下面这行这里AbelianGroup.zero_add完全可以改成其他名字foo1，写成这样是为了后面方便调用，或者其他抽象的使用
 lemma AbelianGroup.zero_add (g : AbelianGroup) (x : g.G)
---这里完全可以改成其他名字foo1，写成这样是为了后面方便调用，或者其他抽象的使用
 : g.add g.zero x = x
 := by
-  rw [g.comm, g.add_zero]
+  rw [g.comm, g.add_zero] -- 这里一切都用自己定义的一些映射自己证明了
 
 
 
@@ -365,7 +377,7 @@ The `instance` command allows to add entries to this database.
 --   neg : G → G
 --   add_neg : ∀ x : G, add x (neg x) = zero
 
--- 这里我故意将G改成H，说明add的第一个参数x：H中的H其实只是一个形参，可以是任意的类型
+-- 这里我故意将G改成H，说明add的第一个参数x：H中的H其实只是一个形参，可以是任意的类型比如G × G'
 class AbelianGroup' (H : Type*) where
   add (x : H) (y : H) : H
   comm (x y : H) : add x y = add y x
@@ -376,7 +388,8 @@ class AbelianGroup' (H : Type*) where
   add_neg : ∀ x : H, add x (neg x) = zero
 
 instance : AbelianGroup' ℤ where
-  add := fun a b ↦ a + b
+  add := fun a b ↦ a + b -- 这里a的类型能推断出Z是因为上面这行AbelianGroup' ℤ，在实例化时填进去了class AbelianGroup' (H : Type*)里的H : Type*这个坑
+  -- ，自然从class AbelianGroup'来看，后面的所有H就正是Z
   comm := add_comm
   assoc := add_assoc
   zero := 0
@@ -384,11 +397,12 @@ instance : AbelianGroup' ℤ where
   neg := fun a ↦ -a
   add_neg := by exact fun x ↦ Int.add_right_neg x
 
-#eval AbelianGroup'.add (2 : ℤ) 5 -- 然后这里就开始找instance，找到了上面这个instance : AbelianGroup' ℤ
+#eval AbelianGroup'.add (2 : ℤ) 5 -- 然后这里就开始找instance，找到了上面这个instance : AbelianGroup' ℤ,
+-- 第一个参数是(2 : ℤ)，正好符号instance : AbelianGroup' ℤ 的add方法的类型
 
 infixl:70 " +' " => AbelianGroup'.add -- infixl指的是在两个对象A，B中间的运算符，实际效果相当于AbelianGroup'.add A B
 
-#eval (-2) +' 5
+#eval (-2) +' 5 -- 相当于 AbelianGroup'.add （-2） 5 所以又和AbelianGroup'.add (2 : ℤ) 5的推断思路一样了
 
 notation " 𝟘 " => AbelianGroup'.zero
 
@@ -402,15 +416,46 @@ Lean will provide them automatically by searching the corresponding database.
 
 #check AbelianGroup'.add
 
-instance AbelianGroup'.prod (G G' : Type*) [AbelianGroup' G] [AbelianGroup' G']
+instance AbelianGroup'.prod
+(G G' : Type*)
+[instance1 : AbelianGroup' G]
+[instance2 : AbelianGroup' G']
 :AbelianGroup' (G × G') where
-  add := fun a b ↦ (a.1 +' b.1, a.2 +' b.2)
-  comm := sorry
-  assoc := sorry
+  add := fun a b ↦ (a.1 +' b.1, a.2 +' b.2) -- 这里a推断为a : G × G'，是因为上面一行写的AbelianGroup' (G × G')
+  -- 一定要加这两行：
+  -- [instance1 : AbelianGroup' G]
+  -- [instance2 : AbelianGroup' G']
+  -- 的原因估计是fun a b ↦ (a.1 +' b.1, a.2 +' b.2)中拆出第一项的时候默认需要，该抽象项AbelianGroup' G需要找到确切的instance
+  -- [instance1 : AbelianGroup' G]等于告知了lean的确存在这样的instance，这一切都可以在“瞒骗”的过程中继续下去定义这个add的映射
+  comm := by
+    intros x y
+    simp only [Prod.mk.injEq]
+    constructor
+    · exact comm x.1 y.1 -- 在classclass AbelianGroup' (H : Type*) 里面定义的comm是可以直接用的
+    · exact comm x.2 y.2
+  assoc := by
+    intros x y z
+    simp only [Prod.mk.injEq]
+    constructor
+    · exact assoc x.1 y.1 z.1
+    · exact assoc x.2 y.2 z.2
   zero := (𝟘, 𝟘)
-  add_zero := sorry
+  add_zero := by
+    intros x
+    simp only [Prod.mk.injEq]
+    have h1 : x = (x.1,x.2) := by simp only [Prod.mk.eta]
+    nth_rewrite 3 [h1]
+    simp only [Prod.mk.injEq]
+    constructor
+    · exact add_zero x.1
+    · exact add_zero x.2
   neg := fun a ↦ (-' a.1, -' a.2)
-  add_neg := sorry
+  add_neg := by
+    intros x
+    simp only [Prod.mk.injEq]
+    constructor
+    · exact add_neg x.1
+    · exact add_neg x.2
 
 set_option trace.Meta.synthInstance true in -- lean的思考过程都可以看出来，这就是元编程，有几乎最高的编程权限
 #eval ((2, 3) : ℤ × ℤ) +' (4, 5)
