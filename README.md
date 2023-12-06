@@ -1,3 +1,7 @@
+这个是学习大神leancourse23的视频，我自己也有视频详细记录，可以去看一下哦，支持一下！！一键三连：https://www.bilibili.com/video/BV1DC4y197Z9/
+下面是原仓库的介绍：
+
+
 # Bonn Lean Course WiSe 23/24
 
 ## In this repository
