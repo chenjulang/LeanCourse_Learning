@@ -19,7 +19,21 @@ theorem ext_iff
   ↔
   M = N
 := by
+  -- 第一种写法：
   -- ⟨fun h => funext (fun i => funext <| h i)
   -- ,
   -- fun h => by simp [h]⟩
-  ---
+  constructor
+  · intro h
+    refine' funext _
+    have h1 := fun x ↦ funext (h x)
+    exact h1
+  · intro h2
+    intro h3
+    intro h4
+    rw [h2]
+
+
+theorem ext : (∀ i j, M i j = N i j) → M = N :=
+  -- ext_iff.mp
+  sorry
