@@ -3,7 +3,7 @@ import Mathlib.Data.Real.Sqrt
 -- 斐波拉契数列通项公式
 
 open Real -- 把前缀省略
--- #check (sqrt 2:ℝ )
+#check (sqrt 2:ℝ )
 
 -- 数学归纳法：二步归纳
 namespace Nat
