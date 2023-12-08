@@ -30,7 +30,12 @@ import Mathlib.Data.Real.Sqrt
 
 
 ------------------------
+-- 定义一个简单的矩阵类型
+-- structure matrix (m n : Type*) (α : Type*) :=
+-- (entries : m → n → α)
 
--- 定义一个 2x3 的矩阵，元素类型为 ℝ
-def A : matrix (fin 2) (fin 3) ℝ :=
-λ i j, if i = 0 then 1 else 2
+-- namespace matrix
+
+-- -- 矩阵加法
+-- def add {m n : Type*} [has_add α] (A B : matrix m n α) : matrix m n α :=
+-- ⟨λ i j => A.entries i j + B.entries i j⟩
