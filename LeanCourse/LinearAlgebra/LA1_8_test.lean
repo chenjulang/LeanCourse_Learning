@@ -912,7 +912,6 @@ open Matrix
 This is currently only defined when `m` is finite. -/
 -- We want to be lower priority than `instHMul`, but without this we can't have operands with
 -- implicit dimensions.
-
 @[default_instance 100]
 instance [Fintype m] [Mul α] [AddCommMonoid α] :
     HMul (Matrix l m α) (Matrix m n α) (Matrix l n α) where

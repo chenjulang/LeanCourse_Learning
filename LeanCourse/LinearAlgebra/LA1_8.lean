@@ -504,11 +504,11 @@ theorem _root_.IsSMulRegular.matrix [SMul R S] {k : R} (hk : IsSMulRegular S k) 
 theorem _root_.IsLeftRegular.matrix [Mul α] {k : α} (hk : IsLeftRegular k) : IsSMulRegular (Matrix m n α) k :=
   hk.isSMulRegular.matrix
 
+
 instance subsingleton_of_empty_left [IsEmpty m] : Subsingleton (Matrix m n α) :=
   ⟨fun M N => by
     ext i
     exact isEmptyElim i⟩
-#align matrix.subsingleton_of_empty_left Matrix.subsingleton_of_empty_left
 
 instance subsingleton_of_empty_right [IsEmpty n] : Subsingleton (Matrix m n α) :=
   ⟨fun M N => by
@@ -517,3 +517,141 @@ instance subsingleton_of_empty_right [IsEmpty n] : Subsingleton (Matrix m n α) 
 #align matrix.subsingleton_of_empty_right Matrix.subsingleton_of_empty_right
 
 end Matrix
+
+
+
+
+open Matrix --/
+
+namespace Matrix
+
+section Diagonal --/
+
+variable [DecidableEq n]
+
+
+
+-- 对角矩阵，只有左上到右下的对角线有对象，其他为0
+def diagonal [Zero α] (d : n → α) : Matrix n n α :=
+  -- of fun i j => if i = j then d i else 0
+  by
+  have f1:= fun i j => if i = j then d i else 0
+  have M1:= of f1
+  exact M1
+
+theorem diagonal_apply [Zero α] (d : n → α) (i j) : diagonal d i j = if i = j then d i else 0 :=
+  -- rfl
+  by
+  simp only [diagonal]
+  simp only [of_apply]
+  done
+
+@[simp]
+theorem diagonal_apply_eq [Zero α] (d : n → α) (i : n) : (diagonal d) i i = d i
+:= by
+  simp only [diagonal]
+  simp only [of_apply, ite_true]
+
+
+@[simp]
+theorem diagonal_apply_ne [Zero α] (d : n → α) {i j : n} (h : i ≠ j) : (diagonal d) i j = 0 := by
+  -- simp [diagonal, h]
+  simp only [diagonal, h]
+  simp only [of_apply, ite_eq_right_iff]
+  intro h2
+  exact (h h2).elim
+
+theorem diagonal_apply_ne' [Zero α] (d : n → α) {i j : n} (h : j ≠ i) : (diagonal d) i j = 0 :=
+  diagonal_apply_ne d h.symm
+
+@[simp]
+theorem diagonal_eq_diagonal_iff [Zero α] {d₁ d₂ : n → α} : diagonal d₁ = diagonal d₂ ↔ ∀ i, d₁ i = d₂ i
+:=
+  ⟨fun h i => by simpa using congr_arg (fun m : Matrix n n α => m i i) h,
+  fun h => by
+    rw [show d₁ = d₂ from funext h]⟩
+
+theorem diagonal_injective [Zero α] : Function.Injective (diagonal : (n → α) → Matrix n n α)
+:= fun d₁ d₂ h => funext fun i => by simpa using Matrix.ext_iff.mpr h i i
+
+@[simp]
+theorem diagonal_zero [Zero α] : (diagonal fun _ => 0 : Matrix n n α) = 0
+:= by
+  ext
+  simp [diagonal]
+
+@[simp]
+theorem diagonal_transpose [Zero α] (v : n → α) : (diagonal v)ᵀ = diagonal v
+:= by
+  ext i j
+  by_cases h : i = j
+  · simp [h, transpose]
+  · simp [h, transpose, diagonal_apply_ne' _ h]
+
+@[simp]
+theorem diagonal_add [AddZeroClass α] (d₁ d₂ : n → α) : diagonal d₁ + diagonal d₂ = diagonal fun i => d₁ i + d₂ i
+    := by
+  ext i j
+  by_cases h : i = j <;>
+  simp [h]
+
+@[simp]
+theorem diagonal_smul [Monoid R] [AddMonoid α] [DistribMulAction R α] (r : R) (d : n → α) : diagonal (r • d) = r • diagonal d
+:= by
+  ext i j
+  by_cases h : i = j <;>
+  simp [h]
+
+variable (n α)
+
+
+/-- `Matrix.diagonal` as an `AddMonoidHom`. -/
+@[simps]
+def diagonalAddMonoidHom [AddZeroClass α] : (n → α) →+ Matrix n n α where
+  toFun := diagonal
+  map_zero' := diagonal_zero
+  map_add' x y := (diagonal_add x y).symm
+#align matrix.diagonal_add_monoid_hom Matrix.diagonalAddMonoidHom
+
+variable (R)
+
+/-- `Matrix.diagonal` as a `LinearMap`. -/
+@[simps]
+def diagonalLinearMap [Semiring R] [AddCommMonoid α] [Module R α] : (n → α) →ₗ[R] Matrix n n α :=
+  { diagonalAddMonoidHom n α with map_smul' := diagonal_smul }
+#align matrix.diagonal_linear_map Matrix.diagonalLinearMap
+
+variable {n α R}
+
+@[simp]
+theorem diagonal_map [Zero α] [Zero β] {f : α → β} (h : f 0 = 0) {d : n → α} :
+    (diagonal d).map f = diagonal fun m => f (d m) := by
+  ext
+  simp only [diagonal_apply, map_apply]
+  split_ifs <;> simp [h]
+#align matrix.diagonal_map Matrix.diagonal_map
+
+
+@[simp]
+theorem diagonal_conjTranspose [AddMonoid α] [StarAddMonoid α] (v : n → α) :
+    (diagonal v)ᴴ = diagonal (star v) := by
+  rw [conjTranspose, diagonal_transpose, diagonal_map (star_zero _)]
+  rfl
+#align matrix.diagonal_conj_transpose Matrix.diagonal_conjTranspose
+
+
+
+
+
+
+
+
+end Diagonal
+
+
+
+
+
+
+
+end Matrix --/
