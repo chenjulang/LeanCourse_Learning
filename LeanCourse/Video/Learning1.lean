@@ -1,3 +1,4 @@
+import Paperproof
 import Mathlib.Data.Real.Sqrt
 -- 十八世纪六十年代 2016 2022年11月30日 lean4
 -- 斐波拉契数列通项公式
@@ -74,7 +75,7 @@ noncomputable section
     ring
     done
 
-  lemma coe_fib_eq (n : ℕ)
+  theorem coe_fib_eq (n : ℕ)
   : ((fib n) : ℝ) = (ϕ ^ n - ψ ^ n) / (ϕ - ψ)
   := by
     induction n using Nat.two_step_induction

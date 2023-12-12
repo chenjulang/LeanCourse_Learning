@@ -10,6 +10,14 @@
     "inputRev?": "v4.2.0",
     "inherited": false}},
   {"git":
+   {"url": "https://github.com/Paper-Proof/paperproof.git",
+    "subDir?": "lean",
+    "rev": "47dd21da64d8b1ce42a5f1fe921e96072e376023",
+    "opts": {},
+    "name": "Paperproof",
+    "inputRev?": "main",
+    "inherited": false}},
+  {"git":
    {"url": "https://github.com/leanprover-community/quote4",
     "subDir?": null,
     "rev": "a387c0eb611857e2460cf97a8e861c944286e6b2",
