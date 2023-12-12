@@ -7,3 +7,40 @@
 
 
 看到哪里：
+行列式定义
+Determinant：
+1.def detRowAlternating : AlternatingMap R (n → R) R n :=
+  MultilinearMap.alternatization ((MultilinearMap.mkPiAlgebra R n R).compLinearMap LinearMap.proj)
+1.1 AlternatingMap：
+
+
+
+根据以下定理用动画显示第一步证明simp only [inv_def]，用html+js+css写，要做到知道矩阵内部发生了什么:
+theorem mul_inv_rev (A B : Matrix n n α) : (A * B)⁻¹ = B⁻¹ * A⁻¹ := by
+  simp only [inv_def]
+  rw [
+  Matrix.smul_mul,
+  Matrix.mul_smul,
+  smul_smul,
+  det_mul,
+  adjugate_mul_distrib,
+  Ring.mul_inverse_rev
+  ]
+
+
+
+看到哪里：
+矩阵乘法之逆
+1. inv_def 是什么？涉及两个未知名词Ring.inverse，adjugate
+    1.1 inv_def: A⁻¹ = Ring.inverse (det A) • adjugate A
+    1.2 找到invOf_eq： ⅟ A = ⅟ A.det • A.adjugate
+    1.3 找到invertibleOfDetInvertible [Invertible A.det] : Invertible A
+        1.3.1 其中定义了逆的表达式，并且给出了这个表达式的合理性（即证明）
+        1.3.2 mul_invOf_self := by
+                rw [mul_smul_comm, mul_adjugate, smul_smul, invOf_mul_self, one_smul]
+              invOf_mul_self := by
+                rw [smul_mul_assoc, adjugate_mul, smul_smul, invOf_mul_self, one_smul]
+2. Matrix.smul_mul结论很明显，但证明也可以简单看一下
+3. det_mul 矩阵乘的行列式=分开行列式的数乘，这个需要回顾一下，很值得一看。
+4. adjugate_mul_distrib 是什么？涉及adjugate的运算律
+5. Ring.mul_inverse_rev 是什么？涉及Ring.mul_inverse_rev的运算律
