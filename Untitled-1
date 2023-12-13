@@ -15,32 +15,77 @@ Determinant：
 
 
 
-根据以下定理用动画显示第一步证明simp only [inv_def]，用html+js+css写，要做到知道矩阵内部发生了什么:
-theorem mul_inv_rev (A B : Matrix n n α) : (A * B)⁻¹ = B⁻¹ * A⁻¹ := by
-  simp only [inv_def]
-  rw [
-  Matrix.smul_mul,
-  Matrix.mul_smul,
-  smul_smul,
-  det_mul,
-  adjugate_mul_distrib,
-  Ring.mul_inverse_rev
-  ]
-
+下面这个是zulip上回答我的问题，如何展开一个定义
+import Mathlib
+open BigOperators Matrix
+variable (l m n α : Type)
+theorem mul_apply [Fintype m] [Mul α] [AddCommMonoid α] {M : Matrix l m α} {N : Matrix m n α} {i k} :
+    (M * N) i k = ∑ j, M i j * N j k := by
+  unfold HMul.hMul
+  -- ⊢ instHMulMatrixMatrixMatrix ...
+  unfold instHMulMatrixMatrixMatrix
+  simp only
+  -- possibly what you want?
+  rfl
+也能用unfold_projs
 
 
 看到哪里：
-矩阵乘法之逆
+矩阵乘法之逆mul_inv_rev （lake-packages/mathlib/Mathlib/LinearAlgebra/Matrix/NonsingularInverse.lean）
 1. inv_def 是什么？涉及两个未知名词Ring.inverse，adjugate
-    1.1 inv_def: A⁻¹ = Ring.inverse (det A) • adjugate A
-    1.2 找到invOf_eq： ⅟ A = ⅟ A.det • A.adjugate
-    1.3 找到invertibleOfDetInvertible [Invertible A.det] : Invertible A
-        1.3.1 其中定义了逆的表达式，并且给出了这个表达式的合理性（即证明）
+    1.1 inv_def 是什么：inv_def: A⁻¹ = Ring.inverse (det A) • adjugate A
+    1.2 inv_def证明rfl太简洁，找到相关invOf_eq: ⅟ A = ⅟ A.det • A.adjugate
+    1.3 invOf_eq中有未知名词invertibleOfDetInvertible [Invertible A.det] : Invertible A ， 还有convert
+        1.3.1 invertibleOfDetInvertible中定义了逆的表达式invOf，并且给出了这个表达式的合理性（即证明）
         1.3.2 mul_invOf_self := by
                 rw [mul_smul_comm, mul_adjugate, smul_smul, invOf_mul_self, one_smul]
               invOf_mul_self := by
                 rw [smul_mul_assoc, adjugate_mul, smul_smul, invOf_mul_self, one_smul]
-2. Matrix.smul_mul结论很明显，但证明也可以简单看一下
+        1.3.3 convert是什么？是一种策略,转换目标，比如将已有假设的参数对比目标的参数，将参数相同变成新的目标，未详!!!
+    1.4 Ring.inverse定义:gpt3.5帮忙理解：这个函数的作用是判断传入的参数 x 是否是一个单位元。如果是单位元，返回其逆元；如果不是，则返回0。
+        noncomputable def inverse : M₀ → M₀ := fun x => if h : IsUnit x then ((h.unit⁻¹ : M₀ˣ) : M₀) else 0
+        其中有未知名词IsUnit，h.unit⁻¹，M₀ˣ
+        1.4.1 IsUnit: def IsUnit [Monoid M] (a : M) : Prop := ∃ u : Mˣ, (u : M) = a
+              1.4.1.1 Monoid就是Semigroup与一个元素1这样1 * a = a * 1 = a
+        1.4.2 h.unit⁻¹？
+        1.4.3 M₀ˣ？
+    1.5 adjugate定义：
+        def adjugate (A : Matrix n n α) : Matrix n n α := of fun i => cramer Aᵀ (Pi.single i 1)
+        其中有未知名词 cramer，Pi.single
+        1.5.1 cramer : def cramer (A : Matrix n n α) : (n → α) →ₗ[α] (n → α) := IsLinearMap.mk' (cramerMap A) (cramer_is_linear A)
+              这段代码定义了一个函数 cramer，它接受一个矩阵 A，并返回一个从类型 (n → α) 到 (n → α) 的线性映射。
+              该函数的定义采用了 IsLinearMap.mk' 函数，该函数接受两个参数：cramerMap A 和 cramer_is_linear A。
+              cramerMap A 是一个函数，用于实现给定矩阵 A 的克莱姆（Cramer）映射。克莱姆映射的作用是对给定的向量进行变换，利用克莱姆法则计算解的向量。这个函数将输入的向量转换为输出的向量。
+              cramer_is_linear A 是一个关于矩阵 A 的证明，它说明了 cramerMap A 是一个线性映射。即，它满足线性映射的性质，例如加法和数乘的保持。
+              通过使用 IsLinearMap.mk' 函数，我们可以生成一个 cramer 函数的线性映射，并且它是通过 cramerMap 函数和 cramer_is_linear 证明得到的。
+              因此，整个定义的结果是一个将矩阵 A 转换为线性映射的函数 cramer。这个线性映射可以将一个类型为 (n → α) 的向量映射到另一个类型为 (n → α) 的向量。
+              其中未知名词  →ₗ , IsLinearMap.mk' , cramerMap A , cramer_is_linear
+            1.5.1.1 →ₗ : `M →ₗ[R] N` 是从 `M` 到 `N` 的 `R` 线性映射类型 , 即LinearMap (RingHom.id R) M M₂
+                        其中有未知名词LinearMap，RingHom.id
+                        1.5.1.1.1 : LinearMap即线性图，里面涉及到底层的群论大量预设，未详!!!
+            1.5.1.2+ :  IsLinearMap.mk' ? , cramerMap A ?, cramer_is_linear?
+2. Matrix.smul_mul结论很明显，但证明也可以简单看一下--
+    2.1 对smul_mul的学习路径有点不同，先看了底层的smul_dotProduct定义,然后挖掘出了矩阵和点乘之间还有一个很需要展示的关系mul_apply'，也加进去了smul_mul的证明里面，
+        矩阵乘法说到底就是两个映射的点乘!!!
 3. det_mul 矩阵乘的行列式=分开行列式的数乘，这个需要回顾一下，很值得一看。
-4. adjugate_mul_distrib 是什么？涉及adjugate的运算律
+    3.1 det的定义，detRowAlternating，引出未知名词AlternatingMap，MultilinearMap.alternatization，MultilinearMap.mkPiAlgebra
+        compLinearMap，LinearMap.proj -- 真的很难理解，里面太多内容了，要分开解释。
+        3.1.1 太多？
+    3.2 所以直接进入det_mul的证明过程：用gpt3.5教会我自己：逐步解释（gpt使用技巧：1.如何理解以下定理（定理尽量短），2.举个例子解释一下）
+        第一步：det (M * N) = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i := by
+        simp only [det_apply', mul_apply, prod_univ_sum, mul_sum, Fintype.piFinset_univ]
+        rw [Finset.sum_comm]
+        这里意外学会了如何单独分析定理，只需要导入那个包，比如import Mathlib.LinearAlgebra.Matrix.Determinant，如有报错则在该文件里找到需要的定义或符号，如local notation "ε " σ:arg => ((sign σ : ℤ) : R)
+        3.2.1 simp only里面对嵌套求和符号有很好的学习帮助
+            3.2.1 从det_apply'的证明，找到det_apply，即行列式的定义
+                  theorem det_apply (M : Matrix n n R) : M.det = ∑ σ : Perm n, Equiv.Perm.sign σ • ∏ i, M (σ i) i :=
+                  MultilinearMap.alternatization_apply _ M
+                  但还是需要理解det原始的定义：
+                  def detRowAlternating : AlternatingMap R (n → R) R n :=
+                  MultilinearMap.alternatization ((MultilinearMap.mkPiAlgebra R n R).compLinearMap LinearMap.proj)
+
+4. adjugate_mul_distrib 是什么？涉及伴随矩阵adjugate的运算律：adjugate (A * B) = adjugate B * adjugate A
+    4.1 adjugate定义：
+        def adjugate (A : Matrix n n α) : Matrix n n α :=
+        of fun i => cramer Aᵀ (Pi.single i 1)
 5. Ring.mul_inverse_rev 是什么？涉及Ring.mul_inverse_rev的运算律
