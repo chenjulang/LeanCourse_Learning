@@ -88,4 +88,10 @@ theorem mul_apply [Fintype m] [Mul α] [AddCommMonoid α] {M : Matrix l m α} {N
     4.1 adjugate定义：
         def adjugate (A : Matrix n n α) : Matrix n n α :=
         of fun i => cramer Aᵀ (Pi.single i 1)
+        其中Pi.single i 1 ：表示创建一个函数，它在索引 i 处的取值为 1，而其他索引处的取值为默认值（通常为 0）
+
 5. Ring.mul_inverse_rev 是什么？涉及Ring.mul_inverse_rev的运算律
+
+
+
+明天从类型+gpt问参数出发研究，各种映射，符号什么的琐碎知识也要补充。最重要的还是“类型理论”，“映射类型理论”
