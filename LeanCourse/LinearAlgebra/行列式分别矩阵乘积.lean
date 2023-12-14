@@ -1,12 +1,16 @@
 import Mathlib.LinearAlgebra.Matrix.Determinant
+import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
+import Mathlib.LinearAlgebra.Matrix.Adjugate
+import Paperproof
+
+namespace Matrix
 
 universe u v w z
 
 open Equiv Equiv.Perm Finset Function
 
-namespace Matrix
-
-open Matrix BigOperators
+-- open Matrix
+open BigOperators
 
 variable {m n : Type*} [DecidableEq n] [Fintype n] [DecidableEq m] [Fintype m]
 
@@ -80,3 +84,41 @@ def detRowAlternating2 : AlternatingMap R (n → R) R n :=
 -- “多线性映射对象”：
 #check MultilinearMap R (fun x ↦ R) R
 -- 张量是一个多元线性映射，它接受一些向量、矩阵或其他张量作为输入，并生成一个标量或另一个张量作为输出。
+
+
+
+-- /---------------------/
+-- /---------------------/
+-- /---------------------/
+
+universe u2 u2' v2
+variable {l2 : Type*} {m2 : Type u2} {n2 : Type u2'} {α2 : Type v2}
+-- open Matrix BigOperators Equiv Equiv.Perm Finset
+variable [Fintype n2] [DecidableEq n2] [CommRing α2]
+-- noncomputable instance inv2 : Inv (Matrix n2 n2 α2) :=
+--   ⟨fun A => Ring.inverse A.det • A.adjugate⟩
+-- theorem inv_def2 (A : Matrix n2 n2 α2) : A⁻¹ = Ring.inverse A.det • A.adjugate :=
+--   rfl
+
+theorem mul_inv_rev2 (A B : Matrix n2 n2 α2) : (A * B)⁻¹ = B⁻¹ * A⁻¹ := by
+  simp only [inv_def]
+  rw [Matrix.smul_mul, Matrix.mul_smul, smul_smul, det_mul, adjugate_mul_distrib,
+    Ring.mul_inverse_rev]
+
+
+theorem mul_adjugate2 (A : Matrix n2 n2 α2) : A * adjugate A = A.det • (1 : Matrix n2 n2 α2) := by
+  -- have h1:= A * adjugate A -- : Matrix n n α
+  ext i j
+  rw [mul_apply, Pi.smul_apply, Pi.smul_apply, one_apply, smul_eq_mul, mul_boole]
+  simp only [mul_adjugate_apply]
+  simp only [sum_cramer_apply]
+  simp only [ne_eq, sum_pi_single, mem_univ, ite_true]
+  simp only [cramer_transpose_row_self]
+  simp only [Pi.single_apply]
+  simp only [eq_comm]
+
+
+
+
+
+end Matrix

@@ -30,6 +30,16 @@ theorem mul_apply [Fintype m] [Mul α] [AddCommMonoid α] {M : Matrix l m α} {N
 也能用unfold_projs
 
 
+Perm n 从哪来：import Mathlib
+#eval @Finset.univ (Equiv.Perm (Fin 4)) _
+
+正则找符号：
+找乘号：
+instance.*:.*\n.* HMul.*Matrix
+开启大小写，和.*
+找逆：
+instance.*:.* Inv .*Matrix
+
 看到哪里：
 矩阵乘法之逆mul_inv_rev （lake-packages/mathlib/Mathlib/LinearAlgebra/Matrix/NonsingularInverse.lean）
 1. inv_def 是什么？涉及两个未知名词Ring.inverse，adjugate
@@ -95,3 +105,8 @@ theorem mul_apply [Fintype m] [Mul α] [AddCommMonoid α] {M : Matrix l m α} {N
 
 
 明天从类型+gpt问参数出发研究，各种映射，符号什么的琐碎知识也要补充。最重要的还是“类型理论”，“映射类型理论”
+
+
+下一个视频，介绍线性代数里面的，证明矩阵的逆表达式的合理性
+/Users/chenjulang/Desktop/数学/LeanCourse_Learning/lake-packages/mathlib/Mathlib/LinearAlgebra/Matrix/Adjugate.lean：
+关键定理：theorem mul_adjugate (A : Matrix n n α) : A * adjugate A = A.det • (1 : Matrix n n α) := by sorry
