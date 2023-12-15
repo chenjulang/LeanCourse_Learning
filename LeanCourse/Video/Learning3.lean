@@ -2,6 +2,9 @@ import Mathlib.LinearAlgebra.Matrix.Determinant
 import Mathlib.GroupTheory.Perm.Fin
 import Mathlib.GroupTheory.Perm.Sign
 
+
+-- set_option trace.Meta.synthInstance true
+
 universe u v w z
 
 open Equiv Equiv.Perm Finset Function
@@ -14,6 +17,21 @@ namespace Matrix --目的是避免模糊定义mul_apply
   variable {R : Type v} [CommRing R]
 
   local notation "ε " σ:arg => ((sign σ : ℤ) : R)
+
+-- -----/行列式
+
+
+  -- -- mkPiAlgebra：
+  -- def exampleVector : ℕ → ℝ
+  -- | 0 => 1
+  -- | 1 => 2
+  -- | _ => 0
+
+  def detRowAlternating2 : AlternatingMap R (n → R) R n :=
+  MultilinearMap.alternatization (
+    (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+      LinearMap.proj
+  )
 
 
   @[simp]

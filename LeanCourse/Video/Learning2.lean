@@ -1,7 +1,7 @@
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
--- set_option trace.Meta.synthInstance true
+set_option trace.Meta.synthInstance true
 
 namespace Matrix
 
