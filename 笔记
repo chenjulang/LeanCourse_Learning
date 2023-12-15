@@ -110,3 +110,7 @@ instance.*:.* Inv .*Matrix
 下一个视频，介绍线性代数里面的，证明矩阵的逆表达式的合理性
 /Users/chenjulang/Desktop/数学/LeanCourse_Learning/lake-packages/mathlib/Mathlib/LinearAlgebra/Matrix/Adjugate.lean：
 关键定理：theorem mul_adjugate (A : Matrix n n α) : A * adjugate A = A.det • (1 : Matrix n n α) := by sorry
+  -- 四个领域 1.adjugate 2.cramer 3.det 4.Pi.single
+
+
+下一个视频，介绍线性代数里面的，证明先矩阵乘积再行列式 等于 先行列式再乘积

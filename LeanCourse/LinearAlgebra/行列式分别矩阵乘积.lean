@@ -100,6 +100,7 @@ variable [Fintype n2] [DecidableEq n2] [CommRing α2]
 -- theorem inv_def2 (A : Matrix n2 n2 α2) : A⁻¹ = Ring.inverse A.det • A.adjugate :=
 --   rfl
 
+set_option trace.Meta.synthInstance true
 theorem mul_inv_rev2 (A B : Matrix n2 n2 α2) : (A * B)⁻¹ = B⁻¹ * A⁻¹ := by
   simp only [inv_def]
   rw [Matrix.smul_mul, Matrix.mul_smul, smul_smul, det_mul, adjugate_mul_distrib,
