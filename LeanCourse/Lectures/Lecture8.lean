@@ -582,6 +582,8 @@ structure PointedFunction (X Y : PointedType) where
   toFun : X → Y
   toFun_pt : toFun X.pt = Y.pt
 
+#check PointedFunction.toFun
+
 infix:50 " →. " => PointedFunction -- A →. B 相当于 PointedFunction A B
 
 instance {X Y : PointedType}

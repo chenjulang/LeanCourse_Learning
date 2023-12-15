@@ -1,6 +1,7 @@
 import Mathlib.LinearAlgebra.Matrix.Determinant
 import Mathlib.GroupTheory.Perm.Fin
 import Mathlib.GroupTheory.Perm.Sign
+import Mathlib.Data.Real.Sqrt
 
 
 -- set_option trace.Meta.synthInstance true
@@ -20,18 +21,25 @@ namespace Matrix --目的是避免模糊定义mul_apply
 
 -- -----/行列式
 
-
-  -- -- mkPiAlgebra：
-  -- def exampleVector : ℕ → ℝ
-  -- | 0 => 1
-  -- | 1 => 2
-  -- | _ => 0
-
-  def detRowAlternating2 : AlternatingMap R (n → R) R n :=
+-- 原来有toFun的结构，直接写名词的话，它要用toFun来替换，
+-- 所以detRowAlternating2具体类型应该是和这个相同(↑detRowAlternating2).toFun : (?m.32939 → ?m.32939 → ?m.32941) → ?m.32941
+-- 因此detRowAlternating2 M的类型就是R
+  def detRowAlternating2
+  : AlternatingMap R (n → R) R n  --- 最后这个参数n属于补充说明,实际形式上只需传三个参数即可
+  :=
   MultilinearMap.alternatization (
     (MultilinearMap.mkPiAlgebra R n R).compLinearMap
       LinearMap.proj
   )
+  -- 按道理这个实例应该也是属于这个类型(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
+
+
+
+  abbrev det2 (M : Matrix n n R): R :=
+    -- have h1 := detRowAlternating2 M
+    detRowAlternating2 M -- 这里为什么类型是R，因为detRowAlternating2相当于detRowAlternating2.toFun
+    -- 也就是(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
+  #check detRowAlternating2.toFun
 
 
   @[simp]
