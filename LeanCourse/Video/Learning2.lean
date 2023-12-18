@@ -1,7 +1,7 @@
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
-set_option trace.Meta.synthInstance true
+-- set_option trace.Meta.synthInstance true
 
 namespace Matrix
 
@@ -44,6 +44,12 @@ namespace Matrix
     ![![1, 0],
       ![0, 1]]
 
+  --  def matrix3 : Matrix (Fin 2) (Fin 3) ℝ :=
+  --   ![![1, 2, 3],
+  --     ![4 ,5, 6]]
+  -- #eval matrix3 1 0
+
+
   -- #check A * B
 
   def matrix1_adjugate : Matrix (Fin 2) (Fin 2) ℝ := adjugate matrix1
@@ -60,7 +66,7 @@ namespace Matrix
   #eval matrix1_det • matrixUnit -- 矩阵的行列式 数乘 矩阵
   -- [ -2  0
   --    0 -2 ]
-  -- 可以看出matrix1_det • matrixUnit 和 matrix1_det • matrixUnit 结果相等
+  -- 可以看出matrix1_adjugate * matrix1 和 matrix1_det • matrixUnit 结果相等
 
 
 
@@ -85,6 +91,7 @@ namespace Matrix
  -- 四个领域 1.adjugate 2.cramer 3.det 4.Pi.single
   -- 1↔2,4 2↔3,4 1↔3
 
+  -- #check (cramer Aᵀ)  --: (n2 → α2) →ₗ[α2] n2 → α2
   -- 1↔2,4的桥梁
   lemma mul_adjugate_apply2 (A : Matrix n2 n2 α2) (i j k) :
     (A i k) * (adjugate A k j) = (cramer Aᵀ) (Pi.single k (A i k)) j

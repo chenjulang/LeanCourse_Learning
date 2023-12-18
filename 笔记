@@ -138,11 +138,31 @@ Module： 模块（Module）。模块在抽象代数中是一种代数结构，�
 M=>R还是M=>(n → R),??
 N'=>R
 
-试着直接分析AlternatingMap R M N' ι
+试着直接分析alternatization里面的AlternatingMap R M N' ι
 需要的是R (fun _ : ι => M) N ，
 \\\所以AlternatingMap语境下是R=>R,ι=>M,M=>N',N=>ι
-进入MultilinearMap，需要的是(R : Type uR)(M₁ : ι → Type v₁) (M₂ : Type v₂);实际传入的是
-\\\所以MultilinearMap语境下
+进入MultilinearMap，需要的是(R : Type uR)(M₁ : ι → Type v₁) (M₂ : Type v₂);实际传入的是R (fun _ : M=> N') ι
+\\\所以MultilinearMap语境下R=>R, M₁=>(M→N') 其中ι=>M,Type v₁=>N',M₂=>ι
+最后得到最终类型为(∀ i, M₁ i) → M₂  代入外层就是ι→(M→N')→M 最外层如果要对应(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149的话
+具体成n→n→R→R的话
+则需要就需要R M N' ι分别是n n R R
+反推就知道MultilinearMap R (fun _ : ι => M) N'的四个参数分别R传入n，M传入n，N'传入R，ι传入R
+MultilinearMap n (fun _ : R => n) R
 
 怎么得到？
 (?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
+
+ -- 参考：
+  -- def foo1 := MultilinearMap.alternatization (
+  --   (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+  --     LinearMap.proj
+  --   )
+  -- #check foo1.toFun -- : (?m.59411 → ?m.59411 → ?m.59413) → ?m.59413
+  -- def foo2 := (
+  --   (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+  --     LinearMap.proj)
+  -- #check foo2 -- :MultilinearMap R (fun i ↦ n → R) R
+  -- #check foo2.toFun -- :(?m.62638 → ?m.62638 → ?m.62640) → ?m.62640
+  -- def foo3 := (MultilinearMap.mkPiAlgebra R n R)
+  -- #check foo3 -- MultilinearMap R (fun x ↦ R) R 或者 MultilinearMap R (n ↦ R) R
+  -- #check foo3.toFun -- (?m.31250 → ?m.31252) → ?m.31252 或 (n ↦ R) ↦ R

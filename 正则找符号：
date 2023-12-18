@@ -13,4 +13,7 @@ instance.*:.* Inv .*Matrix
 1.用set_option trace.Meta.synthInstance true
 2.结合gpt问：lean如何推断？？？名词的
 3.从传参数的角度问gpt：lean中？？需要传入什么参数，输出什么类型
-3.只能问Zulip
+4.只能问Zulip
+5.安装lean-copilot用一下
+
+1.可以玩一下官方游戏先
