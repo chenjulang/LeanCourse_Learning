@@ -49,6 +49,9 @@ namespace Matrix --目的是避免模糊定义mul_apply
 
 
 
+  -- 正式开始：
+
+
   lemma hhh1 (M N : Matrix n n R) :∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i =
       ∑ p in (@univ (n → n) _).filter Bijective, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
       := by
@@ -111,7 +114,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
       · rfl
       · intros h1 h2
         refine' Fintype.sum_equiv _ _ _ _
-        · exact Equiv.mulRight h1
+        · exact Equiv.mulRight h1⁻¹
         · intros h5
           have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j
             := by
@@ -125,75 +128,101 @@ namespace Matrix --目的是避免模糊定义mul_apply
                 simp only [Int.cast_mul, Units.val_mul]
               _ = ε h5 := by simp only [inv_mul_cancel_right]
           simp_rw [Equiv.coe_mulRight, h6]
-          -- simp only [h4]
-      sorry
-      -- exact (sum_congr rfl fun σ _ =>
-      --         Fintype.sum_equiv (Equiv.mulRight σ⁻¹) _ _ fun τ => by
-      --           have : (∏ j, M (τ j) (σ j)) = ∏ j, M ((τ * σ⁻¹) j) j := by
-      --             rw [← (σ⁻¹ : _ ≃ _).prod_comp]
-      --             simp only [Equiv.Perm.coe_mul, apply_inv_self, Function.comp_apply]
-      --           have h : ε σ * ε (τ * σ⁻¹) = ε τ :=
-      --             calc
-      --               ε σ * ε (τ * σ⁻¹) = ε (τ * σ⁻¹ * σ) := by
-      --                 rw [mul_comm, sign_mul (τ * σ⁻¹)]
-      --                 simp only [Int.cast_mul, Units.val_mul]
-      --               _ = ε τ := by simp only [inv_mul_cancel_right]
-
-      --           simp_rw [Equiv.coe_mulRight, h]
-      --           simp only [this])
-
-  lemma hhh3_2 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * ∏ j, M (τ j) (σ j)
-      = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
-      := by
-      exact (sum_congr rfl fun σ _ =>
-              Fintype.sum_equiv (Equiv.mulRight σ⁻¹) _ _ fun τ => by
-                have : (∏ j, M (τ j) (σ j)) = ∏ j, M ((τ * σ⁻¹) j) j := by
-                  rw [← (σ⁻¹ : _ ≃ _).prod_comp]
-                  simp only [Equiv.Perm.coe_mul, apply_inv_self, Function.comp_apply]
-                have h : ε σ * ε (τ * σ⁻¹) = ε τ :=
-                  calc
-                    ε σ * ε (τ * σ⁻¹) = ε (τ * σ⁻¹ * σ) := by
-                      rw [mul_comm, sign_mul (τ * σ⁻¹)]
-                      simp only [Int.cast_mul, Units.val_mul]
-                    _ = ε τ := by simp only [inv_mul_cancel_right]
-
-                simp_rw [Equiv.coe_mulRight, h]
-                simp only [this])
-  #print hhh3_2
-
-
+          simp only [h4]
+      done
 
 
   -- @[simp]
-  theorem det_mul2 (M N : Matrix n n R) : det (M * N) = det M * det N
+  theorem det_mul2 (M N : Matrix n n R)
+  : det (M * N) = det M * det N
   := by
     have h1 :det (M * N) = det M * det N :=
       calc
-          det (M * N) = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i := by
+          det (M * N)
+          = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
+            := by
             simp only [det_apply']
             simp only [mul_apply]
             simp only [prod_univ_sum]
             simp only [mul_sum]
             simp only [Fintype.piFinset_univ]
             rw [Finset.sum_comm]
-          _ = ∑ p in (@univ (n → n) _).filter Bijective,
-                ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
-            := by exact (hhh1 M N)
-          _ = ∑ τ : Perm n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (τ i) * N (τ i) i
-            := by exact (hhh2 M N)
-          _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * ∏ j, M (τ j) (σ j) := by
-            simp only [mul_comm, mul_left_comm, prod_mul_distrib, mul_assoc]
+          _ = ∑ p
+                in (@univ (n → n) _).filter Bijective,
+                  ∑ σ
+                    : Perm n,
+                      ε σ
+                      *
+                      (∏ i, M (σ i) (p i) * N (p i) i)
+            := by
+            exact (hhh1 M N)
+          _ = ∑ τ
+                : Perm n,
+                  ∑ σ
+                    : Perm n,
+                      ε σ
+                      *
+                      (∏ i, M (σ i) (τ i) * N (τ i) i)
+            := by
+            exact (hhh2 M N)
+          _ = ∑ σ
+                : Perm n,
+                  ∑ τ
+                    : Perm n,
+                      (∏ i, N (σ i) i)
+                      *
+                      ε τ
+                      *
+                      ∏ j, M (τ j) (σ j)
+            := by
+            simp only [mul_comm]
+            simp only [mul_left_comm]
+            simp only [prod_mul_distrib]
+            simp only [mul_assoc]
           _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
-            := by exact (hhh3 M N)
+            := by
+            exact (hhh3 M N)
           _ = det M * det N
             := by
-            simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc]
+            -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc]
             -- simp only [det_apply']
             -- simp only [Finset.mul_sum]
             -- simp only [mul_comm]
             -- simp only [mul_left_comm]
             -- simp only [mul_assoc]
+            have h2:= ((congr (congrArg HMul.hMul
+                          ((det_apply' M).trans
+                            (sum_congr (Eq.refl univ) fun x a ↦
+                              (congrArg (HMul.hMul (ε x))
+                                    (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (x x_1) x_1))).trans
+                                (mul_comm ((ε x)) (∏ x_1 : n, M (x x_1) x_1)))))
+                        ((det_apply' N).trans
+                          (sum_congr (Eq.refl univ) fun x a ↦
+                            (congrArg (HMul.hMul (ε x))
+                                  (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (N (x x_1) x_1))).trans
+                              (mul_comm ((ε x)) (∏ x_1 : n, N (x x_1) x_1))))).trans
+                    mul_sum)
+            have h3:= (sum_congr (Eq.refl univ) fun x a ↦
+                  ((mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
+                            ((∏ x_1 : n, N (x x_1) x_1) * (ε x))).trans
+                        mul_sum).trans
+                    (sum_congr (Eq.refl univ) fun x_1 a ↦
+                      ((mul_left_comm ((∏ x_2 : n, N (x x_2) x_2) * (ε x)) (∏ x : n, M (x_1 x) x)
+                                (ε x_1)).trans
+                            (congrArg (HMul.hMul (∏ x : n, M (x_1 x) x))
+                              (mul_assoc (∏ x_2 : n, N (x x_2) x_2) (ε x) (ε x_1)))).trans
+                        (mul_left_comm (∏ x : n, M (x_1 x) x) (∏ x_2 : n, N (x x_2) x_2)
+                          ((ε x) * (ε x_1)))))
+            have h4:= h2.trans h3
+            simp only [h4]
+            congr
+            funext xx1
+            congr
+            funext xx2
+            rw [mul_right_comm]
+            repeat rw [← mul_assoc]
     exact h1
     done
+
 
 end Matrix
