@@ -184,21 +184,38 @@ namespace Matrix --目的是避免模糊定义mul_apply
             exact (hhh3 M N)
           _ = det M * det N
             := by
-            -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc]
-            -- simp only [det_apply']
-            -- simp only [Finset.mul_sum]
-            -- simp only [mul_comm]
-            -- simp only [mul_left_comm]
-            -- simp only [mul_assoc]
+            -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
             have h2 : det M * det N =
               ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
               := by
               have h2_1 : det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-                := ((det_apply' M).trans
-                            (sum_congr (Eq.refl univ) fun x a ↦
-                              (congrArg (HMul.hMul (ε x))
-                                    (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (x x_1) x_1))).trans
-                                (mul_comm ((ε x)) (∏ x_1 : n, M (x x_1) x_1))))
+                := by
+                have h2_1_1 :=(det_apply' M)
+                have h2_1_2 : ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
+                  = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                  := by
+                  refine' sum_congr _ _
+                  · exact (Eq.refl univ)
+                  · intros h212x h212a
+                    have h2_1_2_1
+                      : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
+                      := by
+                      exact rfl --竟然直接搞定了
+                      -- refine' congrArg _ _
+                      -- have h2_1_2_1_1 :=HMul.hMul (ε h212x)
+                      -- have h2_1_2_1_2 :=(prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
+                      -- have h2_1_2_1_3 := congrArg h2_1_2_1_1 h2_1_2_1_2
+                      -- exact h2_1_2_1_3
+                      -- · exact (HMul.hMul (ε h212x))
+                      -- · exact (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
+
+                      -- exact congrArg (HMul.hMul (ε h212x))
+                      --               (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
+                    have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
+                    have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
+                    exact h2_1_2_3
+                have h2_1_3 := h2_1_1.trans h2_1_2
+                exact h2_1_3
               have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
                 := ((det_apply' N).trans
                           (sum_congr (Eq.refl univ) fun x a ↦
