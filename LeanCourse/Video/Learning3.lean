@@ -5,7 +5,7 @@ import Mathlib.Data.Real.Sqrt
 
 
 -- set_option trace.Meta.synthInstance true
--- set_option maxHeartbeats 0
+set_option maxHeartbeats 400000
 
 
 universe u v w z
@@ -201,27 +201,30 @@ namespace Matrix --目的是避免模糊定义mul_apply
                       : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
                       := by
                       exact rfl --竟然直接搞定了
-                      -- refine' congrArg _ _
-                      -- have h2_1_2_1_1 :=HMul.hMul (ε h212x)
-                      -- have h2_1_2_1_2 :=(prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
-                      -- have h2_1_2_1_3 := congrArg h2_1_2_1_1 h2_1_2_1_2
-                      -- exact h2_1_2_1_3
-                      -- · exact (HMul.hMul (ε h212x))
-                      -- · exact (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
-
-                      -- exact congrArg (HMul.hMul (ε h212x))
-                      --               (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (h212x x_1) x_1))
                     have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
                     have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
                     exact h2_1_2_3
                 have h2_1_3 := h2_1_1.trans h2_1_2
                 exact h2_1_3
               have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
-                := ((det_apply' N).trans
-                          (sum_congr (Eq.refl univ) fun x a ↦
-                            (congrArg (HMul.hMul (ε x))
-                                  (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (N (x x_1) x_1))).trans
-                              (mul_comm ((ε x)) (∏ x_1 : n, N (x x_1) x_1))))
+                := by
+                have h2_2_1:= det_apply' N
+                have h2_2_2:  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+                  := by
+                  refine' sum_congr _ _
+                  · exact Eq.refl univ
+                  · intros h222x h222a
+                    have h2_2_2_1 : (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1 = (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1
+                      := by
+                      -- exact rfl
+                      -- refine' congrArg _ _
+                      exact (congrArg (HMul.hMul (ε h222x))
+                                  (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (N (h222x x_1) x_1)))
+                    have h2_2_2_2:= (mul_comm ((ε h222x)) (∏ x_1 : n, N (h222x x_1) x_1))
+                    have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
+                    exact h2_2_2_3
+                have h2_2_3:= h2_2_1.trans h2_2_2
+                exact h2_2_3
               exact (congr (congrArg HMul.hMul h2_1) h2_2).trans mul_sum
             have h3 : ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
                 = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
