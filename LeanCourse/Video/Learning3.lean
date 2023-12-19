@@ -229,12 +229,12 @@ namespace Matrix --目的是避免模糊定义mul_apply
                 have h3_3 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
                 = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x))
                   := by
-                  have h3_3_1 := (mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
-                            ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1)))
-                  --  (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-                  -- = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-                  --   := by
-                  --   rfl
+                  have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+                  = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                  := by
+                    -- refine' mul_comm _ _
+                    have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+                    exact h3_3_1_1
                   have h3_3_2:= h3_3_1.trans mul_sum
                   exact h3_3_2
                 have h3_4 : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
