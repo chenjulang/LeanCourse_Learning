@@ -190,29 +190,40 @@ namespace Matrix --目的是避免模糊定义mul_apply
             -- simp only [mul_comm]
             -- simp only [mul_left_comm]
             -- simp only [mul_assoc]
-            have h2:= ((congr (congrArg HMul.hMul
-                          ((det_apply' M).trans
+            have h2 : det M * det N =
+              ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+              := by
+              have h2_1 : det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                := ((det_apply' M).trans
                             (sum_congr (Eq.refl univ) fun x a ↦
                               (congrArg (HMul.hMul (ε x))
                                     (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (M (x x_1) x_1))).trans
-                                (mul_comm ((ε x)) (∏ x_1 : n, M (x x_1) x_1)))))
-                        ((det_apply' N).trans
+                                (mul_comm ((ε x)) (∏ x_1 : n, M (x x_1) x_1))))
+              have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+                := ((det_apply' N).trans
                           (sum_congr (Eq.refl univ) fun x a ↦
                             (congrArg (HMul.hMul (ε x))
                                   (prod_congr (Eq.refl univ) fun x_1 a ↦ Eq.refl (N (x x_1) x_1))).trans
-                              (mul_comm ((ε x)) (∏ x_1 : n, N (x x_1) x_1))))).trans
-                    mul_sum)
-            have h3:= (sum_congr (Eq.refl univ) fun x a ↦
-                  ((mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
-                            ((∏ x_1 : n, N (x x_1) x_1) * (ε x))).trans
-                        mul_sum).trans
-                    (sum_congr (Eq.refl univ) fun x_1 a ↦
-                      ((mul_left_comm ((∏ x_2 : n, N (x x_2) x_2) * (ε x)) (∏ x : n, M (x_1 x) x)
+                              (mul_comm ((ε x)) (∏ x_1 : n, N (x x_1) x_1))))
+              exact (congr (congrArg HMul.hMul h2_1) h2_2).trans mul_sum
+            have h3 : ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+                = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
+              := by
+              refine' sum_congr _ _
+              · exact (Eq.refl univ)
+              · intros h3_1 h3_2
+                have h3_3:= ((mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
+                            ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))).trans
+                        mul_sum)
+                have h3_4:= (sum_congr (Eq.refl univ) fun x_1 a ↦
+                      ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (x_1 x) x)
                                 (ε x_1)).trans
                             (congrArg (HMul.hMul (∏ x : n, M (x_1 x) x))
-                              (mul_assoc (∏ x_2 : n, N (x x_2) x_2) (ε x) (ε x_1)))).trans
-                        (mul_left_comm (∏ x : n, M (x_1 x) x) (∏ x_2 : n, N (x x_2) x_2)
-                          ((ε x) * (ε x_1)))))
+                              (mul_assoc (∏ x_2 : n, N (h3_1 x_2) x_2) (ε h3_1) (ε x_1)))).trans
+                        (mul_left_comm (∏ x : n, M (x_1 x) x) (∏ x_2 : n, N (h3_1 x_2) x_2)
+                          ((ε h3_1) * (ε x_1))))
+                have h3_5:= h3_3.trans h3_4
+                exact h3_5
             have h4:= h2.trans h3
             simp only [h4]
             congr
