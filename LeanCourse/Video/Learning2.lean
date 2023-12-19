@@ -2,6 +2,7 @@ import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
 -- set_option trace.Meta.synthInstance true
+-- 要解释每一个名词的实际数学意义
 
 namespace Matrix
 
@@ -54,16 +55,18 @@ namespace Matrix
 
   def matrix1_adjugate : Matrix (Fin 2) (Fin 2) ℝ := adjugate matrix1
   def matrix1_det := matrix1.det
-  #eval matrix1
-  #eval matrix1_adjugate -- 伴随矩阵
+  -- #eval matrix1
+  -- [ 1 2
+  --   3 4 ]
+  -- #eval matrix1_adjugate -- 伴随矩阵（伴随矩阵即每一项先变余子式行列式，再加正负号(定义为-1的i+j次方)，再转置）
   -- [ 4 -2
   --  -3  1 ]
-  #eval (matrix1_adjugate * matrix1) -- 伴随矩阵 矩阵乘 矩阵
+  -- #eval (matrix1_adjugate * matrix1) -- 伴随矩阵 矩阵乘 矩阵
   -- [ -2  0
   --    0 -2 ]
-  #eval matrix1_det -- 矩阵的行列式，是一个实数
+  -- #eval matrix1_det -- 矩阵的行列式，是一个实数
   --  (-2)
-  #eval matrix1_det • matrixUnit -- 矩阵的行列式 数乘 矩阵
+  -- #eval matrix1_det • matrixUnit -- 矩阵的行列式 数乘 矩阵
   -- [ -2  0
   --    0 -2 ]
   -- 可以看出matrix1_adjugate * matrix1 和 matrix1_det • matrixUnit 结果相等
@@ -71,17 +74,17 @@ namespace Matrix
 
 
   -- Finset.sum Finset.univ的使用：
-    -- def my_set := (Finset.univ : (Finset (Fin 2)))
-    -- #eval my_set
+    def my_set := (Finset.univ : (Finset (Fin 2)))
+    -- #eval my_set -- {0, 1}
     --   Finset.sum需要两个参数：
-    -- 一个有限集合，表示对该集合中的元素进行求和。
-    -- -- 一个返回可相加的类型（即带有has_add类型类）的函数表达式，用于指定如何将集合中的元素相加。
-    -- def sum_of_numbers : ℕ
-    --   := Finset.sum (Finset.range 11) (fun x => x)
-    -- #eval sum_of_numbers
-    -- def sum_of_numbers2 : ℕ
-    --   := Finset.sum my_set (fun x => x)
-    -- #eval sum_of_numbers2
+      -- 1.一个有限集合，表示对该集合中的元素进行求和。
+      -- 2.一个返回可相加的类型（即带有has_add类型类）的函数表达式，用于指定如何将集合中的元素相加。
+    def sum_of_numbers : ℕ
+      := Finset.sum (Finset.range 11) (fun x => x) -- 也就是x为0到10自然数，f(x)=x求和
+    -- #eval sum_of_numbers -- 55
+    def sum_of_numbers2 : ℕ
+      := Finset.sum my_set (fun x => x) -- 也就是x为{0, 1}，f(x)=x求和
+    -- #eval sum_of_numbers2 -- 1
 
 
 
@@ -96,16 +99,22 @@ namespace Matrix
   lemma mul_adjugate_apply2 (A : Matrix n2 n2 α2) (i j k) :
     (A i k) * (adjugate A k j) = (cramer Aᵀ) (Pi.single k (A i k)) j
   := by
+    have test: (cramer Aᵀ) (A i k • Pi.single k 1) j
+    = (A i k • (cramer Aᵀ) (Pi.single k 1)) j
+    := by
+      simp only [SMulHomClass.map_smul]---我知道了，你要知道f代表什么，f代表(cramer Aᵀ) (参数一) j
+      -- simp only [Pi.smul_apply]
+      -- simp only [smul_eq_mul]
     rw [
     ← smul_eq_mul,
     adjugate, -- 1↔2,4 伴随矩阵的定义来的。伴随矩阵即每一项先变余子式行列式，再加正负号(定义为-1的i+j次方)，再转置
     of_apply,
     ← Pi.smul_apply,
-    ← LinearMap.map_smul,
-    ← Pi.single_smul',
+    ← test,
+    ]
+    rw [← Pi.single_smul',
     smul_eq_mul,
     mul_one]
-
 
   -- 1↔3 的桥梁(由1↔2,4 和 2↔3,4 和 4↔null 得到)
   lemma mul_adjugate2
@@ -134,11 +143,11 @@ namespace Matrix
     mul_boole]
     simp only [mul_adjugate_apply2] -- 1↔2,4的桥梁
     simp only [sum_cramer_apply]
-    simp only [Finset.sum_pi_single]
+    simp only [Finset.sum_pi_single] --??? Pi.singel什么意思，怎么用
     simp only [Finset.mem_univ]
     simp only [ite_true]
     -- simp only [ne_eq, Finset.sum_pi_single, Finset.mem_univ, ite_true]
-    simp only [cramer_transpose_row_self] -- 2↔3,4的桥梁
+    simp only [cramer_transpose_row_self] -- 2↔3,4的桥梁 --???单独cramer Aᵀ是什么意思
     simp only [Pi.single_apply] -- 4↔null的桥梁
     simp only [eq_comm]
     done
