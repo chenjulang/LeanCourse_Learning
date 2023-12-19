@@ -41,14 +41,11 @@ namespace Matrix --目的是避免模糊定义mul_apply
 
 -- 问题：v是什么？
 -- MultilinearMap R (fun x（x就是n） ↦ n → R) R 也就是(n → n → R) → R
-
-
   abbrev det2 (M : Matrix n n R): R :=
     -- have h1 := detRowAlternating2 M
     detRowAlternating2 M -- 这里为什么类型是R，因为detRowAlternating2相当于detRowAlternating2.toFun
     -- 也就是(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
   #check detRowAlternating2.toFun -- 所以上面M不是参数，而是被作用了，detRowAlternating2是一个映射作用到M上了
-
 
 
 
@@ -60,42 +57,92 @@ namespace Matrix --目的是避免模糊定义mul_apply
       · intro h1 h2
         exact mem_univ h1
       intros h3 h4 h5
-      apply det_mul_aux
-      simp only [true_and_iff] at h5
-      simp only [mem_filter] at h5
+      apply det_mul_aux -- ???
+      simp only [mem_filter] at h5 -- ???
       simp only [mem_univ] at h5
-      simp at h5
-      apply h5
+      simp only [true_and_iff] at h5
+      set h6 := fun x ↦ h3 x
+      exact h5
 
-  lemma hhh2 (M N : Matrix n n R) : ∑ p in (@univ (n → n) _).filter Bijective, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
+  lemma hhh2 (M N : Matrix n n R) :
+  ∑
+    p in (@univ (n → n) _).filter Bijective,
+      ∑
+        σ : Perm n,
+          (
+            ε σ
+            *
+            ∏ i, M (σ i) (p i) * N (p i) i
+          )
       = ∑ τ : Perm n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (τ i) * N (τ i) i
       := by
-      -- apply sum_bij
-      -- · intro h1
-      --   intro h2
-      --   simp only [mem_univ]
-      -- · intro h3
-      --   intro h4
-      --   simp only
-      --   sorry
-      -- · intro h5
-      --   intro h6
-      --   intro h7
-      --   intro h8
-      --   intro h9
-      --   sorry
-      -- · intro h10
-      --   intro h11
-      --   simp only [mem_univ, forall_true_left, mem_filter, true_and]
-      --   sorry
-      -- · intro h12
-      --   intro h13
-      --   exact Equiv.refl n
-      exact (sum_bij (fun p h => Equiv.ofBijective p (mem_filter.1 h).2) (fun _ _ => mem_univ _)
-              (fun _ _ => rfl) (fun _ _ _ _ h => by injection h) fun b _ =>
-              ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩)
+      rw [sum_comm]
+      rw [sum_comm] -- 相当于没变，只改成了x,y
+      refine' sum_bij _ _ _ _ _
+      · intros ih1 ih2
+        have ih3:= (mem_filter.mp ih2).right
+        have ih4:= ofBijective ih1 ih3
+        exact ih4 -- 如果这里定义错了，下面满盘皆输
+      -- intros ih1 ih2
+      --   have ih3:= Equiv.refl n
+      --   simp only [Perm]
+      --   exact ih3
+      -- apply sum_bij -- ???
+      · intro h1
+        intro h2
+        simp only [mem_univ]
+      · intros h_1 h_2
+        have h_3:= mem_filter.1 h_2
+        obtain ⟨h_4,h_5⟩ := h_3
+        -- have h_6:= Equiv.ofBijective h_1 h_5 -- ???
+        simp only [id_eq, refl_apply]
+        rfl
+      · exact (fun _ _ _ _ h => by injection h) ---?
+        done
+      -- intros inj_1 inj_2 inj_3 inj_4 inj_5
+      · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---?
+        done
+      done
 
-  lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * ∏ j, M (τ j) (σ j)
+  lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
+      = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
+      := by
+      refine' sum_congr _ _
+      · rfl
+      · intros h1 h2
+        refine' Fintype.sum_equiv _ _ _ _
+        · exact Equiv.mulRight h1
+        · intros h5
+          have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j
+            := by
+            rw [← (h1⁻¹ : _ ≃ _).prod_comp]
+            simp only [Equiv.Perm.coe_mul, apply_inv_self, Function.comp_apply]
+          have h6 : ε h1 * ε (h5 * h1⁻¹) = ε h5
+            :=
+            calc
+              ε h1 * ε (h5 * h1⁻¹) = ε (h5 * h1⁻¹ * h1) := by
+                rw [mul_comm, sign_mul (h5 * h1⁻¹)]
+                simp only [Int.cast_mul, Units.val_mul]
+              _ = ε h5 := by simp only [inv_mul_cancel_right]
+          simp_rw [Equiv.coe_mulRight, h6]
+          -- simp only [h4]
+      sorry
+      -- exact (sum_congr rfl fun σ _ =>
+      --         Fintype.sum_equiv (Equiv.mulRight σ⁻¹) _ _ fun τ => by
+      --           have : (∏ j, M (τ j) (σ j)) = ∏ j, M ((τ * σ⁻¹) j) j := by
+      --             rw [← (σ⁻¹ : _ ≃ _).prod_comp]
+      --             simp only [Equiv.Perm.coe_mul, apply_inv_self, Function.comp_apply]
+      --           have h : ε σ * ε (τ * σ⁻¹) = ε τ :=
+      --             calc
+      --               ε σ * ε (τ * σ⁻¹) = ε (τ * σ⁻¹ * σ) := by
+      --                 rw [mul_comm, sign_mul (τ * σ⁻¹)]
+      --                 simp only [Int.cast_mul, Units.val_mul]
+      --               _ = ε τ := by simp only [inv_mul_cancel_right]
+
+      --           simp_rw [Equiv.coe_mulRight, h]
+      --           simp only [this])
+
+  lemma hhh3_2 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * ∏ j, M (τ j) (σ j)
       = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
       := by
       exact (sum_congr rfl fun σ _ =>
@@ -112,6 +159,10 @@ namespace Matrix --目的是避免模糊定义mul_apply
 
                 simp_rw [Equiv.coe_mulRight, h]
                 simp only [this])
+  #print hhh3_2
+
+
+
 
   -- @[simp]
   theorem det_mul2 (M N : Matrix n n R) : det (M * N) = det M * det N
