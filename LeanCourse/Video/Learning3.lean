@@ -89,53 +89,62 @@ namespace Matrix --目的是避免模糊定义mul_apply
       · intro h1 h2
         exact mem_univ h1
       intros h3 h4 h5
-      apply det_mul_aux -- ???一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
-      simp only [mem_filter] at h5 -- ???
+      apply det_mul_aux -- ???这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
+      simp only [mem_filter] at h5 -- 就是filter的定义呗，是属于某个集合里面的，而且满足条件1
       simp only [mem_univ] at h5
       simp only [true_and_iff] at h5
-      set h6 := fun x ↦ h3 x
+      set h6 := fun x ↦ h3 x -- 写这个h6,h7是为了补充说明，其实这里h6就是和h3同一个映射，写法不一样而已
+      have h7: h6=h3
+      := by
+        exact rfl
       exact h5
 
-  -- set_option linter.unusedVariables false in
-  -- lemma hhh2 (M N : Matrix n n R) :
-  -- ∑
-  --   p in (@univ (n → n) _).filter Bijective,
-  --     ∑
-  --       σ : Perm n,
-  --         (
-  --           ε σ
-  --           *
-  --           ∏ i, M (σ i) (p i) * N (p i) i
-  --         )
-  --     = ∑ τ : Perm n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (τ i) * N (τ i) i
-  --     := by
-  --     rw [sum_comm]
-  --     rw [sum_comm] -- 相当于没变，只改成了x,y
-  --     refine' sum_bij _ _ _ _ _
-  --     · intros ih1 ih2
-  --       have ih3:= (mem_filter.mp ih2).right
-  --       have ih4:= ofBijective ih1 ih3
-  --       exact ih4 -- 如果这里定义错了，下面满盘皆输
-  --     -- intros ih1 ih2
-  --     --   have ih3:= Equiv.refl n
-  --     --   simp only [Perm]
-  --     --   exact ih3
-  --     -- apply sum_bij -- ???
-  --     · intro h1
-  --       intro h2
-  --       simp only [mem_univ]
-  --     · intros h_1 h_2
-  --       have h_3:= mem_filter.1 h_2
-  --       obtain ⟨h_4,h_5⟩ := h_3
-  --       -- have h_6:= Equiv.ofBijective h_1 h_5 -- ???
-  --       simp only [id_eq, refl_apply]
-  --       rfl
-  --     · exact (fun _ _ _ _ h => by injection h) ---?
-  --       done
-  --     -- intros inj_1 inj_2 inj_3 inj_4 inj_5
-  --     · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---?
-  --       done
-  --     done
+  set_option linter.unusedVariables false in
+  lemma hhh2 (M N : Matrix n n R) :
+  ∑
+    p in (@univ (n → n) _).filter Bijective,
+      ∑
+        σ : Perm n,
+          (
+            ε σ
+            *
+            ∏ i, M (σ i) (p i) * N (p i) i
+          )
+      = ∑ τ : Perm n,
+          ∑ σ : Perm n,
+              ε σ
+              *
+              ∏ i,
+                M (σ i) (τ i) * N (τ i) i
+      := by
+      rw [sum_comm]
+      rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
+      refine' sum_bij _ _ _ _ _ -- 不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+      · intros ih1 ih2
+        have ih3:= (mem_filter.mp ih2).right
+        have ih4:= ofBijective ih1 ih3
+        exact ih4 -- 如果这里定义错了，下面满盘皆输
+      -- 注意不能像以下这样定义
+      -- intros ih1 ih2
+      --   have ih3:= Equiv.refl n
+      --   simp only [Perm]
+      --   exact ih3
+      -- apply sum_bij -- ???
+      · intro h1
+        intro h2
+        simp only [mem_univ]
+      · intros h_1 h_2
+        have h_3:= mem_filter.1 h_2
+        obtain ⟨h_4,h_5⟩ := h_3
+        -- have h_6:= Equiv.ofBijective h_1 h_5 -- ???
+        simp only [id_eq, refl_apply]
+        rfl
+      · exact (fun _ _ _ _ h => by injection h) ---?
+        done
+      -- intros inj_1 inj_2 inj_3 inj_4 inj_5
+      · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---?
+        done
+      done
 
   -- set_option linter.unusedVariables false in
   -- lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
