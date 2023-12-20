@@ -9,12 +9,12 @@ namespace Matrix
   -- universe u2 u2' v2
   def m2 : Type := ℕ
   def n2 : Type := ℕ
-  def α2 : Type := ℝ
+  def α2 : Type := ℚ
 
   variable
     -- {m2 := ℕ  } --三个类型
     -- {n2 : ℕ  }
-    -- {α2 : ℝ  }
+    -- {α2 : ℚ  }
     -- Fintype α意思是α是有限的（即只有有限多个不同的类型元素α）。
     [Fintype n2]
     -- 断言α具有可判定的相等性（即对全部a b : α，a = b是可判定的）
@@ -37,17 +37,17 @@ namespace Matrix
 -- 先看几个前置知识，然后后面涉及到的不懂的其实可以忽略，抓住形式化证明的核心，就是“一样的形式，可以rfl替换”
 
   -- 实际案例：
-  def matrix1 : Matrix (Fin 2) (Fin 2) ℝ :=
+  def matrix1 : Matrix (Fin 2) (Fin 2) ℚ :=
     ![![1, 2],
       ![3, 4]]
-  def matrix2 : Matrix (Fin 2) (Fin 2) ℝ :=
+  def matrix2 : Matrix (Fin 2) (Fin 2) ℚ :=
     ![![5, 6],
       ![7, 8]]
-  def matrixUnit : Matrix (Fin 2) (Fin 2) ℝ :=
+  def matrixUnit : Matrix (Fin 2) (Fin 2) ℚ :=
     ![![1, 0],
       ![0, 1]]
 
-  --  def matrix3 : Matrix (Fin 2) (Fin 3) ℝ :=
+  --  def matrix3 : Matrix (Fin 2) (Fin 3) ℚ :=
   --   ![![1, 2, 3],
   --     ![4 ,5, 6]]
   -- #eval matrix3 1 0
@@ -55,7 +55,7 @@ namespace Matrix
 
   -- #check A * B
 
-  def matrix1_adjugate : Matrix (Fin 2) (Fin 2) ℝ := adjugate matrix1
+  def matrix1_adjugate : Matrix (Fin 2) (Fin 2) ℚ := adjugate matrix1
   def matrix1_det := matrix1.det
   -- #eval matrix1
   -- [ 1 2
@@ -90,20 +90,20 @@ namespace Matrix
     -- #eval sum_of_numbers2 -- 1
 
 -- cramer 的使用
-  def matrixb :  Fin 2 → ℝ :=
+  def matrixb :  Fin 2 → ℚ :=
     ![5, 6]
   #eval matrixb
   def cramer001 := (cramer matrix1 matrixb)
-  -- 可以看成一个n*1维的矩阵；也可以看成Fin 2 → ℝ，类似于数列；相当于 A.det • x ； 比如这里![8 -9]里，8就是matrix1第一列换成matrixb之后的矩阵，计算出来的行列式；9就是第2列替换matrixb后计算的行列式
+  -- 可以看成一个n*1维的矩阵；也可以看成Fin 2 → ℚ，类似于数列；相当于 A.det • x ； 比如这里![8 -9]里，8就是matrix1第一列换成matrixb之后的矩阵，计算出来的行列式；9就是第2列替换matrixb后计算的行列式
   #eval cramer001
-  def solution := (matrix1_det) • (cramer matrix1 matrixb)
-  --  如何表示除法要有理数才行的
+  def solution := (1/matrix1_det) • (cramer matrix1 matrixb)
+  --  如何表示除法???
   #eval solution -- 解应该是x=![-4 4.5]
 
 
 
 -- Pi.single 的使用
-  def matrixPiSingle : Matrix (Fin 3) (Fin 3) ℝ :=
+  def matrixPiSingle : Matrix (Fin 3) (Fin 3) ℚ :=
     ![![1, 2, 3],
       ![4, 5, 6],
       ![7, 8, 9]]
@@ -115,7 +115,7 @@ namespace Matrix
   --   :n2 → α2
   --   := (Pi.single k (A i k))
   def Single001 (i k j:Fin 3)
-      :Fin 3 → ℝ
+      :Fin 3 → ℚ
       := Pi.single j (matrixPiSingle (i-1) (k-1)) -- 这里j是标志判断位，
   #eval (Single001 3 1 2) 2 --最后一个输入2才是重点，如何和j相同，就输出预设好的(matrixPiSingle (i-1) (k-1))的值，否则输出0
 

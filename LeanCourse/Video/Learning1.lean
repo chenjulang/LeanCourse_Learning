@@ -90,7 +90,7 @@ noncomputable section
       simp only [pow_one]
       simp [fib]
       done
-    case step k ih1 ih2 =>
+    case step k ih1 ih2 => -- 重点在这一步!!!
       simp [fib]
       rw [ih1]
       rw [ih2]
