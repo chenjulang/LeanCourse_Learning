@@ -34,6 +34,8 @@ namespace Matrix
   variable (A : Matrix n2 n2 α2) (B : Matrix n2 n2 α2)
   -- ---/
 
+-- 先看几个前置知识，然后后面涉及到的不懂的其实可以忽略，抓住形式化证明的核心，就是“一样的形式，可以rfl替换”
+
   -- 实际案例：
   def matrix1 : Matrix (Fin 2) (Fin 2) ℝ :=
     ![![1, 2],
@@ -64,7 +66,8 @@ namespace Matrix
   -- #eval (matrix1_adjugate * matrix1) -- 伴随矩阵 矩阵乘 矩阵
   -- [ -2  0
   --    0 -2 ]
-  -- #eval matrix1_det -- 矩阵的行列式，是一个实数
+  #eval matrix1_det -- 矩阵的行列式，是一个实数
+  -- #eval matrix1_det • matrix1
   --  (-2)
   -- #eval matrix1_det • matrixUnit -- 矩阵的行列式 数乘 矩阵
   -- [ -2  0
@@ -73,7 +76,7 @@ namespace Matrix
 
 
 
-  -- Finset.sum Finset.univ的使用：
+-- Finset.sum Finset.univ的使用：
     def my_set := (Finset.univ : (Finset (Fin 2)))
     -- #eval my_set -- {0, 1}
     --   Finset.sum需要两个参数：
@@ -85,6 +88,40 @@ namespace Matrix
     def sum_of_numbers2 : ℕ
       := Finset.sum my_set (fun x => x) -- 也就是x为{0, 1}，f(x)=x求和
     -- #eval sum_of_numbers2 -- 1
+
+-- cramer 的使用
+  def matrixb :  Fin 2 → ℝ :=
+    ![5, 6]
+  #eval matrixb
+  def cramer001 := (cramer matrix1 matrixb)
+  -- 可以看成一个n*1维的矩阵；也可以看成Fin 2 → ℝ，类似于数列；相当于 A.det • x ； 比如这里![8 -9]里，8就是matrix1第一列换成matrixb之后的矩阵，计算出来的行列式；9就是第2列替换matrixb后计算的行列式
+  #eval cramer001
+  -- def newVector001 :Fin 2 → ℝ := fun
+  --   | .mk val isLt => {
+  --     cauchy :=  (matrix1_det.1)
+  --   }
+  -- #eval newVector001
+  def solution := (matrix1_det) • (cramer matrix1 matrixb)
+  --  如何表示除法???
+  #eval solution -- 解应该是x=![-4 4.5]
+
+-- Pi.single 的使用
+  def matrixPiSingle : Matrix (Fin 3) (Fin 3) ℝ :=
+    ![![1, 2, 3],
+      ![4, 5, 6],
+      ![7, 8, 9]]
+  #eval matrixPiSingle 0 0
+  #eval matrixPiSingle 0 1
+  #eval matrixPiSingle 2 0
+  -- def Single001 (i k:Fin 3):= Pi.single k (matrixPiSingle i k)
+  -- def Single001 (A : Matrix n2 n2 α2) (i k:n2)
+  --   :n2 → α2
+  --   := (Pi.single k (A i k))
+  def Single001 (i k j:Fin 3)
+      :Fin 3 → ℝ
+      := Pi.single j (matrixPiSingle (i-1) (k-1)) -- 这里j是标志判断位，
+  #eval (Single001 3 1 2) 2 --最后一个输入2才是重点，如何和j相同，就输出预设好的(matrixPiSingle (i-1) (k-1))的值，否则输出0
+
 
 
 
@@ -103,8 +140,6 @@ namespace Matrix
     = (A i k • (cramer Aᵀ) (Pi.single k 1)) j
     := by
       simp only [SMulHomClass.map_smul]---我知道了，你要知道f代表什么，f代表(cramer Aᵀ) (参数一) j
-      -- simp only [Pi.smul_apply]
-      -- simp only [smul_eq_mul]
     rw [
     ← smul_eq_mul,
     adjugate, -- 1↔2,4 伴随矩阵的定义来的。伴随矩阵即每一项先变余子式行列式，再加正负号(定义为-1的i+j次方)，再转置
@@ -143,11 +178,12 @@ namespace Matrix
     mul_boole]
     simp only [mul_adjugate_apply2] -- 1↔2,4的桥梁
     simp only [sum_cramer_apply]
-    simp only [Finset.sum_pi_single] --??? Pi.singel什么意思，怎么用
+    -- have :sorry:=sorry
+    simp only [Finset.sum_pi_single] --??? Pi.single就是一个按特定索引得到单值，其他索引得到0
     simp only [Finset.mem_univ]
     simp only [ite_true]
     -- simp only [ne_eq, Finset.sum_pi_single, Finset.mem_univ, ite_true]
-    simp only [cramer_transpose_row_self] -- 2↔3,4的桥梁 --???单独cramer Aᵀ是什么意思
+    simp only [cramer_transpose_row_self] --???好像是这么一回事 -- 2↔3,4的桥梁 --单独cramer Aᵀ是再穿一个系数矩阵b，就得到由行列式组成的n*1维矩阵或看成数列
     simp only [Pi.single_apply] -- 4↔null的桥梁
     simp only [eq_comm]
     done

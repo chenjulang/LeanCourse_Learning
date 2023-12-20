@@ -166,3 +166,4 @@ MultilinearMap n (fun _ : R => n) R
   -- def foo3 := (MultilinearMap.mkPiAlgebra R n R)
   -- #check foo3 -- MultilinearMap R (fun x ↦ R) R 或者 MultilinearMap R (n ↦ R) R
   -- #check foo3.toFun -- (?m.31250 → ?m.31252) → ?m.31252 或 (n ↦ R) ↦ R
+have :sorry:=sorry
