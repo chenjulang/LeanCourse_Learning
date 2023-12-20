@@ -2,7 +2,7 @@ import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
 -- set_option trace.Meta.synthInstance true
--- 要解释每一个名词的实际数学意义
+-- 要解释每一个名词的实际数学意义，别忘了提一下gpt的帮助，虽然不能直接用，但是大致代码是有的。
 
 namespace Matrix
 
@@ -179,11 +179,12 @@ namespace Matrix
     simp only [mul_adjugate_apply2] -- 1↔2,4的桥梁
     simp only [sum_cramer_apply]
     -- have :sorry:=sorry
-    simp only [Finset.sum_pi_single] --??? Pi.single就是一个按特定索引得到单值，其他索引得到0
+    simp only [Finset.sum_pi_single] -- Pi.single就是一个按特定索引得到单值，其他索引得到0 ； 这里理解是：
+    -- 首先对于Finset.sum Finset.univ fun x ↦ Pi.single x (A i x) j 我们知道x会进行遍历n2，其实只有x=j时有值，其余为0，所以j是否属于n2就决定了一切
     simp only [Finset.mem_univ]
     simp only [ite_true]
     -- simp only [ne_eq, Finset.sum_pi_single, Finset.mem_univ, ite_true]
-    simp only [cramer_transpose_row_self] --???好像是这么一回事 -- 2↔3,4的桥梁 --单独cramer Aᵀ是再穿一个系数矩阵b，就得到由行列式组成的n*1维矩阵或看成数列
+    simp only [cramer_transpose_row_self] --好像是这么一回事，这就是行列式有两列相等，行列式就是0 -- 2↔3,4的桥梁 --单独cramer Aᵀ是再穿一个系数矩阵b，就得到由行列式组成的n*1维矩阵或看成数列
     simp only [Pi.single_apply] -- 4↔null的桥梁
     simp only [eq_comm]
     done
