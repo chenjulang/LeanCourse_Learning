@@ -119,32 +119,40 @@ namespace Matrix --目的是避免模糊定义mul_apply
       := by
       rw [sum_comm]
       rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
-      refine' sum_bij _ _ _ _ _ -- 不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
-      · intros ih1 ih2
+      refine' sum_bij _ _ _ _ _ -- ???不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+      · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
         have ih3:= (mem_filter.mp ih2).right
         have ih4:= ofBijective ih1 ih3
+        simp only [Perm]
         exact ih4 -- 如果这里定义错了，下面满盘皆输
       -- 注意不能像以下这样定义
       -- intros ih1 ih2
       --   have ih3:= Equiv.refl n
       --   simp only [Perm]
       --   exact ih3
-      -- apply sum_bij -- ???
       · intro h1
-        intro h2
+        intro h2 --原来这里会用到refine1的证明
         simp only [mem_univ]
       · intros h_1 h_2
         have h_3:= mem_filter.1 h_2
         obtain ⟨h_4,h_5⟩ := h_3
-        -- have h_6:= Equiv.ofBijective h_1 h_5 -- ???
-        simp only [id_eq, refl_apply]
+        simp only [id_eq]
+        set h_6 := ofBijective h_1 h_5 -- h_1和h_6相等吗？，由ofBijective的toFun定义知道就是h_1
+        have h1_equal_h6 : h_1=h_6
+          := by
+          exact rfl
         rfl
-      · exact (fun _ _ _ _ h => by injection h) ---?
+      · intros inj_1 inj_2 inj_3 inj_4 inj_5
+        refine' Equiv.noConfusion inj_5 _
+        intros inj_6 inj_7
+        exact inj_6
         done
-      -- intros inj_1 inj_2 inj_3 inj_4 inj_5
-      · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---?
+      · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---???
         done
       done
+
+  #print hhh2
+
 
   -- set_option linter.unusedVariables false in
   -- lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
