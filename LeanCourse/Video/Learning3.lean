@@ -6,7 +6,7 @@ import Mathlib.Data.List.Perm
 
 
 -- set_option trace.Meta.synthInstance true
-set_option maxHeartbeats 400000
+-- set_option maxHeartbeats 400000
 
 
 universe u v w z
@@ -21,6 +21,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
   variable {R : Type v} [CommRing R]
 
   local notation "ε " σ:arg => ((sign σ : ℤ) : R)
+set_option linter.unusedVariables false
 
 -- -- -----/行列式
 
@@ -68,7 +69,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
   -- def example_function : n → n :=
   -- λ x => x
   -- @[nolint unusedArguments]
-  set_option linter.unusedVariables false in
+  -- set_option linter.unusedVariables false in
   lemma hhh1 (M N : Matrix n n R) :
       ∑ p : n → n,
         ∑ σ : Perm n,
@@ -99,7 +100,6 @@ namespace Matrix --目的是避免模糊定义mul_apply
         exact rfl
       exact h5
 
-  set_option linter.unusedVariables false in
   lemma hhh2 (M N : Matrix n n R) :
   ∑
     p in (@univ (n → n) _).filter Bijective,
@@ -143,171 +143,269 @@ namespace Matrix --目的是避免模糊定义mul_apply
           exact rfl
         rfl
       · intros inj_1 inj_2 inj_3 inj_4 inj_5
-        refine' Equiv.noConfusion inj_5 _
+        refine' Equiv.noConfusion inj_5 _ ---???
         intros inj_6 inj_7
         exact inj_6
         done
-      · exact fun b _ => ⟨b, mem_filter.2 ⟨mem_univ _, b.bijective⟩, coe_fn_injective rfl⟩ ---???
+      · intros b x
+        refine' Exists.intro b _ -- ???
+        refine' Exists.intro _ _
+        · refine' mem_filter.mpr _
+          constructor
+          · refine' mem_univ (↑b)
+          · exact Equiv.bijective b
+        · refine' coe_fn_injective _
+          simp only [id_eq, FunLike.coe_fn_eq]
+          exact Equiv.ext (congrFun rfl)
         done
       done
 
-  #print hhh2
+  lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
+      = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
+      := by
+      refine' sum_congr _ _ --???
+      · rfl
+      · intros h1 h2
+        refine' Fintype.sum_equiv _ _ _ _
+        · exact Equiv.mulRight h1⁻¹
+        · intros h5
+          have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j
+            := by
+            rw [← (h1⁻¹ : _ ≃ _).prod_comp]
+            simp only [Equiv.Perm.coe_mul]
+            simp only [apply_inv_self]
+            simp only [Function.comp_apply]
+          have h6 : ε h1 * ε (h5 * h1⁻¹) = ε h5
+            :=
+            calc
+              ε h1 * ε (h5 * h1⁻¹) = ε (h5 * h1⁻¹ * h1)
+              := by
+                rw [mul_comm, sign_mul (h5 * h1⁻¹)]
+                simp only [Int.cast_mul]
+                simp only [Units.val_mul]
+                simp only [_root_.map_mul, map_inv, Int.units_inv_eq_self, Units.val_mul,
+                  Int.cast_mul]
+              _ = ε h5
+              := by simp only [inv_mul_cancel_right]
+          simp_rw [Equiv.coe_mulRight]
+          simp_rw [h6]
+          simp only [h4]
+      done
 
+
+  lemma MainGoal_6 (M N : Matrix n n R): ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
+  = det M * det N
+    := by
+    -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
+    have h2 : det M * det N =
+      ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+      := by
+      have h2_1 : det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+        := by
+        have h2_1_1 :=(det_apply' M)
+        have h2_1_2 : ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
+          = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+          := by
+          refine' sum_congr _ _
+          · exact (Eq.refl univ)
+          · intros h212x h212a
+            have h2_1_2_1
+              : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
+              := by
+              exact rfl --竟然直接搞定了
+            have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
+            have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
+            exact h2_1_2_3
+        have h2_1_3 := h2_1_1.trans h2_1_2
+        exact h2_1_3
+      have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+        := by
+        have h2_2_1:= det_apply' N
+        have h2_2_2:  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+          := by
+          refine' sum_congr _ _
+          · exact Eq.refl univ
+          · intros h222x h222a
+            have h2_2_2_1 : (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1 = (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1
+              := by
+              rfl
+            have h2_2_2_2:= (mul_comm ((ε h222x)) (∏ x_1 : n, N (h222x x_1) x_1))
+            have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
+            exact h2_2_2_3
+        have h2_2_3:= h2_2_1.trans h2_2_2
+        exact h2_2_3
+      exact (congr (congrArg HMul.hMul h2_1) h2_2).trans mul_sum
+    have h3 : ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+        = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
+      := by
+      refine' sum_congr _ _
+      · exact (Eq.refl univ)
+      · intros h3_1 h3_2
+        have h3_3 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+        = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x))
+          := by
+          have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+          = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+          := by
+            -- refine' mul_comm _ _
+            have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+            exact h3_3_1_1
+          have h3_3_2:= h3_3_1.trans mul_sum
+          exact h3_3_2
+        have h3_4 : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
+        = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1)))
+          := by
+          refine' sum_congr _ _
+          · exact (Eq.refl univ)
+          · intros h34x_1 h34a
+            have h3_4_1 : (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (h34x_1 x) x) * (ε h34x_1))
+            =(∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+              := ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (h34x_1 x) x)
+                        (ε h34x_1)).trans
+                    (congrArg (HMul.hMul (∏ x : n, M (h34x_1 x) x))
+                      (mul_assoc (∏ x_2 : n, N (h3_1 x_2) x_2) (ε h3_1) (ε h34x_1))))
+            have h3_4_2 :  (∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+            =(∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (h34x_1 x) x) * ((ε h3_1) * (ε h34x_1)))
+              := (mul_left_comm (∏ x : n, M (h34x_1 x) x) (∏ x_2 : n, N (h3_1 x_2) x_2)
+                  ((ε h3_1) * (ε h34x_1)))
+            have h3_4_3:= h3_4_1.trans h3_4_2
+            exact h3_4_3
+        have h3_5:= h3_3.trans h3_4
+        exact h3_5
+    have h4:= h2.trans h3
+    simp only [h4]
+    congr
+    funext xx1
+    congr
+    funext xx2
+    rw [mul_right_comm]
+    repeat rw [← mul_assoc]
 
   -- set_option linter.unusedVariables false in
-  -- lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
-  --     = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
-  --     := by
-  --     refine' sum_congr _ _
-  --     · rfl
-  --     · intros h1 h2
-  --       refine' Fintype.sum_equiv _ _ _ _
-  --       · exact Equiv.mulRight h1⁻¹
-  --       · intros h5
-  --         have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j
-  --           := by
-  --           rw [← (h1⁻¹ : _ ≃ _).prod_comp]
-  --           simp only [Equiv.Perm.coe_mul, apply_inv_self, Function.comp_apply]
-  --         have h6 : ε h1 * ε (h5 * h1⁻¹) = ε h5
-  --           :=
-  --           calc
-  --             ε h1 * ε (h5 * h1⁻¹) = ε (h5 * h1⁻¹ * h1) := by
-  --               rw [mul_comm, sign_mul (h5 * h1⁻¹)]
-  --               simp only [Int.cast_mul, Units.val_mul]
-  --             _ = ε h5 := by simp only [inv_mul_cancel_right]
-  --         simp_rw [Equiv.coe_mulRight, h6]
-  --         simp only [h4]
-  --     done
-
-  -- set_option linter.unusedVariables false in
-  -- -- @[simp]
-  -- theorem MainGoal (M N : Matrix n n R)
-  -- : det (M * N) = det M * det N
-  -- := by
-  --   have h1 :det (M * N) = det M * det N :=
-  --     calc
-  --         det (M * N)
-  --         = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
-  --           := by
-  --           simp only [det_apply']
-  --           simp only [mul_apply]
-  --           simp only [prod_univ_sum]
-  --           simp only [mul_sum]
-  --           simp only [Fintype.piFinset_univ]
-  --           rw [Finset.sum_comm]
-  --         _ = ∑ p
-  --               in (@univ (n → n) _).filter Bijective,
-  --                 ∑ σ
-  --                   : Perm n,
-  --                     ε σ
-  --                     *
-  --                     (∏ i, M (σ i) (p i) * N (p i) i)
-  --           := by
-  --           exact (hhh1 M N)
-  --         _ = ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i)
-  --           := by
-  --           exact (hhh2 M N)
-  --         _ = ∑ σ
-  --               : Perm n,
-  --                 ∑ τ
-  --                   : Perm n,
-  --                     (∏ i, N (σ i) i)
-  --                     *
-  --                     ε τ
-  --                     *
-  --                     ∏ j, M (τ j) (σ j)
-  --           := by
-  --           simp only [mul_comm]
-  --           simp only [mul_left_comm]
-  --           simp only [prod_mul_distrib]
-  --           simp only [mul_assoc]
-  --         _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
-  --           := by
-  --           exact (hhh3 M N)
-  --         _ = det M * det N
-  --           := by
-  --           -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
-  --           have h2 : det M * det N =
-  --             ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
-  --             := by
-  --             have h2_1 : det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-  --               := by
-  --               have h2_1_1 :=(det_apply' M)
-  --               have h2_1_2 : ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
-  --                 = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-  --                 := by
-  --                 refine' sum_congr _ _
-  --                 · exact (Eq.refl univ)
-  --                 · intros h212x h212a
-  --                   have h2_1_2_1
-  --                     : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
-  --                     := by
-  --                     exact rfl --竟然直接搞定了
-  --                   have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
-  --                   have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
-  --                   exact h2_1_2_3
-  --               have h2_1_3 := h2_1_1.trans h2_1_2
-  --               exact h2_1_3
-  --             have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
-  --               := by
-  --               have h2_2_1:= det_apply' N
-  --               have h2_2_2:  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
-  --                 := by
-  --                 refine' sum_congr _ _
-  --                 · exact Eq.refl univ
-  --                 · intros h222x h222a
-  --                   have h2_2_2_1 : (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1 = (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1
-  --                     := by
-  --                     rfl
-  --                   have h2_2_2_2:= (mul_comm ((ε h222x)) (∏ x_1 : n, N (h222x x_1) x_1))
-  --                   have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
-  --                   exact h2_2_2_3
-  --               have h2_2_3:= h2_2_1.trans h2_2_2
-  --               exact h2_2_3
-  --             exact (congr (congrArg HMul.hMul h2_1) h2_2).trans mul_sum
-  --           have h3 : ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
-  --               = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
-  --             := by
-  --             refine' sum_congr _ _
-  --             · exact (Eq.refl univ)
-  --             · intros h3_1 h3_2
-  --               have h3_3 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-  --               = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x))
-  --                 := by
-  --                 have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-  --                 = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-  --                 := by
-  --                   -- refine' mul_comm _ _
-  --                   have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-  --                   exact h3_3_1_1
-  --                 have h3_3_2:= h3_3_1.trans mul_sum
-  --                 exact h3_3_2
-  --               have h3_4 : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
-  --               = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1)))
-  --                 := by
-  --                 refine' sum_congr _ _
-  --                 · exact (Eq.refl univ)
-  --                 · intros h34x_1 h34a
-  --                   have h3_4_1:= ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (h34x_1 x) x)
-  --                               (ε h34x_1)).trans
-  --                           (congrArg (HMul.hMul (∏ x : n, M (h34x_1 x) x))
-  --                             (mul_assoc (∏ x_2 : n, N (h3_1 x_2) x_2) (ε h3_1) (ε h34x_1))))
-  --                   have h3_4_2:= (mul_left_comm (∏ x : n, M (h34x_1 x) x) (∏ x_2 : n, N (h3_1 x_2) x_2)
-  --                         ((ε h3_1) * (ε h34x_1)))
-  --                   have h3_4_3:= h3_4_1.trans h3_4_2
-  --                   exact h3_4_3
-  --               have h3_5:= h3_3.trans h3_4
-  --               exact h3_5
-  --           have h4:= h2.trans h3
-  --           simp only [h4]
-  --           congr
-  --           funext xx1
-  --           congr
-  --           funext xx2
-  --           rw [mul_right_comm]
-  --           repeat rw [← mul_assoc]
-  --   exact h1
-  --   done
+  -- @[simp]
+  theorem MainGoal (M N : Matrix n n R)
+  : det (M * N) = det M * det N
+  := by
+    have h1 :det (M * N) = det M * det N :=
+      calc
+          det (M * N)
+          = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
+            := by
+            exact MainGoal_1 M N
+          _ = ∑ p
+                in (@univ (n → n) _).filter Bijective,
+                  ∑ σ
+                    : Perm n,
+                      ε σ
+                      *
+                      (∏ i, M (σ i) (p i) * N (p i) i)
+            := by
+            exact MainGoal_2 M N
+          _ = ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i)
+            := by
+            exact MainGoal_3 M N
+          _ = ∑ σ
+                : Perm n,
+                  ∑ τ
+                    : Perm n,
+                      (∏ i, N (σ i) i)
+                      *
+                      ε τ
+                      *
+                      ∏ j, M (τ j) (σ j)
+            := by
+            exact MainGoal_4 M N
+          _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
+            := by
+            exact MainGoal_5 M N
+          _ = det M * det N
+            := by
+            -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
+            have h2 : det M * det N =
+              ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+              := by
+              have h2_1 : det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                := by
+                have h2_1_1 :=(det_apply' M)
+                have h2_1_2 : ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
+                  = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                  := by
+                  refine' sum_congr _ _
+                  · exact (Eq.refl univ)
+                  · intros h212x h212a
+                    have h2_1_2_1
+                      : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
+                      := by
+                      exact rfl --竟然直接搞定了
+                    have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
+                    have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
+                    exact h2_1_2_3
+                have h2_1_3 := h2_1_1.trans h2_1_2
+                exact h2_1_3
+              have h2_2 : det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+                := by
+                have h2_2_1:= det_apply' N
+                have h2_2_2:  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+                  := by
+                  refine' sum_congr _ _
+                  · exact Eq.refl univ
+                  · intros h222x h222a
+                    have h2_2_2_1 : (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1 = (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1
+                      := by
+                      rfl
+                    have h2_2_2_2:= (mul_comm ((ε h222x)) (∏ x_1 : n, N (h222x x_1) x_1))
+                    have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
+                    exact h2_2_2_3
+                have h2_2_3:= h2_2_1.trans h2_2_2
+                exact h2_2_3
+              exact (congr (congrArg HMul.hMul h2_1) h2_2).trans mul_sum
+            have h3 : ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+                = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
+              := by
+              refine' sum_congr _ _
+              · exact (Eq.refl univ)
+              · intros h3_1 h3_2
+                have h3_3 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+                = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x))
+                  := by
+                  have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+                  = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+                  := by
+                    -- refine' mul_comm _ _
+                    have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+                    exact h3_3_1_1
+                  have h3_3_2:= h3_3_1.trans mul_sum
+                  exact h3_3_2
+                have h3_4 : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
+                = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1)))
+                  := by
+                  refine' sum_congr _ _
+                  · exact (Eq.refl univ)
+                  · intros h34x_1 h34a
+                    have h3_4_1 : (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (h34x_1 x) x) * (ε h34x_1))
+                    =(∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+                      := ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (h34x_1 x) x)
+                                (ε h34x_1)).trans
+                            (congrArg (HMul.hMul (∏ x : n, M (h34x_1 x) x))
+                              (mul_assoc (∏ x_2 : n, N (h3_1 x_2) x_2) (ε h3_1) (ε h34x_1))))
+                    have h3_4_2 :  (∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+                    =(∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (h34x_1 x) x) * ((ε h3_1) * (ε h34x_1)))
+                      := (mul_left_comm (∏ x : n, M (h34x_1 x) x) (∏ x_2 : n, N (h3_1 x_2) x_2)
+                          ((ε h3_1) * (ε h34x_1)))
+                    have h3_4_3:= h3_4_1.trans h3_4_2
+                    exact h3_4_3
+                have h3_5:= h3_3.trans h3_4
+                exact h3_5
+            have h4:= h2.trans h3
+            simp only [h4]
+            congr
+            funext xx1
+            congr
+            funext xx2
+            rw [mul_right_comm]
+            repeat rw [← mul_assoc]
+    exact h1
+    done
 
 
 end Matrix
