@@ -98,6 +98,7 @@ namespace Matrix
   #eval cramer001
   def solution := (1/matrix1_det) • (cramer matrix1 matrixb)
   --  如何表示除法???
+  -- A*X=b的解
   #eval solution -- 解应该是x=![-4 4.5]
 
 

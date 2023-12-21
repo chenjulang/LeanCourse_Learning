@@ -237,7 +237,7 @@ set_option linter.unusedVariables false
     := by
     simp only [mul_comm]
     simp only [mul_left_comm]
-    simp only [prod_mul_distrib]
+    simp only [prod_mul_distrib] -- todo 1个连乘变成2个连乘相关的定理
     simp only [mul_assoc]
     done
 
