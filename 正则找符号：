@@ -15,5 +15,6 @@ instance.*:.* Inv .*Matrix
 3.从传参数的角度问gpt：lean中？？需要传入什么参数，输出什么类型
 4.只能问Zulip
 5.安装lean-copilot用一下
+6.大杀器#print
 
 1.可以玩一下官方游戏先

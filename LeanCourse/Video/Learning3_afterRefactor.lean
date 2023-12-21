@@ -6,7 +6,7 @@ import Mathlib.Data.List.Perm
 
 
 -- set_option trace.Meta.synthInstance true
--- set_option maxHeartbeats 400000
+-- set_option maxHeartbeats 400000 -- 原来要很多时间的
 
 
 universe u v w z
@@ -100,7 +100,6 @@ set_option linter.unusedVariables false
         exact rfl
       exact h5
 
-  -- set_option linter.unusedVariables false in
   lemma hhh2 (M N : Matrix n n R) :
   ∑
     p in (@univ (n → n) _).filter Bijective,
@@ -120,7 +119,7 @@ set_option linter.unusedVariables false
       := by
       rw [sum_comm]
       rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
-      refine' sum_bij _ _ _ _ _ -- ???不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+      refine' sum_bij _ _ _ _ _ -- ???这个需要问一下gpt找到数学世界里的对应定理名称。不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
       · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
         have ih3:= (mem_filter.mp ih2).right
         have ih4:= ofBijective ih1 ih3
@@ -144,28 +143,36 @@ set_option linter.unusedVariables false
           exact rfl
         rfl
       · intros inj_1 inj_2 inj_3 inj_4 inj_5
-        refine' Equiv.noConfusion inj_5 _ ---???
+        refine' Equiv.noConfusion inj_5 _ ---??? 不知道对inj_5做了什么
         intros inj_6 inj_7
         exact inj_6
         done
       · intros b x
-        refine' Exists.intro b _ -- ???
-        refine' Exists.intro _ _
+        refine' Exists.intro b _ -- 存在，给出例子，然后代入第二个参数中，比如这里就是把a全部替换成了b
+        -- 如果第二个参数中不用直接替换的，比如下面这行，就直接证明第二个参数代表的命题即可
+        refine' Exists.intro _ _ -- 比如这里ha在第二个参数中没有需要替换的，直接证明第二个命题即可
         · refine' mem_filter.mpr _
           constructor
           · refine' mem_univ (↑b)
           · exact Equiv.bijective b
-        · refine' coe_fn_injective _
-          simp only [id_eq, FunLike.coe_fn_eq]
-          exact Equiv.ext (congrFun rfl)
+        · refine' coe_fn_injective _ --在外层套了一个不变的映射
+          simp only [id_eq]
+          simp only [FunLike.coe_fn_eq]
+          refine' Equiv.ext _
+          intros x2
+          -- ↑(ofBijective ↑b (_ : Bijective ↑b))前面这个和↑b作用效果一样吗?查一下ofBijective的toFun := f定义就知道，就是f本身
+          -- 下面是进一步的探究，不看了
+          -- have equalTest: (ofBijective ↑b (_ : Bijective ↑b)) = b
+            -- := by
+            -- refine ((fun {α β} {e₁ e₂} ↦ Equiv.coe_inj.mp) rfl).symm
+          rfl
         done
       done
 
-  -- set_option linter.unusedVariables false in
   lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
       = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
       := by
-      refine' sum_congr _ _ --???
+      refine' sum_congr _ _ --??? todo
       · rfl
       · intros h1 h2
         refine' Fintype.sum_equiv _ _ _ _
@@ -344,7 +351,6 @@ set_option linter.unusedVariables false
 
 
 
-  -- set_option linter.unusedVariables false in
   -- @[simp]
   theorem MainGoal (M N : Matrix n n R)
   : det (M * N) = det M * det N
