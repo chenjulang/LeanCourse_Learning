@@ -215,7 +215,8 @@ set_option linter.unusedVariables false
     := by
     simp only [det_apply']
     simp only [mul_apply]
-    simp only [prod_univ_sum]
+    simp only [prod_univ_sum] -- 与"先连加，再连乘，等于，先连乘，再连加"相关的定理
+    -- ???Fintype.piFinset是什么东西
     simp only [mul_sum]
     simp only [Fintype.piFinset_univ]
     rw [Finset.sum_comm]
