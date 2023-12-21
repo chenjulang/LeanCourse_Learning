@@ -6,7 +6,7 @@ import Mathlib.Data.List.Perm
 
 
 -- set_option trace.Meta.synthInstance true
--- set_option maxHeartbeats 400000
+set_option maxHeartbeats 400000
 
 
 universe u v w z
