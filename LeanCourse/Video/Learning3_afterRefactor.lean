@@ -169,38 +169,45 @@ set_option linter.unusedVariables false
         done
       done
 
+--
+
+    def hhh3_h4 (M N : Matrix n n R) (h5: Perm n) (h1: Perm n)
+    : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j -- perm n之间的乘法是什么结果呢？还是perm n
+      := by
+      rw [← (h1⁻¹ : _ ≃ _).prod_comp] -- 两个函数的连乘的结果一样的相关证明（感性理解：置换后反正都要遍历的对吧，连乘应该都一样的哦）
+      simp only [Equiv.Perm.coe_mul]
+      simp only [apply_inv_self]
+      simp only [Function.comp_apply]
+
+    def h6  (h5: Perm n) (h1: Perm n)
+    : ε h1 * ε (h5 * h1⁻¹) = ε h5 -- 转置的符号相关的定理
+      :=
+      calc
+        ε h1 * ε (h5 * h1⁻¹) = ε (h5 * h1⁻¹ * h1)
+          := by
+          rw [mul_comm, sign_mul (h5 * h1⁻¹)]
+          simp only [_root_.map_mul]
+          simp only [map_inv]
+          simp only [Int.units_inv_eq_self] -- 1或-1的倒数还是自己
+          simp only [Units.val_mul] --明明一看就知道相等的。。。
+          simp only [Int.cast_mul]
+        _ = ε h5
+          := by
+          simp only [inv_mul_cancel_right]
+
   lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
       = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
       := by
       refine' sum_congr _ _ --定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
       · rfl
       · intros h1 h2
-        refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的要求
+        refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的相关证明
         · exact Equiv.mulRight h1⁻¹ -- 这是一步需要后面依赖的证明，所以不能随意证明，通常都是第一步这样
-        · intros h5 --其实infoview里面的 ?1:?2 这样的写法，？1就是一个随机的属于？2的对象或元素
-          have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j -- perm n之间的乘法是什么结果呢？还是perm n
-            := by
-            rw [← (h1⁻¹ : _ ≃ _).prod_comp]
-            simp only [Equiv.Perm.coe_mul]
-            simp only [apply_inv_self]
-            simp only [Function.comp_apply]
-          have h6 : ε h1 * ε (h5 * h1⁻¹) = ε h5
-            :=
-            calc
-              ε h1 * ε (h5 * h1⁻¹) = ε (h5 * h1⁻¹ * h1)
-              := by
-                rw [mul_comm, sign_mul (h5 * h1⁻¹)]
-                simp only [Int.cast_mul]
-                simp only [Units.val_mul]
-                simp only [_root_.map_mul, map_inv, Int.units_inv_eq_self, Units.val_mul,
-                  Int.cast_mul]
-              _ = ε h5
-              := by simp only [inv_mul_cancel_right]
+        · intros h5 --其实infoview里面的 ?1:?2 这样的写法，?1就是一个随机的属于?2的对象或元素
           simp_rw [Equiv.coe_mulRight]
-          simp_rw [h6]
-          simp only [h4]
+          simp_rw [(h6 h5 h1)]
+          simp only [(hhh3_h4 M N h5 h1)]
       done
-
 
 
   lemma MainGoal_1 (M N : Matrix n n R): det (M * N)
