@@ -358,7 +358,6 @@ set_option linter.unusedVariables false
     done
 
 
-
   -- @[simp]
   theorem MainGoal (M N : Matrix n n R)
   : det (M * N) = det M * det N
