@@ -172,7 +172,7 @@ set_option linter.unusedVariables false
   lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
       = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
       := by
-      refine' sum_congr _ _ --??? todo
+      refine' sum_congr _ _ --??? todo 定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
       · rfl
       · intros h1 h2
         refine' Fintype.sum_equiv _ _ _ _
