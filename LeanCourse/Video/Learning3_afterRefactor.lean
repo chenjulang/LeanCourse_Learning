@@ -172,13 +172,13 @@ set_option linter.unusedVariables false
   lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
       = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
       := by
-      refine' sum_congr _ _ --??? todo 定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
+      refine' sum_congr _ _ --定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
       · rfl
       · intros h1 h2
-        refine' Fintype.sum_equiv _ _ _ _
-        · exact Equiv.mulRight h1⁻¹
-        · intros h5
-          have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j
+        refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的要求
+        · exact Equiv.mulRight h1⁻¹ -- 这是一步需要后面依赖的证明，所以不能随意证明，通常都是第一步这样
+        · intros h5 --其实infoview里面的 ?1:?2 这样的写法，？1就是一个随机的属于？2的对象或元素
+          have h4 : (∏ j, M (h5 j) (h1 j)) = ∏ j, M ((h5 * h1⁻¹) j) j -- perm n之间的乘法是什么结果呢？还是perm n
             := by
             rw [← (h1⁻¹ : _ ≃ _).prod_comp]
             simp only [Equiv.Perm.coe_mul]
