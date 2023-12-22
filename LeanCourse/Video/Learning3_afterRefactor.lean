@@ -306,27 +306,26 @@ set_option linter.unusedVariables false
 
     def h3_3 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
     : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-        = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x))
-          := by
-          have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-          = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-          := by
-            -- refine' mul_comm _ _
-            have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
-            exact h3_3_1_1
-          have h3_3_2:= h3_3_1.trans mul_sum
-          exact h3_3_2
+    = ∑ x : Perm n, (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ((∏ x_1 : n, M (x x_1) x_1) * (ε x)) -- 又是一个内部交换的东西，太简单了吧。。。
+      := by
+      have h3_3_1 : (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+      = (∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1) * ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+      := by
+        have h3_3_1_1 := mul_comm (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+        exact h3_3_1_1
+      have h3_3_2:= h3_3_1.trans mul_sum
+      exact h3_3_2
 
-    --4
 
-    def h3_4 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ): ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
-    = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1)))
+    def h3_4 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
+    : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
+    = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1))) -- 又是交换就可以了。。。
       := by
       refine' sum_congr _ _
       · exact (Eq.refl univ)
       · intros h34x_1 h34a
         have h3_4_1 : (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (h34x_1 x) x) * (ε h34x_1))
-        =(∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+        = (∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
           := ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (h34x_1 x) x)
                     (ε h34x_1)).trans
                 (congrArg (HMul.hMul (∏ x : n, M (h34x_1 x) x))
@@ -338,8 +337,16 @@ set_option linter.unusedVariables false
         have h3_4_3:= h3_4_1.trans h3_4_2
         exact h3_4_3
 
-  lemma MainGoal_6_2 (M N : Matrix n n R): ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
-  = ∑ x : Perm n, ∑ x_1 : Perm n, (∏ x_2 : n, N (x x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
+
+  lemma MainGoal_6_2 (M N : Matrix n n R)
+  : ∑ x : Perm n,
+  (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
+  *
+  ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+  = ∑ x : Perm n, ∑ x_1 : Perm n,
+  (∏ x_2 : n, N (x x_2) x_2)
+  *
+  ((∏ x : n, M (x_1 x) x) * ((ε x) * (ε x_1)))
     := by
     have h2 := MainGoal_6_1 M N
     refine' sum_congr _ _
@@ -352,12 +359,20 @@ set_option linter.unusedVariables false
 
   def MainGoal_6_3 (M N : Matrix n n R):= (MainGoal_6_1 M N).trans (MainGoal_6_2 M N)
 
-  lemma MainGoal_6 (M N : Matrix n n R): ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
-  = det M * det N
+
+  lemma MainGoal_6 (M N : Matrix n n R):
+  ∑ σ : Perm n,
+    ∑ τ : Perm n,
+      (∏ i, N (σ i) i)
+      *
+      (ε σ * ε τ)
+      *
+      (∏ i, M (τ i) i)
+  = det M * det N --todo
     := by
     have h4:= MainGoal_6_3 M N
     simp only [h4]
-    congr
+    congr -- 去掉两边套在最外的，恰好是相同的函数
     funext xx1
     congr
     funext xx2
