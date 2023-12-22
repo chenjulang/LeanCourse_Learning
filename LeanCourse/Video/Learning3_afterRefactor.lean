@@ -248,7 +248,8 @@ set_option linter.unusedVariables false
 
   -- /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      def MainGoal_6_1_1_1 (M: Matrix n n R):= (det_apply' M)
+      def MainGoal_6_1_1_1 (M: Matrix n n R)
+        := (det_apply' M)
 
       def MainGoal_6_1_1_2 (M: Matrix n n R): ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
       = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
