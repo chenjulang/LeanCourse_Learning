@@ -252,7 +252,7 @@ set_option linter.unusedVariables false
         := (det_apply' M)
 
       def MainGoal_6_1_1_2 (M: Matrix n n R): ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
-      = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+      = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x) -- 这明明就是一个交换律能完成的，偏要congr一下拆开。。。
         := by
         refine' sum_congr _ _
         · exact (Eq.refl univ)
@@ -261,17 +261,19 @@ set_option linter.unusedVariables false
             : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
             := by
             exact rfl --竟然直接搞定了
-          have h2_1_2_2 := mul_comm ((ε h212x)) (∏ x_1 : n, M (h212x x_1) x_1)
+          have h2_1_2_2 := mul_comm (ε h212x) (∏ x_1 : n, M (h212x x_1) x_1)
           have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
           exact h2_1_2_3
-      def MainGoal_6_1_1_3 (M N: Matrix n n R):= (MainGoal_6_1_1_1 M).trans (MainGoal_6_1_1_2 M)
+
+      def MainGoal_6_1_1_3 (M N: Matrix n n R):= (MainGoal_6_1_1_1 M).trans (MainGoal_6_1_1_2 M) -- .trans就是等号传递
+
 
     def MainGoal_6_1_1 (M N : Matrix n n R): det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
       := by exact (MainGoal_6_1_1_3 M N)
 
-    --
 
       def h2_2_1(N : Matrix n n R):= det_apply' N
+      --9
 
       def h2_2_2(N : Matrix n n R):  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
           := by
