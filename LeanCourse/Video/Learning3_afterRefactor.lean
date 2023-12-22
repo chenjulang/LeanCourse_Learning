@@ -143,9 +143,13 @@ set_option linter.unusedVariables false
           exact rfl
         rfl
       · intros inj_1 inj_2 inj_3 inj_4 inj_5
-        refine' Equiv.noConfusion inj_5 _ ---??? 不知道对inj_5做了什么
-        intros inj_6 inj_7
-        exact inj_6
+        simp only [id_eq] at inj_5 -- 看起来很明显，但就是完成不了
+        ext x
+        have inj_6:= ofBijective_apply inj_1
+        have inj_7:= ofBijective_apply inj_2
+        rw [← inj_6,
+        inj_5,
+        inj_7]
         done
       · intros b x
         refine' Exists.intro b _ -- 存在，给出例子，然后代入第二个参数中，比如这里就是把a全部替换成了b
@@ -216,7 +220,29 @@ set_option linter.unusedVariables false
     simp only [det_apply']
     simp only [mul_apply]
     simp only [prod_univ_sum] -- 与"先连加，再连乘，等于，先连乘，再连加"相关的定理
-    -- ???Fintype.piFinset是什么东西
+    -- todo???Fintype.piFinset是什么东西
+    -- 如何理解Fintype.piFinset t
+    -- 假设 t 是一个从集合 {1, 2} 到有限集合的映射，其中 t(1) = {a, b}，t(2) = {x, y}。
+        -- 那么 Fintype.piFinset t 就表示集合 {(a, x), (a, y), (b, x), (b, y)}，即这两个集合的笛卡尔积。
+    -- 举例说明prod_univ_sum
+    --     首先，让我们假设集合α包含元素1和2，对应的集合分别为t1和t2。而且我们有以下映射关系：
+    -- t1 = {a, b}, t2 = {x, y}
+    -- 对应的函数f如下：
+    -- f(1, a) = 2, f(1, b) = 3, f(2, x) = 1, f(2, y) = 4
+    -- 现在我们来计算左侧和右侧的值。
+    -- 左侧：(∏ a, ∑ b in t a, f a b)
+    -- = (∑ b in t1, f(1, b)) * (∑ b in t2, f(2, b))
+    -- = (f(1, a) + f(1, b)) * (f(2, x) + f(2, y))
+    -- = (2 + 3) * (1 + 4)
+    -- = 5 * 5
+    -- = 25
+    -- 右侧：∑ p in Fintype.piFinset t, ∏ x, f x (p x)
+    -- = f(1, a) * f(2, x) + f(1, a) * f(2, y) + f(1, b) * f(2, x) + f(1, b) * f(2, y)
+    -- = 2 * 1 + 2 * 4 + 3 * 1 + 3 * 4
+    -- = 2 + 8 + 3 + 12
+    -- = 25
+
+-- 因此，根据 Finset.prod_univ_sum 定理，左侧和右侧的值相等，都等于25。
     simp only [mul_sum]
     simp only [Fintype.piFinset_univ]
     rw [Finset.sum_comm]
