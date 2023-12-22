@@ -292,14 +292,15 @@ set_option linter.unusedVariables false
     def MainGoal_6_1_2 (N : Matrix n n R): det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
       := by exact (h2_2_3 N)
 
-      --6
 
   lemma MainGoal_6_1 (M N : Matrix n n R): det M * det N
   = ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
     := by
     have temp1:= (MainGoal_6_1_1 M N)
     have temp2:= (MainGoal_6_1_2 N)
-    exact (congr (congrArg HMul.hMul (MainGoal_6_1_1 M N)) (MainGoal_6_1_2 N)).trans mul_sum --???
+    have h1 := congr (congrArg HMul.hMul temp1) (temp2) -- congr就是相同函数，相同参数，结果一样的意思；congrArg也是类似的意思
+    exact h1.trans mul_sum
+
 
   --
 
@@ -315,6 +316,8 @@ set_option linter.unusedVariables false
             exact h3_3_1_1
           have h3_3_2:= h3_3_1.trans mul_sum
           exact h3_3_2
+
+    --4
 
     def h3_4 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ): ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
     = ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (x_1 x) x) * ((ε h3_1) * (ε x_1)))
