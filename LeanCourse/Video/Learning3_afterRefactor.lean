@@ -237,7 +237,7 @@ set_option linter.unusedVariables false
     := by
     simp only [mul_comm]
     simp only [mul_left_comm]
-    simp only [prod_mul_distrib] -- todo 1个连乘变成2个连乘相关的定理
+    simp only [prod_mul_distrib] --  1个连乘变成2个连乘相关的定理
     simp only [mul_assoc]
     done
 
@@ -273,9 +273,9 @@ set_option linter.unusedVariables false
 
 
       def h2_2_1(N : Matrix n n R):= det_apply' N
-      --9
 
-      def h2_2_2(N : Matrix n n R):  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1 = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+      def h2_2_2(N : Matrix n n R):  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1
+      = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x) -- 又是一个内部交换就好了
           := by
           refine' sum_congr _ _
           · exact Eq.refl univ
@@ -291,6 +291,8 @@ set_option linter.unusedVariables false
 
     def MainGoal_6_1_2 (N : Matrix n n R): det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
       := by exact (h2_2_3 N)
+
+      --6
 
   lemma MainGoal_6_1 (M N : Matrix n n R): det M * det N
   = ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
