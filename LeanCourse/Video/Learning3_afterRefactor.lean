@@ -219,8 +219,7 @@ set_option linter.unusedVariables false
     := by
     simp only [det_apply']
     simp only [mul_apply]
-    simp only [prod_univ_sum] -- 与"先连加，再连乘，等于，先连乘，再连加"相关的定理
-    -- todo???Fintype.piFinset是什么东西
+    simp only [prod_univ_sum] -- 与"先连加，再连乘，等于，先连乘，再连加"，还有笛卡尔积“全覆盖”，相关的定理
     -- 如何理解Fintype.piFinset t
     -- 假设 t 是一个从集合 {1, 2} 到有限集合的映射，其中 t(1) = {a, b}，t(2) = {x, y}。
         -- 那么 Fintype.piFinset t 就表示集合 {(a, x), (a, y), (b, x), (b, y)}，即这两个集合的笛卡尔积。
