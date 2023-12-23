@@ -23,44 +23,43 @@ namespace Matrix --目的是避免模糊定义mul_apply
   local notation "ε " σ:arg => ((sign σ : ℤ) : R)
 set_option linter.unusedVariables false
 
--- -- -----/行列式
+-- -----/行列式
 
--- -- 原来有toFun的结构，直接写名词的话，它要用toFun来替换，
--- -- 所以detRowAlternating2具体类型应该是和这个相同(↑detRowAlternating2).toFun : (?m.32939 → ?m.32939 → ?m.32941) → ?m.32941
--- -- 因此detRowAlternating2 M的类型就是R
---   def detRowAlternating2
---   : AlternatingMap R (n → R) R n  --- 最后这个参数n属于补充说明,实际形式上只需传三个参数即可
---   :=
---   -- have h1:= (
---   --   (MultilinearMap.mkPiAlgebra R n R).compLinearMap
---   --     LinearMap.proj
---   -- )
---   -- have h1fun:= h1.toFun
---   MultilinearMap.alternatization ( -- ???
---     (MultilinearMap.mkPiAlgebra R n R).compLinearMap
---       LinearMap.proj
---   )
+-- 原来有toFun的结构，直接写名词的话，它要用toFun来替换，
+-- 所以detRowAlternating2具体类型应该是和这个相同(↑detRowAlternating2).toFun : (?m.32939 → ?m.32939 → ?m.32941) → ?m.32941
+-- 因此detRowAlternating2 M的类型就是R
+  def detRowAlternating2
+  : AlternatingMap R (n → R) R n  --- 最后这个参数n属于补充说明,实际形式上只需传三个参数即可
+  :=
+  -- have h1:= (
+  --   (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+  --     LinearMap.proj
+  -- )
+  -- have h1fun:= h1.toFun
+  MultilinearMap.alternatization ( -- 基本的要素都齐了，求和，连乘，全体置换，置换的符号。具体逻辑还不懂
+    (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+      LinearMap.proj)
 
--- -- 问题：v是什么？
--- -- MultilinearMap R (fun x（x就是n） ↦ n → R) R 也就是(n → n → R) → R
---   abbrev det2 (M : Matrix n n R): R :=
---     -- have h1 := detRowAlternating2 M
---     detRowAlternating2 M -- 这里为什么类型是R，因为detRowAlternating2相当于detRowAlternating2.toFun
---     -- 也就是(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
---   -- #check detRowAlternating2.toFun -- 所以上面M不是参数，而是被作用了，detRowAlternating2是一个映射作用到M上了
+-- 问题：v是什么？
+-- MultilinearMap R (fun x（x就是n） ↦ n → R) R 也就是(n → n → R) → R
+  abbrev det2 (M : Matrix n n R): R :=
+    -- have h1 := detRowAlternating2 M
+    (detRowAlternating2) M -- 这里为什么类型是R，因为detRowAlternating2相当于detRowAlternating2.toFun
+    -- 也就是(?m.33147 → ?m.33147 → ?m.33149) → ?m.33149
+  -- #check detRowAlternating2.toFun -- 所以上面M不是参数，而是被作用了，detRowAlternating2是一个映射作用到M上了
 
 
---   --  前置知识
+  --  前置知识
 
---   -- Perm 的使用
---   -- 以下是一些关于 Perm n 的示例，其中 n 取不同的值：
---   -- 当 n = 1 时，Perm 1 表示长度为 1 的置换，即 [0]。
---   -- 当 n = 2 时，Perm 2 表示长度为 2 的置换，共有两种情况：[0, 1] 和 [1, 0]。
---   -- 当 n = 3 时，Perm 3 表示长度为 3 的置换，共有六种情况：[0, 1, 2]、[0, 2, 1]、[1, 0, 2]、[1, 2, 0]、[2, 0, 1] 和 [2, 1, 0]。
--- -- #eval Finset.val (Finset.univ : Finset (Fin 4))
--- def printPerms (n : ℕ) : List (List ℕ) :=
---   List.map List.reverse (List.permutations (List.range n))
--- #eval printPerms 4
+  -- Perm 的使用
+  -- 以下是一些关于 Perm n 的示例，其中 n 取不同的值：
+  -- 当 n = 1 时，Perm 1 表示长度为 1 的置换，即 [0]。
+  -- 当 n = 2 时，Perm 2 表示长度为 2 的置换，共有两种情况：[0, 1] 和 [1, 0]。
+  -- 当 n = 3 时，Perm 3 表示长度为 3 的置换，共有六种情况：[0, 1, 2]、[0, 2, 1]、[1, 0, 2]、[1, 2, 0]、[2, 0, 1] 和 [2, 1, 0]。
+-- #eval Finset.val (Finset.univ : Finset (Fin 4))
+def printPerms (n : ℕ) : List (List ℕ) :=
+  List.map List.reverse (List.permutations (List.range n))
+#eval printPerms 4
 
 
 
