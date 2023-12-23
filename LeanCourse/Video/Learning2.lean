@@ -2,6 +2,7 @@ import Paperproof
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
+-- 本文件最终目标是证明矩阵的逆的合理性，即矩阵A的逆的形式：A * (⅟(det A) • adjugate A) = (1 : Matrix n2 n2 α2)
 -- set_option trace.Meta.synthInstance true
 -- 要解释每一个名词的实际数学意义，别忘了提一下gpt的帮助，虽然不能直接用，但是大致代码是有的。
 
