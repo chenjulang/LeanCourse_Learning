@@ -23,15 +23,23 @@ noncomputable section
 
     -- 线性独立的定义，后面还有定义linearIndependent_iff2'，是比较符合传统数学上的理解的。
     -- 1.LinearMap.ker 2.Finsupp.total 3.⊥
+    -- LinearMap.ker：
+      --   def ker (f : F) : Submodule R M :=
+      -- comap f ⊥
+      -- comap f ⊥ 的含义是将零子空间通过逆映射 f 映射回原始的定义域。
+      -- 最终，ker (f : F) 返回的是线性映射 f 的核，即所有映射到零向量的输入的集合。
+      -- Submodule R M：环 R 上的模 M 的子模组成的集合类型
     def LinearIndependent2 : Prop :=
-      LinearMap.ker (Finsupp.total ι M R v) = ⊥ -- 在线性代数中，⊥ 经常用于表示零空间或零子空间。零空间（Zero Space）： 在线性代数中，给定一个线性映射（如矩阵），其零空间是所有映射到零向量的输入组成的集合。零空间也被称为核（kernel）。
+      LinearMap.ker (Finsupp.total ι M R v) = ⊥ -- 在线性代数中，⊥ 经常用于表示零空间或零子空间。
+      -- 零空间（Zero Space）： 在线性代数中，给定一个线性映射（如矩阵），其零空间是所有映射到零向量的输入组成的集合。零空间也被称为核（kernel）。
 
-    theorem linearIndependent_iff2 : LinearIndependent R v ↔ ∀ l, Finsupp.total ι M R v l = 0 → l = 0 :=
-      by simp [LinearIndependent, LinearMap.ker_eq_bot']
+    theorem linearIndependent_iff2 : LinearIndependent2 R v ↔ ∀ l, Finsupp.total ι M R v l = 0 → l = 0 :=
+      by simp [LinearIndependent2, LinearMap.ker_eq_bot']
 
     theorem linearIndependent_iff2' :
-        LinearIndependent R v ↔
-          ∀ s : Finset ι, ∀ g : ι → R, ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0 :=
+        LinearIndependent2 R v ↔
+          ∀ s : Finset ι, ∀ g : ι → R, ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0
+      :=
       linearIndependent_iff.trans
         ⟨fun hf s g hg i his =>
           have h :=
