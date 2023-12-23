@@ -89,7 +89,15 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       · intro h1 h2
         exact mem_univ h1
       intros h3 h4 h5
-      apply det_mul_aux -- ???这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
+      apply det_mul_aux -- 这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
+        -- 举个例子，p=[1,1],Perm 2只有两个变换：1.恒等变换，简称id；2.换位变换，简称swap
+        -- ε id * (M (id 1)(p 1) * N (p 1)1) * (M (id 2)(p 2) * N (p 2)2)
+        -- = 1 * (M 1 1 * N 1 1) * (M 2 1 * N 1 2)
+        -- = M 1 1 * N 1 1 * M 2 1 * N 1 2
+
+        -- ε swap * (M (swap 1)(p 1) * N (p 1)1) * (M (swap 2)(p 2) * N (p 2)2)
+        -- = -1 * (M 2 1 * N 1 2) * (M 1 1 * N 1 1)
+        -- = -M 2 1 * N 1 2 * M 1 1 * N 1 1
       simp only [mem_filter] at h5 -- 就是filter的定义呗，是属于某个集合里面的，而且满足条件1
       simp only [mem_univ] at h5
       simp only [true_and_iff] at h5
