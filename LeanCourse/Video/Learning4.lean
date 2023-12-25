@@ -1,5 +1,6 @@
 import Mathlib.LinearAlgebra.LinearIndependent
 import Mathlib.LinearAlgebra.Matrix.Basis
+import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
 
@@ -193,21 +194,26 @@ noncomputable section
 
       -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
       variable {m n : Type*} [Fintype m] [Fintype n]
-      -- variable (A : Matrix m n ℝ)
-
-
 
       theorem MainGoal4  {R : Type*} [CommRing R]
       {A : Matrix m n R}
-      {x : Matrix m (Fin 1) R}
+      {x : Matrix n (Fin 1) R}
       {b : Matrix m (Fin 1) R}
-      (hA : ∀ b, ∃! x, A * x = b)
-      : LinearIndependent R (fun i ↦ A i)
+      (hA : ∀ (b : Matrix m (Fin 1) R), ∃! (x: Matrix n (Fin 1) R), A * x = b)
+      : LinearIndependent R (fun i ↦ Aᵀ i)
         := by
-        rw [linearIndependent_iff]
-        sorry
-        intros g hg
+        rw [LinearIndependent]
+        refine' _root_.by_contradiction _
+        intro oppo
+        let b1 : Matrix m (Fin 1) R := 0
+        have h2 : ∃! (x: Matrix n (Fin 1) R), A * x = 0
+          := by exact hA 0
+        have h3 : A * (0: Matrix n (Fin 1) R) = 0
+          := by exact Matrix.mul_zero A
 
+        --todo
+        -- refine' Matrix.mulVec_injective_iff.1 _
+        sorry
 
 
 
