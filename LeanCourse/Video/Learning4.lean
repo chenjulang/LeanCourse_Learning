@@ -1,5 +1,6 @@
 import Mathlib.LinearAlgebra.LinearIndependent
 import Mathlib.LinearAlgebra.Matrix.Basis
+import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
 
 
@@ -183,13 +184,42 @@ noncomputable section
 
 
 
+      -- 最终目标：已知A是m*n矩阵，
+      -- 对于任意m维向量b，
+      -- 线性方程组AX=b至多只有一个解，
+      -- =>用lean代码证明：A的各列向量线性无关
+
       -- 最终目标：已知A是m*n矩阵，对于任意m维向量b，线性方程组AX=b至多只有一个解，用lean代码证明：A的各列向量线性无关
+
       -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
-      -- variable {m n : Type*} [Fintype m] [Fintype n]
+      variable {m n : Type*} [Fintype m] [Fintype n]
       -- variable (A : Matrix m n ℝ)
+
+
+
+      theorem MainGoal4  {R : Type*} [CommRing R]
+      {A : Matrix m n R}
+      {x : Matrix m (Fin 1) R}
+      {b : Matrix m (Fin 1) R}
+      (hA : ∀ b, ∃! x, A * x = b)
+      : LinearIndependent R (fun i ↦ A i)
+        := by
+        rw [linearIndependent_iff]
+        sorry
+        intros g hg
+
+
+
+
+
+
 
       -- theorem MainGoal4 (hA : ∀ (b : m → ℝ), ∃! x, A * x = b)
       -- : linearIndependent_iff ℝ A := sorry
+
+      -- theorem Matrix.mulVec_injective_iff {R : Type*} [CommRing R] {M : Matrix m n R} :
+      -- Function.Injective M.mulVec ↔ LinearIndependent R (fun i ↦ Mᵀ i) := by
+      -- change Function.Injective (fun x ↦ _) ↔ _
 
   end Module
 
