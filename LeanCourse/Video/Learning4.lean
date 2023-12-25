@@ -195,25 +195,46 @@ noncomputable section
       -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
       variable {m n : Type*} [Fintype m] [Fintype n]
 
-      theorem MainGoal4  {R : Type*} [CommRing R]
-      {A : Matrix m n R}
-      {x : Matrix n (Fin 1) R}
-      {b : Matrix m (Fin 1) R}
-      (hA : ∀ (b : Matrix m (Fin 1) R), ∃! (x: Matrix n (Fin 1) R), A * x = b)
-      : LinearIndependent R (fun i ↦ Aᵀ i)
+      -- theorem MainGoal4  {R : Type*} [CommRing R]
+      -- {A : Matrix m n R}
+      -- {x : Matrix n (Fin 1) R}
+      -- {b : Matrix m (Fin 1) R}
+      -- (hA : ∀ (b : Matrix m (Fin 1) R), ∃! (x: Matrix n (Fin 1) R), A * x = b)
+      -- : LinearIndependent R (fun i ↦ Aᵀ i)
+      --   := by
+      --   rw [LinearIndependent]
+      --   refine' _root_.by_contradiction _
+      --   intro oppo
+      --   let b1 : Matrix m (Fin 1) R := 0
+      --   have h2 : ∃! (x: Matrix n (Fin 1) R), A * x = 0
+      --     := by exact hA 0
+      --   have h3 : A * (0: Matrix n (Fin 1) R) = 0
+      --     := by exact Matrix.mul_zero A
+      --   --todo
+      --   -- refine' Matrix.mulVec_injective_iff.1 _
+      --   sorry
+
+      theorem MainGoal4 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
+      (hA : ∀ b : m → R, ∃! (x: n → R), A.mulVec x = b) :
+      LinearIndependent R (fun i ↦ A.transpose i)
         := by
         rw [LinearIndependent]
         refine' _root_.by_contradiction _
         intro oppo
-        let b1 : Matrix m (Fin 1) R := 0
-        have h2 : ∃! (x: Matrix n (Fin 1) R), A * x = 0
+        let b1 : m → R := 0
+        have h2 : ∃! x, A.mulVec x = 0
           := by exact hA 0
-        have h3 : A * (0: Matrix n (Fin 1) R) = 0
-          := by exact Matrix.mul_zero A
+        have h3 : A.mulVec (0: n → R) = (0: m → R)
+          := by exact mulVec_zero A
 
-        --todo
-        -- refine' Matrix.mulVec_injective_iff.1 _
-        sorry
+
+      theorem MainGoal5 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
+      (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) :
+      LinearIndependent R (fun i ↦ A.transpose i)
+        := by
+        exact Matrix.mulVec_injective_iff.1 ((Function.bijective_iff_existsUnique _).mpr hA).injective
+        done
+
 
 
 
