@@ -1,9 +1,12 @@
 import Mathlib.LinearAlgebra.LinearIndependent
+import Mathlib.LinearAlgebra.Matrix.Basis
+import Mathlib.Data.Real.Sqrt
+
 
 -- 线性独立
 noncomputable section
 
-  open Function Set Submodule
+  open Function Set Submodule Matrix
 
   open BigOperators Cardinal
 
@@ -37,7 +40,9 @@ noncomputable section
     -- 已知2个条件：
     -- 已知任意的一维向量d，即(x,y),举例（7，8）
     -- 已知一个映射v，将（1，0）=>(2,3),将（0，1）=> (4,5)
+
     -- 推理：
+
     -- Finsupp.total ι M R v具体结果就是：fun d => d.sum fun i => F i
     -- d.sum (fun i => F i) 具体做的是：
     -- 展开d.sum: ∑ a in d.support, g a (d a)
@@ -60,38 +65,91 @@ noncomputable section
     -- R应该指的是数乘取的元素的集合，比如我们举例就是R实数
 
 
+    theorem linearIndependent2_iff
+    : LinearIndependent2 R v
+    ↔
+    ∀ l, Finsupp.total ι M R v l = 0 → l = 0
+      := by
+      simp only [LinearIndependent2]
+      simp only [LinearMap.ker_eq_bot']
+      done
 
+-- //
 
+        theorem linearIndependent2_iff'_1:
+        (∀ (l : ι →₀ R), (Finsupp.total ι M R v) l = 0 → l = 0)
+        ↔
+        ∀ (s : Finset ι) (g : ι → R),
+          ∑ i in s, g i • v i = 0
+          →
+          ∀ i ∈ s, g i = 0
+          := by
+          constructor
+          · intros hf s g hg i his
+            have h := hf (∑ i in s, Finsupp.single i (g i)) <| by
+              simpa only [map_sum, Finsupp.total_single] using hg
+            calc
+              g i
+              = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i))
+                := by
+                { rw [Finsupp.lapply_apply, Finsupp.single_eq_same] }
+              _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j))
+                :=
+                Eq.symm <|
+                  Finset.sum_eq_single i
+                    (fun j _hjs hji => by rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji])
+                    fun hnis => hnis.elim his
+              _ = (∑ j in s, Finsupp.single j (g j)) i
+                := (map_sum ..).symm
+              _ = 0
+                := FunLike.ext_iff.1 h i
+            done
+          · intros hf l hl
+            exact Finsupp.ext fun i =>
+              _root_.by_contradiction fun hni => hni <| hf _ _ hl _ <| Finsupp.mem_support_iff.2 hni⟩
+            done
+          done
 
-    theorem linearIndependent2_iff : LinearIndependent2 R v ↔ ∀ l, Finsupp.total ι M R v l = 0 → l = 0 :=
-      by simp [LinearIndependent2, LinearMap.ker_eq_bot']
 
     theorem linearIndependent2_iff' :
-        LinearIndependent2 R v ↔
-          ∀ s : Finset ι, ∀ g : ι → R, ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0
-      :=
-      (linearIndependent_iff).trans
-        ⟨fun hf s g hg i his =>
-          have h :=
-            hf (∑ i in s, Finsupp.single i (g i)) <| by
-              simpa only [map_sum, Finsupp.total_single] using hg
-          calc
-            g i = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) := by
-              { rw [Finsupp.lapply_apply, Finsupp.single_eq_same] }
-            _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) :=
-              Eq.symm <|
-                Finset.sum_eq_single i
-                  (fun j _hjs hji => by rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji])
-                  fun hnis => hnis.elim his
-            _ = (∑ j in s, Finsupp.single j (g j)) i := (map_sum ..).symm
-            _ = 0 := FunLike.ext_iff.1 h i,
-          fun hf l hl =>
-          Finsupp.ext fun i =>
-            _root_.by_contradiction fun hni => hni <| hf _ _ hl _ <| Finsupp.mem_support_iff.2 hni⟩
+      LinearIndependent2 R v
+      ↔
+      ∀ s : Finset ι,
+         ∀ g : ι → R,
+            ∑ i in s, g i • v i = 0 -- g i应该就是系数，v i是第i个向量
+            →
+            ∀ i ∈ s, g i = 0 -- 推出每一个系数都是0
+        := by
+        have h1 := linearIndependent2_iff'_1 R v
+        exact (linearIndependent_iff).trans (h1)
+
+
+    -- #print linearIndependent2_iff'
+
+    theorem linearIndependent2_iff'' :
+      LinearIndependent R v
+      ↔
+      ∀ (s : Finset ι) (g : ι → R) (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
+        ∑ i in s, g i • v i = 0 → ∀ i, g i = 0
+        := by
+        classical
+        exact linearIndependent_iff'.trans
+          ⟨fun H s g hg hv i => if his : i ∈ s then H s g hv i his else hg i his, fun H s g hg i hi => by
+            convert
+              H s (fun j => if j ∈ s then g j else 0) (fun j hj => if_neg hj)
+                (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
+            exact (if_pos hi).symm⟩
+        done
 
 
 
+      -- 最终目标：已知A是m*n矩阵，对于任意m维向量b，线性方程组AX=b至多只有一个解，用lean代码证明：A的各列向量线性无关
+      -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
+      -- variable {m n : Type*} [Fintype m] [Fintype n]
+      -- variable (A : Matrix m n ℝ)
 
+      -- theorem MainGoal4 (hA : ∀ (b : m → ℝ), ∃! x, A * x = b)
+      -- : linearIndependent_iff ℝ A := sorry
 
   end Module
 
