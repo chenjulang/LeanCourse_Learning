@@ -86,27 +86,43 @@ noncomputable section
           := by
           constructor
           · intros hf s g hg i his
-            have h := hf (∑ i in s, Finsupp.single i (g i)) <| by
-              simpa only [map_sum, Finsupp.total_single] using hg
+            have h : (∑ i in s, fun₀ | i => g i) = 0
+              := by
+              refine' hf _ _
+              simp only [map_sum]
+              simp only [Finsupp.total_single] --???
+              exact hg
             calc
               g i
-              = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i))
+              = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) --???
                 := by
-                { rw [Finsupp.lapply_apply, Finsupp.single_eq_same] }
-              _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j))
-                :=
-                Eq.symm <|
-                  Finset.sum_eq_single i
-                    (fun j _hjs hji => by rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji])
-                    fun hnis => hnis.elim his
+                rw [Finsupp.lapply_apply, Finsupp.single_eq_same]
+              _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) --???
+                := by
+                refine' Eq.symm _
+                refine' Finset.sum_eq_single i _ _
+                · intros j _hjs hji
+                  rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji]
+                · exact (fun hnis => hnis.elim his)
+                done
               _ = (∑ j in s, Finsupp.single j (g j)) i
-                := (map_sum ..).symm
+                := by
+                simp only [Finsupp.lapply_apply, ne_eq]
+                exact (Finset.sum_apply' i).symm
+                -- exact (map_sum ..).symm --???
               _ = 0
-                := FunLike.ext_iff.1 h i
+                := by
+                have h2:= FunLike.ext_iff.1 h i
+                exact h2
             done
-          · intros hf l hl
-            exact Finsupp.ext fun i =>
-              _root_.by_contradiction fun hni => hni <| hf _ _ hl _ <| Finsupp.mem_support_iff.2 hni⟩
+          · intros hf l hl --???
+            refine' Finsupp.ext _
+            intros i
+            refine' _root_.by_contradiction _
+            intros hni
+            have h3:= Finsupp.mem_support_iff.2 hni
+            refine' hni _
+            refine' hf _ _ hl _ h3
             done
           done
 
@@ -123,22 +139,46 @@ noncomputable section
         have h1 := linearIndependent2_iff'_1 R v
         exact (linearIndependent_iff).trans (h1)
 
+-- //
 
-    -- #print linearIndependent2_iff'
+        theorem linearIndependent2_iff''_1
+        : (∀ (s : Finset ι) (g : ι → R), ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0)
+        ↔
+        ∀ (s : Finset ι) (g : ι → R),
+          (∀ i ∉ s, g i = 0)
+          →
+          ∑ i in s, g i • v i = 0 → ∀ (i : ι), g i = 0
+          := by
+          classical -- 可以使用局部变量，比如下面的这个his
+          constructor
+          · intros H s g hg hv i
+            have h1 := (if his : i ∈ s then H s g hv i his else hg i his) --???
+            exact h1
+            done
+          · intros H s g hg i hi
+            have h2 :(if i ∈ s then g i else 0) = 0
+            := H
+              s
+              (fun j => if j ∈ s then g j else 0)
+              (fun j hj => if_neg hj)
+              (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
+            rw [← h2] -- convert h2 --一个意思
+            exact (if_pos hi).symm
+            done
+          done
 
     theorem linearIndependent2_iff'' :
       LinearIndependent R v
       ↔
-      ∀ (s : Finset ι) (g : ι → R) (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
-        ∑ i in s, g i • v i = 0 → ∀ i, g i = 0
+      ∀ (s : Finset ι)
+      (g : ι → R)
+      (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
+        ∑ i in s, g i • v i = 0
+        →
+        ∀ i, g i = 0
         := by
-        classical
-        exact linearIndependent_iff'.trans
-          ⟨fun H s g hg hv i => if his : i ∈ s then H s g hv i his else hg i his, fun H s g hg i hi => by
-            convert
-              H s (fun j => if j ∈ s then g j else 0) (fun j hj => if_neg hj)
-                (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
-            exact (if_pos hi).symm⟩
+        have h2 := (linearIndependent2_iff''_1 R v)
+        exact linearIndependent_iff'.trans h2
         done
 
 
