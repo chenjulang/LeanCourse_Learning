@@ -3,12 +3,15 @@ import Mathlib.LinearAlgebra.Matrix.Basis
 import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
+import Mathlib.GroupTheory.Perm.Fin
+import Mathlib.GroupTheory.Perm.Sign
 
 
 -- 线性独立
 noncomputable section
 
   open Function Set Submodule Matrix
+  open Equiv Equiv.Perm Finset Function
 
   open BigOperators Cardinal
 
@@ -214,18 +217,96 @@ noncomputable section
       --   -- refine' Matrix.mulVec_injective_iff.1 _
       --   sorry
 
-      theorem MainGoal4 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
-      (hA : ∀ b : m → R, ∃! (x: n → R), A.mulVec x = b) :
-      LinearIndependent R (fun i ↦ A.transpose i)
+      -- theorem MainGoal4 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
+      -- (hA : ∀ b : m → R, ∃! (x: n → R), A.mulVec x = b) :
+      -- LinearIndependent R (fun i ↦ A.transpose i)
+      --   := by
+      --   rw [LinearIndependent]
+      --   refine' _root_.by_contradiction _
+      --   intro oppo
+      --   let b1 : m → R := 0
+      --   have h2 : ∃! x, A.mulVec x = 0
+      --     := by exact hA 0
+      --   have h3 : A.mulVec (0: n → R) = (0: m → R)
+      --     := by exact mulVec_zero A
+      --   have h2_oppo : ¬ (∃! x, A.mulVec x = 0)
+      --     := by
+      --     apply?
+      --   exact h2_oppo (hA 0)
+
+      -- theorem MainGoal6 {R : Type*} [CommRing R]
+      -- {A : Matrix m n R}
+      -- (hA : ∀ b : m → R, ∃! x, A.mulVec x = b)
+      -- :LinearIndependent R (fun i ↦ A.transpose i)
+      --   := by
+      --   by_contra h
+      --   rw [LinearIndependent, LinearMap.ker_eq_bot'] at h
+      --   push_neg at h
+      --   obtain ⟨v, hv, hv'⟩ := h
+      --   let b1 : m → R := 0
+      --   have h2 : ∃! x, A.mulVec x = 0
+      --     := by exact hA 0
+      --   have h3 : A.mulVec (0: n → R) = (0: m → R)
+      --     := by exact mulVec_zero A
+      --   have h2_oppo : ∃ x y ,(x≠y) ∧ A.mulVec x = 0 ∧ A.mulVec y = 0
+      --     := by sorry
+      --     -- use 0
+      --     -- use v
+      --     -- constructor
+      --     -- · exact h3
+      --     -- · sorry
+      --     -- rw [Finsupp.total] at hv
+      --   have h5: ((∃ x1,∃ x2, x1≠x2 ∧ mulVec A x1 = 0 ∧ mulVec A x2 = 0))
+      --   →
+      --   (¬ (∃! x, mulVec A x = 0))
+      --     := by
+      --     intro h5_1
+      --     obtain ⟨x1,x2,x3,x4,x5⟩ := h5_1
+      --     by_contra h5_2
+      --     apply?
+      --     sorry
+      --     -- apply?
+      --   have h4: ¬ (∃! x, mulVec A x = 0)
+      --     := by
+      --     apply h5
+      --     exact h2_oppo
+      --   -- exact h4 (hA 0)
+      --   exact h4 (hA 0)
+
+      theorem MainGoal7 {R : Type*} [CommRing R]
+      {A : Matrix m n R}
+      (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
+      :LinearIndependent R (fun i ↦ A.transpose i)
         := by
-        rw [LinearIndependent]
-        refine' _root_.by_contradiction _
-        intro oppo
-        let b1 : m → R := 0
-        have h2 : ∃! x, A.mulVec x = 0
-          := by exact hA 0
-        have h3 : A.mulVec (0: n → R) = (0: m → R)
-          := by exact mulVec_zero A
+        refine' linearIndependent_iff'.2 _
+        have h6:= hA 0
+        have h6_:= hA 0
+        obtain ⟨x, h6_1, h6_2⟩ := h6
+        have h7: mulVec A x -- 这个引理可以单独抽出来
+        = fun yi => ∑ xi, (x xi) • (A yi xi)
+          := by
+          simp only [mulVec]
+          ext h7_x
+          rw [dotProduct]
+          simp only [smul_eq_mul]
+          refine' sum_congr _ _
+          · rfl
+          · exact fun x_1 a ↦ mul_comm (A h7_x x_1) (x x_1)
+          done
+        rw [h7] at h6_1
+        intro h1 h2 h3
+        by_contra oppo
+        push_neg at oppo
+        sorry
+
+
+
+
+        -- rw [← vecMul_transpose A x] at h6_1
+        -- simp only [vecMul] at h6_1
+        -- apply?
+        -- by_contra oppo
+        -- push_neg at oppo
 
 
       theorem MainGoal5 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
@@ -238,15 +319,6 @@ noncomputable section
 
 
 
-
-
-
-      -- theorem MainGoal4 (hA : ∀ (b : m → ℝ), ∃! x, A * x = b)
-      -- : linearIndependent_iff ℝ A := sorry
-
-      -- theorem Matrix.mulVec_injective_iff {R : Type*} [CommRing R] {M : Matrix m n R} :
-      -- Function.Injective M.mulVec ↔ LinearIndependent R (fun i ↦ Mᵀ i) := by
-      -- change Function.Injective (fun x ↦ _) ↔ _
 
   end Module
 
