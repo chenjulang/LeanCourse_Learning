@@ -234,6 +234,32 @@ noncomputable section
       --     apply?
       --   exact h2_oppo (hA 0)
 
+      theorem MainGoal8 {R : Type*} [CommRing R]
+      {A : Matrix m n R}
+      (hA : ∀ b : m → R, ∃! x, A.mulVec x = b)
+      :LinearIndependent R (fun i ↦ A.transpose i)
+        := by
+        by_contra h
+        rw [LinearIndependent, LinearMap.ker_eq_bot'] at h
+        push_neg at h
+        obtain ⟨v, hv, hv'⟩ := h
+        let b1 : m → R := 0
+        have h2 : ∃! x, A.mulVec x = 0
+          := by exact hA 0
+        have h3 : A.mulVec (0: n → R) = (0: m → R)
+          := by exact mulVec_zero A
+        have h2_oppo : ∃ x y ,(x≠y) ∧ A.mulVec x = 0 ∧ A.mulVec y = 0
+          := by sorry
+          -- use 0
+          -- use v
+          -- constructor
+          -- · exact h3
+          -- · sorry
+          -- rw [Finsupp.total] at hv
+        obtain ⟨x1,x2,x3,x4,x5⟩ := h2_oppo
+        have h4:= (ExistsUnique.unique h2 x4 x5)
+        exact x3 h4
+
       -- theorem MainGoal6 {R : Type*} [CommRing R]
       -- {A : Matrix m n R}
       -- (hA : ∀ b : m → R, ∃! x, A.mulVec x = b)
@@ -273,6 +299,19 @@ noncomputable section
       --   -- exact h4 (hA 0)
       --   exact h4 (hA 0)
 
+          theorem MainGoal7_1 {R : Type*} [CommRing R]
+          (A : Matrix m n R)
+          (x : n → R):
+          mulVec A x = fun yi ↦ ∑ xi : n, x xi • A yi xi
+            := by
+            simp only [mulVec]
+            ext h7_x
+            rw [dotProduct]
+            simp only [smul_eq_mul]
+            refine' sum_congr _ _
+            · rfl
+            · exact fun x_1 a ↦ mul_comm (A h7_x x_1) (x x_1)
+
       theorem MainGoal7 {R : Type*} [CommRing R]
       {A : Matrix m n R}
       (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
@@ -280,33 +319,57 @@ noncomputable section
         := by
         refine' linearIndependent_iff'.2 _
         have h6:= hA 0
-        have h6_:= hA 0
+        have _h6:= hA 0
         obtain ⟨x, h6_1, h6_2⟩ := h6
         have h7: mulVec A x -- 这个引理可以单独抽出来
         = fun yi => ∑ xi, (x xi) • (A yi xi)
           := by
-          simp only [mulVec]
-          ext h7_x
-          rw [dotProduct]
-          simp only [smul_eq_mul]
-          refine' sum_congr _ _
-          · rfl
-          · exact fun x_1 a ↦ mul_comm (A h7_x x_1) (x x_1)
-          done
+          exact (MainGoal7_1 A x)
         rw [h7] at h6_1
         intro h1 h2 h3
         by_contra oppo
         push_neg at oppo
-        sorry
+        simp only [Matrix.transpose] at h3
+        have h3_2 :∑ x in h1, h2 x • of (fun x y ↦ A y x) x
+        = ∑ x in h1, h2 x • (fun x y ↦ A y x) x
+          := by
+          exact rfl
+        rw [h3_2] at h3
+        clear h3_2
+        simp only at h3
+        -- have h8: (fun yi ↦ ∑ xi in Fintype n, x xi • A yi xi)
+        -- = (∑ x in h1, h2 x • fun y ↦ A y x)
+        --   := by
+        --   ext h8_1
+        --   simp only [smul_eq_mul, Finset.sum_apply, Pi.smul_apply]
+        --   refine' sum_congr _ _
+        clear hA
+        have h6_oppo : ∃ x y ,(x≠y) ∧ A.mulVec x = 0 ∧ A.mulVec y = 0
+          := by
+          use 0
+          use h2
+          constructor
+          · sorry -- 很明显的不想等，因为oppo描述h2存在非0的
+          constructor
+          · sorry
+          · sorry
+          --   sorry
+          -- constructor
+          -- constructor
+          -- · have oppo1:= 0 ≠ h2
+          -- constructor
+          -- · rw [h7]
+          --   sorry
+          -- · rw [h7]
+          --   sorry
+          done
+        obtain ⟨x1,x2,x3,x4,x5⟩ := h6_oppo
+        have h4:= (ExistsUnique.unique _h6 x4 x5)
+        exact x3 h4
+        done
 
 
 
-
-        -- rw [← vecMul_transpose A x] at h6_1
-        -- simp only [vecMul] at h6_1
-        -- apply?
-        -- by_contra oppo
-        -- push_neg at oppo
 
 
       theorem MainGoal5 {R : Type*} [CommRing R] {A : Matrix m n R} -- 一个大神的证明
