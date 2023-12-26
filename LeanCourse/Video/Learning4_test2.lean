@@ -5,6 +5,13 @@ import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
 import Mathlib.GroupTheory.Perm.Fin
 import Mathlib.GroupTheory.Perm.Sign
+-- import Duper
+
+-- leanproject upgrade
+-- lake update Duper
+-- example : True := by duper
+
+
 
 
 -- 线性独立
@@ -70,121 +77,121 @@ noncomputable section
     -- R应该指的是数乘取的元素的集合，比如我们举例就是R实数
 
 
-    theorem linearIndependent2_iff
-    : LinearIndependent2 R v
-    ↔
-    ∀ l, Finsupp.total ι M R v l = 0 → l = 0
-      := by
-      simp only [LinearIndependent2]
-      simp only [LinearMap.ker_eq_bot']
-      done
+--     theorem linearIndependent2_iff
+--     : LinearIndependent2 R v
+--     ↔
+--     ∀ l, Finsupp.total ι M R v l = 0 → l = 0
+--       := by
+--       simp only [LinearIndependent2]
+--       simp only [LinearMap.ker_eq_bot']
+--       done
 
--- //
+-- -- //
 
-        theorem linearIndependent2_iff'_1:
-        (∀ (l : ι →₀ R), (Finsupp.total ι M R v) l = 0 → l = 0)
-        ↔
-        ∀ (s : Finset ι) (g : ι → R),
-          ∑ i in s, g i • v i = 0
-          →
-          ∀ i ∈ s, g i = 0
-          := by
-          constructor
-          · intros hf s g hg i his
-            have h : (∑ i in s, fun₀ | i => g i) = 0
-              := by
-              refine' hf _ _
-              simp only [map_sum]
-              simp only [Finsupp.total_single] --???
-              exact hg
-            calc
-              g i
-              = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) --???
-                := by
-                rw [Finsupp.lapply_apply, Finsupp.single_eq_same]
-              _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) --???
-                := by
-                refine' Eq.symm _
-                refine' Finset.sum_eq_single i _ _
-                · intros j _hjs hji
-                  rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji]
-                · exact (fun hnis => hnis.elim his)
-                done
-              _ = (∑ j in s, Finsupp.single j (g j)) i
-                := by
-                simp only [Finsupp.lapply_apply, ne_eq]
-                exact (Finset.sum_apply' i).symm
-                -- exact (map_sum ..).symm --???
-              _ = 0
-                := by
-                have h2:= FunLike.ext_iff.1 h i
-                exact h2
-            done
-          · intros hf l hl --???
-            refine' Finsupp.ext _
-            intros i
-            refine' _root_.by_contradiction _
-            intros hni
-            have h3:= Finsupp.mem_support_iff.2 hni
-            refine' hni _
-            refine' hf _ _ hl _ h3
-            done
-          done
+--         theorem linearIndependent2_iff'_1:
+--         (∀ (l : ι →₀ R), (Finsupp.total ι M R v) l = 0 → l = 0)
+--         ↔
+--         ∀ (s : Finset ι) (g : ι → R),
+--           ∑ i in s, g i • v i = 0
+--           →
+--           ∀ i ∈ s, g i = 0
+--           := by
+--           constructor
+--           · intros hf s g hg i his
+--             have h : (∑ i in s, fun₀ | i => g i) = 0
+--               := by
+--               refine' hf _ _
+--               simp only [map_sum]
+--               simp only [Finsupp.total_single] --???
+--               exact hg
+--             calc
+--               g i
+--               = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) --???
+--                 := by
+--                 rw [Finsupp.lapply_apply, Finsupp.single_eq_same]
+--               _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) --???
+--                 := by
+--                 refine' Eq.symm _
+--                 refine' Finset.sum_eq_single i _ _
+--                 · intros j _hjs hji
+--                   rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji]
+--                 · exact (fun hnis => hnis.elim his)
+--                 done
+--               _ = (∑ j in s, Finsupp.single j (g j)) i
+--                 := by
+--                 simp only [Finsupp.lapply_apply, ne_eq]
+--                 exact (Finset.sum_apply' i).symm
+--                 -- exact (map_sum ..).symm --???
+--               _ = 0
+--                 := by
+--                 have h2:= FunLike.ext_iff.1 h i
+--                 exact h2
+--             done
+--           · intros hf l hl --???
+--             refine' Finsupp.ext _
+--             intros i
+--             refine' _root_.by_contradiction _
+--             intros hni
+--             have h3:= Finsupp.mem_support_iff.2 hni
+--             refine' hni _
+--             refine' hf _ _ hl _ h3
+--             done
+--           done
 
 
-    theorem linearIndependent2_iff' :
-      LinearIndependent2 R v
-      ↔
-      ∀ s : Finset ι,
-         ∀ g : ι → R,
-            ∑ i in s, g i • v i = 0 -- g i应该就是系数，v i是第i个向量
-            →
-            ∀ i ∈ s, g i = 0 -- 推出每一个系数都是0
-        := by
-        have h1 := linearIndependent2_iff'_1 R v
-        exact (linearIndependent_iff).trans (h1)
+--     theorem linearIndependent2_iff' :
+--       LinearIndependent2 R v
+--       ↔
+--       ∀ s : Finset ι,
+--          ∀ g : ι → R,
+--             ∑ i in s, g i • v i = 0 -- g i应该就是系数，v i是第i个向量
+--             →
+--             ∀ i ∈ s, g i = 0 -- 推出每一个系数都是0
+--         := by
+--         have h1 := linearIndependent2_iff'_1 R v
+--         exact (linearIndependent_iff).trans (h1)
 
--- //
+-- -- //
 
-        theorem linearIndependent2_iff''_1
-        : (∀ (s : Finset ι) (g : ι → R), ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0)
-        ↔
-        ∀ (s : Finset ι) (g : ι → R),
-          (∀ i ∉ s, g i = 0)
-          →
-          ∑ i in s, g i • v i = 0 → ∀ (i : ι), g i = 0
-          := by
-          classical -- 可以使用局部变量，比如下面的这个his
-          constructor
-          · intros H s g hg hv i
-            have h1 := (if his : i ∈ s then H s g hv i his else hg i his) --???
-            exact h1
-            done
-          · intros H s g hg i hi
-            have h2 :(if i ∈ s then g i else 0) = 0
-            := H
-              s
-              (fun j => if j ∈ s then g j else 0)
-              (fun j hj => if_neg hj)
-              (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
-            rw [← h2] -- convert h2 --一个意思
-            exact (if_pos hi).symm
-            done
-          done
+--         theorem linearIndependent2_iff''_1
+--         : (∀ (s : Finset ι) (g : ι → R), ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0)
+--         ↔
+--         ∀ (s : Finset ι) (g : ι → R),
+--           (∀ i ∉ s, g i = 0)
+--           →
+--           ∑ i in s, g i • v i = 0 → ∀ (i : ι), g i = 0
+--           := by
+--           classical -- 可以使用局部变量，比如下面的这个his
+--           constructor
+--           · intros H s g hg hv i
+--             have h1 := (if his : i ∈ s then H s g hv i his else hg i his) --???
+--             exact h1
+--             done
+--           · intros H s g hg i hi
+--             have h2 :(if i ∈ s then g i else 0) = 0
+--             := H
+--               s
+--               (fun j => if j ∈ s then g j else 0)
+--               (fun j hj => if_neg hj)
+--               (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
+--             rw [← h2] -- convert h2 --一个意思
+--             exact (if_pos hi).symm
+--             done
+--           done
 
-    theorem linearIndependent2_iff'' :
-      LinearIndependent R v
-      ↔
-      ∀ (s : Finset ι)
-      (g : ι → R)
-      (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
-        ∑ i in s, g i • v i = 0
-        →
-        ∀ i, g i = 0
-        := by
-        have h2 := (linearIndependent2_iff''_1 R v)
-        exact linearIndependent_iff'.trans h2
-        done
+--     theorem linearIndependent2_iff'' :
+--       LinearIndependent R v
+--       ↔
+--       ∀ (s : Finset ι)
+--       (g : ι → R)
+--       (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
+--         ∑ i in s, g i • v i = 0
+--         →
+--         ∀ i, g i = 0
+--         := by
+--         have h2 := (linearIndependent2_iff''_1 R v)
+--         exact linearIndependent_iff'.trans h2
+--         done
 
 
 
@@ -198,7 +205,7 @@ noncomputable section
       -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
       variable {m n : Type*} [Fintype m] [Fintype n]
 
-          theorem MainGoal7_1 {R : Type*} [CommRing R]
+          theorem MainGoal4_1 {R : Type*} [CommRing R]
           (A : Matrix m n R)
           (x : n → R)
           :
@@ -212,52 +219,62 @@ noncomputable section
             · rfl
             · exact fun x_1 a ↦ mul_comm (A h7_x x_1) (x x_1)
 
-      theorem MainGoal7
+      theorem MainGoal4
       {R : Type*} [CommRing R]
       {A : Matrix m n R}
       (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
       :LinearIndependent R (fun i ↦ A.transpose i)
         := by
-        refine' linearIndependent_iff'.2 _
-        intros s hs h_sum_zero
-        by_contra h_dependent
-        -- simp only [Finset.filter_val, Set.setOf_forall , not_forall, Finset.mem_coe, Finset.mem_filter, not_imp] at h_dependent
-        simp only [not_not, linearIndependent_iff] at h_dependent
-        obtain ⟨w⟩ := h_dependent
-
+        -- refine' linearIndependent_iff'.2 _
+        refine' Fintype.linearIndependent_iff.mpr _
         have h6:= hA 0
         have _h6:= hA 0
         obtain ⟨x, h6_1, h6_2⟩ := h6
         have h7: mulVec A x -- 这个引理可以单独抽出来
         = fun yi => ∑ xi, (x xi) • (A yi xi)
           := by
-          exact (MainGoal7_1 A x)
+          exact (MainGoal4_1 A x)
         rw [h7] at h6_1
+        intro h1 h2 h3
         by_contra oppo
         push_neg at oppo
-        simp only [Matrix.transpose] at h3
-        have h3_2 :∑ x in h1, h2 x • of (fun x y ↦ A y x) x
-        = ∑ x in h1, h2 x • (fun x y ↦ A y x) x
-          := by
-          exact rfl
-        rw [h3_2] at h3
-        clear h3_2
-        simp only at h3
+        simp only [Matrix.transpose] at h2
+        -- have h3_2 :∑ x in h1, h2 x • of (fun x y ↦ A y x) x
+        -- = ∑ x in h1, h2 x • (fun x y ↦ A y x) x
+        --   := by
+        --   exact rfl
+        -- have h3_2 : ∑ x : n, h1 x • of (fun x y ↦ A y x) x
+        -- = ∑ x : n, h1 x • (fun x y ↦ A y x) x
+        --   := by rfl
+        -- rw [h3_2] at h3
+        -- clear h3_2
+        -- simp only at h3
         clear hA
         have h6_oppo : ∃ x y ,(x≠y) ∧ A.mulVec x = 0 ∧ A.mulVec y = 0
           := by
           use 0
-          use h2
+          use h1
           constructor
           · contrapose! oppo -- 机器和人一样对于这种双重否定的问题一样很难理解
-            intros oppo1 oppo2
-            exact congrFun (id oppo.symm) oppo1
+            exact congrFun (id oppo.symm) h3
+            -- exact congrFun (id oppo.symm) oppo1
             done
           constructor
           · exact mulVec_zero A
-          · rw [MainGoal7_1 A h2]
+          · rw [MainGoal4_1 A h1]
+            have h8: (∑ x:n, h1 x • fun y ↦ A y x)
+            = (fun yi ↦ ∑ xi : n, h1 xi • A yi xi)
+              := by
+              ext h8_1
+              simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+            rw [← h8]
+            clear h8
+            exact h2
+            -- ext i
+            -- simp only [mulVec, dotProduct, smul_eq_mul]
+            -- rw [← Finset.sum_hom (λ j => h2 j • (A i j))]
+            -- rw [← Finset.sum_hom h2 (A i)]
             -- exact h3
-            sorry
             -- exact h3
             -- rw [← Multiset.sum_sum] at h3
           done

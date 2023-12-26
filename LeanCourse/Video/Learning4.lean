@@ -5,6 +5,13 @@ import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
 import Mathlib.GroupTheory.Perm.Fin
 import Mathlib.GroupTheory.Perm.Sign
+-- import Duper
+
+-- leanproject upgrade
+-- lake update Duper
+-- example : True := by duper
+
+
 
 
 -- 线性独立
@@ -198,7 +205,7 @@ noncomputable section
       -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
       variable {m n : Type*} [Fintype m] [Fintype n]
 
-          theorem MainGoal7_1 {R : Type*} [CommRing R]
+          theorem MainGoal4_1 {R : Type*} [CommRing R]
           (A : Matrix m n R)
           (x : n → R)
           :
@@ -212,7 +219,7 @@ noncomputable section
             · rfl
             · exact fun x_1 a ↦ mul_comm (A h7_x x_1) (x x_1)
 
-      theorem MainGoal7
+      theorem MainGoal4
       {R : Type*} [CommRing R]
       {A : Matrix m n R}
       (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
@@ -225,7 +232,7 @@ noncomputable section
         have h7: mulVec A x -- 这个引理可以单独抽出来
         = fun yi => ∑ xi, (x xi) • (A yi xi)
           := by
-          exact (MainGoal7_1 A x)
+          exact (MainGoal4_1 A x)
         rw [h7] at h6_1
         intro h1 h2 h3
         by_contra oppo
@@ -250,14 +257,20 @@ noncomputable section
             done
           constructor
           · exact mulVec_zero A
-          · rw [MainGoal7_1 A h2]
-            ext i
-            simp only [mulVec, dotProduct, smul_eq_mul]
-            change (∑ j : n, h2 j • A i j) = 0
+          · rw [MainGoal4_1 A h2]
+            have h8: (∑ x:n, h2 x • fun y ↦ A y x)
+            = (fun yi ↦ ∑ xi : n, h2 xi • A yi xi)
+              := by
+              ext h8_1
+              simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+            rw [← h8]
+            clear h8
+            sorry
+            -- ext i
+            -- simp only [mulVec, dotProduct, smul_eq_mul]
             -- rw [← Finset.sum_hom (λ j => h2 j • (A i j))]
             -- rw [← Finset.sum_hom h2 (A i)]
             -- exact h3
-            sorry
             -- exact h3
             -- rw [← Multiset.sum_sum] at h3
           done

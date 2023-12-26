@@ -20,6 +20,7 @@ require mathlib from git
 
 require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
 
+require Duper from git "https://github.com/leanprover-community/duper.git" @ "v0.0.5"
 
 
 

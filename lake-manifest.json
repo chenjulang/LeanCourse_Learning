@@ -18,6 +18,14 @@
     "inputRev?": "main",
     "inherited": false}},
   {"git":
+   {"url": "https://github.com/leanprover-community/duper.git",
+    "subDir?": null,
+    "rev": "eaf18dbcca88a095b5f1357de53560318b87c82d",
+    "opts": {},
+    "name": "Duper",
+    "inputRev?": "v0.0.5",
+    "inherited": false}},
+  {"git":
    {"url": "https://github.com/leanprover-community/quote4",
     "subDir?": null,
     "rev": "a387c0eb611857e2460cf97a8e861c944286e6b2",
@@ -56,5 +64,13 @@
     "opts": {},
     "name": "aesop",
     "inputRev?": "master",
+    "inherited": true}},
+  {"git":
+   {"url": "https://github.com/leanprover-community/lean-auto.git",
+    "subDir?": null,
+    "rev": "b61345f6d42675298f8fa2b0cc5c471c264a6b40",
+    "opts": {},
+    "name": "auto",
+    "inputRev?": "v0.0.4",
     "inherited": true}}],
  "name": "leanCourse"}
