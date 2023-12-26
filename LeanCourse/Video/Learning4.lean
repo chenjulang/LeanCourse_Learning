@@ -201,7 +201,6 @@ noncomputable section
           theorem MainGoal7_1 {R : Type*} [CommRing R]
           (A : Matrix m n R)
           (x : n → R)
-          (range : Finset n)
           :
           mulVec A x = fun yi ↦ ∑ xi : n, x xi • A yi xi
             := by
@@ -215,8 +214,6 @@ noncomputable section
 
       theorem MainGoal7
       {R : Type*} [CommRing R]
-      [Fintype m] [Fintype n]
-      -- [n :Finset n]
       {A : Matrix m n R}
       (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
       :LinearIndependent R (fun i ↦ A.transpose i)
@@ -254,6 +251,12 @@ noncomputable section
           constructor
           · exact mulVec_zero A
           · rw [MainGoal7_1 A h2]
+            ext i
+            simp only [mulVec, dotProduct, smul_eq_mul]
+            change (∑ j : n, h2 j • A i j) = 0
+            -- rw [← Finset.sum_hom (λ j => h2 j • (A i j))]
+            -- rw [← Finset.sum_hom h2 (A i)]
+            -- exact h3
             sorry
             -- exact h3
             -- rw [← Multiset.sum_sum] at h3
