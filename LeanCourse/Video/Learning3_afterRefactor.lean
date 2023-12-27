@@ -427,7 +427,7 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       (ε σ * ε τ)
       *
       (∏ i, M (τ i) i)
-  = det M * det N --todo
+  = det M * det N
     := by
     have h4:= MainGoal_6_3 M N
     simp only [h4]
