@@ -197,6 +197,7 @@ noncomputable section
             --     -- (fun j => if j ∈ s2 then g2 j else 0)
             --     refine' H s (fun j => if j ∈ s then g j else 0) _ _ _
 
+
             have h3 :(if i ∈ s then g i else 0) = 0
               :=
               H
