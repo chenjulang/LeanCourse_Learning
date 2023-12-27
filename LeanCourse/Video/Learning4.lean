@@ -38,16 +38,26 @@ noncomputable section
 
     -- 线性独立的定义，后面还有定义linearIndependent_iff2'，是比较符合传统数学上的理解的。
     -- 1.LinearMap.ker 2.Finsupp.total 3.⊥
-    -- 零空间（Zero Space）： 在线性代数中，给定一个线性映射（如矩阵），其零空间是所有映射到零向量的输入组成的集合。零空间也被称为核（kernel）。
-    -- 零子空间（zero subspace）：是向量空间中的一个特殊子空间。它单独由零向量（所有分量都为零的向量）构成。
+    -- 零空间（Zero Space）：换句话说零向量之原像集合。 在线性代数中，给定一个线性映射（如矩阵），该映射的零空间是：所有映射到零向量的输入组成的集合。零空间也被称为核（kernel）。
+    -- 零子空间（zero subspace）：换句话说，是一个集合，该集合就一个零向量。是向量空间中的一个特殊子空间。它单独由零向量（所有分量都为零的向量）构成。
     -- LinearMap.ker：
       --   def ker (f : F) : Submodule R M :=
       -- comap f ⊥
       -- comap f ⊥ ：的含义是将零子空间通过逆映射 f 映射回原始的定义域。
       -- 最终，ker (f : F) 返回的是线性映射 f 的核，即所有映射到零向量的输入的集合。
       -- Submodule R M：环 R 上的模 M 的子模组成的集合类型
+
+    /-- (Finsupp.total ι M R v):一维2项向量举例：它将任意的向量d，变成了向量(v 1)•(d 1) + (v 2)•(d 2),另一种角度看就是
+    (v 1)和(v 2)这两个向量(这里指的是(2,3)和(4,5)）的任意组合
+    比如：d=（7，8）,映射成(v 1) (7) + (v 2) (8)= (2,3)•7+(4,5)•8 = (14+32,21+40)= (46,61). -/
     def LinearIndependent2 : Prop :=
       LinearMap.ker (Finsupp.total ι M R v) = ⊥ -- 在线性代数中，⊥ 经常用于表示零空间或零子空间。
+    -- (Finsupp.total ι M R v):它将任意的向量d，变成了向量(v 1)•(d 1) + (v 2)•(d 2)
+    -- v : ι → M 指的是一个映射，根据这里举的例子，将（1，0）=>(2,3),将（0，1）=> (4,5)，
+    -- ι:就是第一个向量空间（一维2项向量组成的集合），
+    -- M:指的是第二个向量空间（一维2项向量组成的集合）
+    -- R:应该指的是数乘取的元素的集合，比如我们举例就是R实数
+
     -- 举例说明
     -- 已知2个条件：
     -- 已知任意的一维向量d，即(x,y),举例（7，8）
@@ -77,121 +87,125 @@ noncomputable section
     -- R应该指的是数乘取的元素的集合，比如我们举例就是R实数
 
 
---     theorem linearIndependent2_iff
---     : LinearIndependent2 R v
---     ↔
---     ∀ l, Finsupp.total ι M R v l = 0 → l = 0
---       := by
---       simp only [LinearIndependent2]
---       simp only [LinearMap.ker_eq_bot']
---       done
+    theorem linearIndependent2_iff
+    : LinearIndependent2 R v
+    ↔
+    ∀ l, Finsupp.total ι M R v l = 0 → l = 0
+      := by
+      simp only [LinearIndependent2]
+      simp only [LinearMap.ker_eq_bot'] -- 理解成“0集之原像为0集”的定义吧
+      done
 
--- -- //
+-- //
 
---         theorem linearIndependent2_iff'_1:
---         (∀ (l : ι →₀ R), (Finsupp.total ι M R v) l = 0 → l = 0)
---         ↔
---         ∀ (s : Finset ι) (g : ι → R),
---           ∑ i in s, g i • v i = 0
---           →
---           ∀ i ∈ s, g i = 0
---           := by
---           constructor
---           · intros hf s g hg i his
---             have h : (∑ i in s, fun₀ | i => g i) = 0
---               := by
---               refine' hf _ _
---               simp only [map_sum]
---               simp only [Finsupp.total_single] --???
---               exact hg
---             calc
---               g i
---               = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) --???
---                 := by
---                 rw [Finsupp.lapply_apply, Finsupp.single_eq_same]
---               _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) --???
---                 := by
---                 refine' Eq.symm _
---                 refine' Finset.sum_eq_single i _ _
---                 · intros j _hjs hji
---                   rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji]
---                 · exact (fun hnis => hnis.elim his)
---                 done
---               _ = (∑ j in s, Finsupp.single j (g j)) i
---                 := by
---                 simp only [Finsupp.lapply_apply, ne_eq]
---                 exact (Finset.sum_apply' i).symm
---                 -- exact (map_sum ..).symm --???
---               _ = 0
---                 := by
---                 have h2:= FunLike.ext_iff.1 h i
---                 exact h2
---             done
---           · intros hf l hl --???
---             refine' Finsupp.ext _
---             intros i
---             refine' _root_.by_contradiction _
---             intros hni
---             have h3:= Finsupp.mem_support_iff.2 hni
---             refine' hni _
---             refine' hf _ _ hl _ h3
---             done
---           done
+        theorem linearIndependent2_iff'_1:
+        (∀ (l : ι →₀ R), (Finsupp.total ι M R v) l = 0 → l = 0)
+        ↔
+        (∀ (s : Finset ι) (g : ι → R),
+          ∑ i in s, g i • v i = 0
+          →
+          ∀ i ∈ s, g i = 0)
+          := by -- todo
+          constructor
+          · intros hf s g hg i his
+            have h : (∑ i in s, fun₀ | i => g i) = 0
+              := by
+              refine' hf _ _
+              simp only [map_sum]
+              simp only [Finsupp.total_single] --???
+              exact hg
+            calc
+              g i
+              = (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single i (g i)) --???
+                := by
+                rw [Finsupp.lapply_apply, Finsupp.single_eq_same]
+              _ = ∑ j in s, (Finsupp.lapply i : (ι →₀ R) →ₗ[R] R) (Finsupp.single j (g j)) --???
+                := by
+                refine' Eq.symm _
+                refine' Finset.sum_eq_single i _ _
+                · intros j _hjs hji
+                  rw [Finsupp.lapply_apply, Finsupp.single_eq_of_ne hji]
+                · exact (fun hnis => hnis.elim his)
+                done
+              _ = (∑ j in s, Finsupp.single j (g j)) i
+                := by
+                simp only [Finsupp.lapply_apply, ne_eq]
+                exact (Finset.sum_apply' i).symm
+                -- exact (map_sum ..).symm --???
+              _ = 0
+                := by
+                have h2:= FunLike.ext_iff.1 h i
+                exact h2
+            done
+          · intros hf l hl --???
+            refine' Finsupp.ext _
+            intros i
+            refine' _root_.by_contradiction _
+            intros hni
+            have h3:= Finsupp.mem_support_iff.2 hni
+            refine' hni _
+            refine' hf _ _ hl _ h3
+            done
+          done
 
 
---     theorem linearIndependent2_iff' :
---       LinearIndependent2 R v
---       ↔
---       ∀ s : Finset ι,
---          ∀ g : ι → R,
---             ∑ i in s, g i • v i = 0 -- g i应该就是系数，v i是第i个向量
---             →
---             ∀ i ∈ s, g i = 0 -- 推出每一个系数都是0
---         := by
---         have h1 := linearIndependent2_iff'_1 R v
---         exact (linearIndependent_iff).trans (h1)
+    theorem linearIndependent2_iff' :
+      LinearIndependent2 R v
+      ↔
+      ∀ s : Finset ι,
+         ∀ g : ι → R,
+            ∑ i in s, g i • v i = 0 -- g i应该就是系数，v i是第i个向量
+            →
+            ∀ i ∈ s, g i = 0 -- 推出每一个系数都是0
+        := by
+        have h1 := linearIndependent2_iff'_1 R v
+        exact (linearIndependent_iff).trans (h1)
 
--- -- //
+-- //
 
---         theorem linearIndependent2_iff''_1
---         : (∀ (s : Finset ι) (g : ι → R), ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0)
---         ↔
---         ∀ (s : Finset ι) (g : ι → R),
---           (∀ i ∉ s, g i = 0)
---           →
---           ∑ i in s, g i • v i = 0 → ∀ (i : ι), g i = 0
---           := by
---           classical -- 可以使用局部变量，比如下面的这个his
---           constructor
---           · intros H s g hg hv i
---             have h1 := (if his : i ∈ s then H s g hv i his else hg i his) --???
---             exact h1
---             done
---           · intros H s g hg i hi
---             have h2 :(if i ∈ s then g i else 0) = 0
---             := H
---               s
---               (fun j => if j ∈ s then g j else 0)
---               (fun j hj => if_neg hj)
---               (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
---             rw [← h2] -- convert h2 --一个意思
---             exact (if_pos hi).symm
---             done
---           done
+        theorem linearIndependent2_iff''_1
+        : (∀ (s : Finset ι) (g : ι → R), ∑ i in s, g i • v i = 0 → ∀ i ∈ s, g i = 0)
+        ↔
+        ∀ (s : Finset ι) (g : ι → R),
+          (∀ i ∉ s, g i = 0)
+          →
+          ∑ i in s, g i • v i = 0 → ∀ (i : ι), g i = 0
+          := by
+          classical -- 可以使用局部变量，比如下面的这个his
+          constructor
+          · intros H s g hg hv i
+            have h1 := (if his : i ∈ s then H s g hv i his else hg i his) --???
+            exact h1
+            done
+          · intros H s g hg i hi
+            have h2 :(if i ∈ s then g i else 0) = 0
+            := H
+              s
+              (fun j => if j ∈ s then g j else 0)
+              (fun j hj => if_neg hj)
+              (by simp_rw [ite_smul, zero_smul, Finset.sum_extend_by_zero, hg]) i
+            rw [← h2] -- convert h2 --一个意思
+            exact (if_pos hi).symm
+            done
+          done
 
---     theorem linearIndependent2_iff'' :
---       LinearIndependent R v
---       ↔
---       ∀ (s : Finset ι)
---       (g : ι → R)
---       (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
---         ∑ i in s, g i • v i = 0
---         →
---         ∀ i, g i = 0
---         := by
---         have h2 := (linearIndependent2_iff''_1 R v)
---         exact linearIndependent_iff'.trans h2
---         done
+    theorem linearIndependent2_iff'' :
+      LinearIndependent R v
+      ↔
+      ∀ (s : Finset ι)
+      (g : ι → R)
+      (_hg : ∀ (i) (_ : i ∉ s), g i = 0),
+        ∑ i in s, g i • v i = 0
+        →
+        ∀ i, g i = 0
+        := by
+        have h2 := (linearIndependent2_iff''_1 R v)
+        exact linearIndependent_iff'.trans h2
+        done
+
+
+
+
 
 
 

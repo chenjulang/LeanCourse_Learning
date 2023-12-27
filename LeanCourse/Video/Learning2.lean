@@ -77,8 +77,10 @@ namespace Matrix
 
 
 
--- Finset.sum Finset.univ的使用：
-    def my_set := (Finset.univ : (Finset (Fin 2)))
+-- Finset.sum, Finset.range, Finset.univ的使用：
+    -- def my_set := (Finset.univ : (Finset (Fin 2)))
+    def my_set2 := Finset.range 2
+    #eval my_set2 -- {0, 1}
     -- #eval my_set -- {0, 1}
     --   Finset.sum需要两个参数：
       -- 1.一个有限集合，表示对该集合中的元素进行求和。
@@ -87,7 +89,7 @@ namespace Matrix
       := Finset.sum (Finset.range 11) (fun x => x) -- 也就是x为0到10自然数，f(x)=x求和
     -- #eval sum_of_numbers -- 55
     def sum_of_numbers2 : ℕ
-      := Finset.sum my_set (fun x => x) -- 也就是x为{0, 1}，f(x)=x求和
+      := Finset.sum my_set2 (fun x => x) -- 也就是x为{0, 1}，f(x)=x求和
     -- #eval sum_of_numbers2 -- 1
 
 -- cramer 的使用
