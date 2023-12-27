@@ -188,6 +188,7 @@ noncomputable section
             done
           · intros H s g hg i hi
 
+            -- 这里经验是refine‘ H _ _ _ 报错的话，就用exact H _ _ _的写法。一样的
             -- have h3_ :(if i ∈ s then g i else 0) = 0
             --   := by
             --   by_cases i ∈ s
