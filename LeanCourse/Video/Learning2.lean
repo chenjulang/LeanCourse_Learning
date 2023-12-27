@@ -92,14 +92,24 @@ namespace Matrix
       := Finset.sum my_set2 (fun x => x) -- 也就是x为{0, 1}，f(x)=x求和
     -- #eval sum_of_numbers2 -- 1
 
--- cramer 的使用
+-- cramer 克莱姆函数的使用
+  -- def matrix1 : Matrix (Fin 2) (Fin 2) ℝ :=
+  --   ![![1, 2],
+  --     ![3, 4]]
   def matrixb :  Fin 2 → ℝ :=
     ![5, 6]
   #eval matrixb
-  def cramer001 := (cramer matrix1 matrixb)
-  -- 可以看成一个n*1维的矩阵；也可以看成Fin 2 → ℝ，类似于数列；相当于 A.det • x ； 比如这里![8 -9]里，8就是matrix1第一列换成matrixb之后的矩阵，计算出来的行列式；9就是第2列替换matrixb后计算的行列式
+  def cramer001 := (cramer matrix1 matrixb) -- A * x = b
+  -- 这里不对cramer的定义做分析，只对它有一个使用的理解即可。
+  -- 第一个参数：一个n*n的矩阵
+  -- 第二个参数：一个n*1的矩阵
+  -- 可以看成一个n*1维的矩阵；也可以看成Fin 2 → ℝ，类似于数列；相当于 A.det • x ；
+  -- 比如这里结果是![8 -9]里，8就是matrix1第一列换成matrixb之后的矩阵，
+  --   ![![5, 2],
+  --     ![6, 4]] 20-12 = 8
+  -- 计算出来的行列式；9就是第2列替换matrixb后计算的行列式
   #eval cramer001
-  def solution := (matrix1_det) • (cramer matrix1 matrixb)
+  def solution := (1/matrix1_det) • (cramer matrix1 matrixb)
   --  如何表示除法要有理数才行的
   #eval solution -- 解应该是x=![-4 4.5]
 
