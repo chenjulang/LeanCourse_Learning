@@ -53,112 +53,108 @@ variable {ω p q r s t : K}
 -- 3.cyclotomic_prime p R这个现实世界感觉没见过： p是素数的话, cyclotomic p R = ∑ i in range p, X ^ i 即： p分圆多项式=多项式（∑ i in range p, X ^ i），（X是多项式变量）
 -- 4. Finset.sum_range_succ ： 求和n+1项=求和n项 +（第n+1项）
 
-theorem cube_root_of_unity_sum (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0 := by -- ???为什么可以这样定义k-单位根的第二个属性：∀ l : ℕ, ζ ^ l = 1 → k ∣ l
-  have h1:= hω.isRoot_cyclotomic (by decide)
-  simpa [cyclotomic_prime, Finset.sum_range_succ] using h1
-#print cube_root_of_unity_sum
+-- theorem cube_root_of_unity_sum (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0 := by -- ???为什么可以这样定义k-单位根的第二个属性：∀ l : ℕ, ζ ^ l = 1 → k ∣ l
+--   have h1:= hω.isRoot_cyclotomic (by decide)
+--   simpa [cyclotomic_prime, Finset.sum_range_succ] using h1
+-- #print cube_root_of_unity_sum
 
-theorem cube_root_of_unity_sum2 (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0
-  := by
-  let h1 : IsRoot (cyclotomic 3 K) ω
+  theorem cube_root_of_unity_sum2 (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0
     := by
-    exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
-  have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
-    := by
-    rw [cyclotomic_prime]
-    refine' congrArg _ _
-    rw [Finset.sum_range_succ]
-    rw [Finset.sum_range_succ]
-    rw [Finset.sum_range_succ]
-    simp only [Finset.range_zero, Finset.sum_empty, pow_zero, zero_add, pow_one]
-  have h3 : (eval ω (1 + X + X ^ 2) = 0) = (1 + ω + ω ^ 2 = 0) -- eval x p是 x代入多项式p的值
-    := by
+    let h1 : IsRoot (cyclotomic 3 K) ω
+      := by
+      exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
+    have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
+      := by
+      rw [cyclotomic_prime]
+      refine' congrArg _ _
+      rw [Finset.sum_range_succ]
+      rw [Finset.sum_range_succ]
+      rw [Finset.sum_range_succ]
+      simp only [Finset.range_zero, Finset.sum_empty, pow_zero, zero_add, pow_one]
+    have h3 : (eval ω (1 + X + X ^ 2) = 0) = (1 + ω + ω ^ 2 = 0) -- eval x p是 x代入多项式p的值
+      := by
+      simp only [eval_add, eval_one, eval_X, eval_pow]
+    rw [← h3]
     simp only [eval_add, eval_one, eval_X, eval_pow]
-  rw [← h3]
-  simp only [eval_add, eval_one, eval_X, eval_pow]
-  have h4 :IsRoot (cyclotomic 3 K) ω = IsRoot (1 + X + X ^ 2) ω
-    := by
-    exact congrFun h2 ω
-  have h5 : IsRoot (1 + X + X ^ 2) ω = (eval ω (1 + X + X ^ 2) = 0)
-    := by
-    simp only [IsRoot.def, eval_add, eval_one, eval_X, eval_pow]
-  clear h2
-  have h6:= h4.trans h5
-  clear h4 h5
-  have h7:= h6.trans h3
-  clear h6 h3
-  rw [h7] at h1
-  exact h1
-  done
+    have h4 :IsRoot (cyclotomic 3 K) ω = IsRoot (1 + X + X ^ 2) ω
+      := by
+      exact congrFun h2 ω
+    have h5 : IsRoot (1 + X + X ^ 2) ω = (eval ω (1 + X + X ^ 2) = 0)
+      := by
+      simp only [IsRoot.def, eval_add, eval_one, eval_X, eval_pow]
+    clear h2
+    have h6:= h4.trans h5
+    clear h4 h5
+    have h7:= h6.trans h3
+    clear h6 h3
+    rw [h7] at h1
+    exact h1
+    done
+
+  -- //
+
+  /-- 去掉二次方项的形式 -/
+  theorem cubic_basic_eq_zero_iff (hω : IsPrimitiveRoot ω 3) (hp_nonzero : p ≠ 0)
+      (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
+      x ^ 3 + 3 * p * x - 2 * q = 0 ↔ x = s - t ∨ x = s * ω - t * ω ^ 2 ∨ x = s * ω ^ 2 - t * ω := by
+    have h₁ : ∀ x a₁ a₂ a₃ : K, x = a₁ ∨ x = a₂ ∨ x = a₃ ↔ (x - a₁) * (x - a₂) * (x - a₃) = 0 := by
+      intros; simp only [mul_eq_zero, sub_eq_zero, or_assoc]
+    rw [h₁]
+    refine' Eq.congr _ rfl
+    have hs_nonzero : s ≠ 0 := by
+      contrapose! hp_nonzero with hs_nonzero
+      linear_combination -1 * ht + t * hs_nonzero
+    rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)]
+    have H := cube_root_of_unity_sum2 hω
+    linear_combination
+      hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
+      (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+
+  /-- 三次方项系数为1的形式 -/
+  theorem cubic_monic_eq_zero_iff2 (hω : IsPrimitiveRoot ω 3) (hp : p = (3 * c - b ^ 2) / 9)
+      (hp_nonzero : p ≠ 0) (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54)
+      (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
+      x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
+        x = s - t - b / 3 ∨ x = s * ω - t * ω ^ 2 - b / 3 ∨ x = s * ω ^ 2 - t * ω - b / 3 := by
+    let y := x + b / 3
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have h₁ : x ^ 3 + b * x ^ 2 + c * x + d = y ^ 3 + 3 * p * y - 2 * q := by
+      rw [hp, hq]
+      field_simp [h9, h54]; ring
+    rw [h₁, cubic_basic_eq_zero_iff hω hp_nonzero hr hs3 ht y]
+    simp_rw [eq_sub_iff_add_eq]
+
+  /-- 通用的一般形式 -/
+  theorem cubic_eq_zero_iff (ha : a ≠ 0) (hω : IsPrimitiveRoot ω 3)
+      (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2)) (hp_nonzero : p ≠ 0)
+      (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
+      (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
+      a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
+        x = s - t - b / (3 * a) ∨
+          x = s * ω - t * ω ^ 2 - b / (3 * a) ∨ x = s * ω ^ 2 - t * ω - b / (3 * a) := by
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) :=
+      by field_simp; ring
+    have h₂ : ∀ x, a * x = 0 ↔ x = 0 := by intro x; simp [ha]
+    have hp' : p = (3 * (c / a) - (b / a) ^ 2) / 9 := by field_simp [hp, h9]; ring_nf
+    have hq' : q = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54 := by
+      field_simp [hq, h54]; ring_nf
+    rw [h₁, h₂, cubic_monic_eq_zero_iff2 (b / a) (c / a) (d / a) hω hp' hp_nonzero hq' hr hs3 ht x]
+    have h₄ :=
+      calc
+        b / a / 3 = b / (a * 3) := by field_simp [ha]
+        _ = b / (3 * a) := by rw [mul_comm]
+    rw [h₄]
 
 
 
--- theorem cube_root_of_unity_sum3 : ∀ {K : Type u_1} [inst : Field K] {ω : K},
---   IsPrimitiveRoot ω 3 → 1 + ω + ω ^ 2 = 0 :=
--- fun {K} [Field K] {ω} hω ↦
---   let_fun h1 := IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω;
---   Eq.mp
---     (((congrFun
---               (congrArg IsRoot
---                 (((cyclotomic_prime K 3).trans (Finset.sum_range_succ (fun x ↦ X ^ x) 2)).trans
---                   (congrFun
---                     (congrArg HAdd.hAdd
---                       ((Finset.sum_range_succ (fun x ↦ X ^ x) 1).trans
---                         (congr (congrArg HAdd.hAdd ((Finset.sum_singleton (fun x ↦ X ^ x) 0).trans (pow_zero X)))
---                           (pow_one X))))
---                     (X ^ 2))))
---               ω).trans
---           (@IsRoot.def K ω Ring.toSemiring (1 + X + X ^ 2))).trans
---       (congrFun
---         (congrArg Eq
---           (eval_add.trans
---             (congr (congrArg HAdd.hAdd (eval_add.trans (congr (congrArg HAdd.hAdd eval_one) eval_X)))
---               ((eval_pow 2).trans (congrFun (congrArg HPow.hPow eval_X) 2)))))
---         0))
---     (IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω)
-
--- /-- the solution of the cubic equation when p equals zero. -/
--- theorem cubic_eq_zero_iff_of_p_eq_zero
---     (ha : a ≠ 0)
---     (hω : IsPrimitiveRoot ω 3)
---     (hpz : 3 * a * c - b ^ 2 = 0)
---     (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
---     (hs3 : s ^ 3 = 2 * q)
---     (x : K) :
---     a * x ^ 3 + b * x ^ 2 + c * x + d = 0
---     ↔
---     x = s - b / (3 * a) ∨ x = s * ω - b / (3 * a) ∨ x = s * ω ^ 2 - b / (3 * a)
---       := by
---       have h₁ : ∀ x a₁ a₂ a₃ : K, x = a₁ ∨ x = a₂ ∨ x = a₃
---       ↔
---       (x - a₁) * (x - a₂) * (x - a₃) = 0
---         := by
---         intros
---         simp only [mul_eq_zero, sub_eq_zero, or_assoc]
---       have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
---       have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
---       have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
---       have hb2 : b ^ 2 = 3 * a * c := by rw [sub_eq_zero] at hpz; rw [hpz]
---       have hb3 : b ^ 3 = 3 * a * b * c := by rw [pow_succ, hb2]; ring
---       have h₂ :=
---         calc
---           a * x ^ 3 + b * x ^ 2 + c * x + d =
---               a * (x + b / (3 * a)) ^ 3 + (c - b ^ 2 / (3 * a)) * x + (d - b ^ 3 * a / (3 * a) ^ 3) :=
---             by field_simp; ring
---           _ = a * (x + b / (3 * a)) ^ 3 + (d - (9 * a * b * c - 2 * b ^ 3) * a / (3 * a) ^ 3) := by
---             simp only [hb2, hb3]; field_simp; ring
---           _ = a * ((x + b / (3 * a)) ^ 3 - s ^ 3) := by rw [hs3, hq]; field_simp [h54]; ring
---       have h₃ : ∀ x, a * x = 0 ↔ x = 0 := by intro x; simp [ha]
---       have h₄ : ∀ x : K, x ^ 3 - s ^ 3 = (x - s) * (x - s * ω) * (x - s * ω ^ 2) := by
---         intro x
---         calc
---           x ^ 3 - s ^ 3 = (x - s) * (x ^ 2 + x * s + s ^ 2) := by ring
---           _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + (1 + ω + ω ^ 2) * x * s + s ^ 2) := by ring
---           _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + ω ^ 3 * s ^ 2) := by
---             rw [hω.pow_eq_one, cube_root_of_unity_sum hω]; simp
---           _ = (x - s) * (x - s * ω) * (x - s * ω ^ 2) := by ring
---       rw [h₁, h₂, h₃, h₄ (x + b / (3 * a))]
---       ring_nf
 
 end Field
 
