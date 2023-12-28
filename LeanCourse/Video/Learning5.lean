@@ -141,31 +141,46 @@ variable {ω p q r s t : K}
       exact
         mul_eq_mul_left_iff.mp
           (congrArg (HMul.hMul (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2)) ht)
+    have lc3: (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) *
+      s ^ 3 *
+    (1 + ω + ω ^ 2)
+     =
+    (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+          (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) *
+        s ^ 3 *
+      0
+      := by
+      simp only [neg_mul, neg_sub, mul_zero, mul_eq_zero, zero_lt_three, pow_eq_zero_iff]
+      exact Or.inr H
     linear_combination
       hr +
       lc1 -
       lc2 +
-      (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
-        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+      lc3
+    -- linear_combination -- 原始写法
+    -- hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
+    -- (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+    --   (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+    done
 
-  #print cubic_basic_eq_zero_iff2
 
-  -- /-- 三次方项系数为1的形式 -/
-  -- theorem cubic_monic_eq_zero_iff2 (hω : IsPrimitiveRoot ω 3) (hp : p = (3 * c - b ^ 2) / 9)
-  --     (hp_nonzero : p ≠ 0) (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54)
-  --     (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
-  --     x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
-  --       x = s - t - b / 3 ∨ x = s * ω - t * ω ^ 2 - b / 3 ∨ x = s * ω ^ 2 - t * ω - b / 3 := by
-  --   let y := x + b / 3
-  --   have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
-  --   have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
-  --   have h9 : (9 : K) = 3 ^ 2 := by norm_num
-  --   have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
-  --   have h₁ : x ^ 3 + b * x ^ 2 + c * x + d = y ^ 3 + 3 * p * y - 2 * q := by
-  --     rw [hp, hq]
-  --     field_simp [h9, h54]; ring
-  --   rw [h₁, cubic_basic_eq_zero_iff hω hp_nonzero hr hs3 ht y]
-  --   simp_rw [eq_sub_iff_add_eq]
+  /-- 三次方项系数为1的形式 -/
+  theorem cubic_monic_eq_zero_iff2 (hω : IsPrimitiveRoot ω 3) (hp : p = (3 * c - b ^ 2) / 9)
+      (hp_nonzero : p ≠ 0) (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54)
+      (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
+      x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
+        x = s - t - b / 3 ∨ x = s * ω - t * ω ^ 2 - b / 3 ∨ x = s * ω ^ 2 - t * ω - b / 3 := by
+    let y := x + b / 3
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have h₁ : x ^ 3 + b * x ^ 2 + c * x + d = y ^ 3 + 3 * p * y - 2 * q := by
+      rw [hp, hq]
+      field_simp [h9, h54]; ring
+    rw [h₁, cubic_basic_eq_zero_iff2 hω hp_nonzero hr hs3 ht y]
+    simp_rw [eq_sub_iff_add_eq]
 
   -- /-- 通用的一般形式，求出三个解 -/
   -- theorem MainGoal5 (ha : a ≠ 0) (hω : IsPrimitiveRoot ω 3)
