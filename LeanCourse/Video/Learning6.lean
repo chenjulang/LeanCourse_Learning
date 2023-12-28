@@ -22,13 +22,13 @@ variable {x : M} (p p' : Submodule R M)
 variable [Semiring R₂] {σ₁₂ : R →+* R₂}
 variable [AddCommMonoid M₂] [Module R₂ M₂] {F : Type*} [SemilinearMapClass F σ₁₂ M M₂]
 
-  section
-    variable (R)
+-- section
+variable (R)
 
-    def span2 (s : Set M) : Submodule R M :=
-    sInf { p | s ⊆ p }
+def span2 (s : Set M) : Submodule R M :=
+sInf { p | s ⊆ p }
 
-  end
+-- end
 
   -- end AddCommMonoid
 
