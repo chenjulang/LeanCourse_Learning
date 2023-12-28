@@ -118,7 +118,8 @@ variable {ω p q r s t : K}
       intros; simp only [mul_eq_zero, sub_eq_zero, or_assoc]
     rw [h₁]
     refine' Eq.congr _ rfl
-    have hs_nonzero : s ≠ 0 := by
+    have hs_nonzero : s ≠ 0
+      := by
       contrapose! hp_nonzero with hs_nonzero
       linear_combination -1 * ht + t * hs_nonzero
     rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)]
