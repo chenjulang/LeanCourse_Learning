@@ -51,22 +51,47 @@ variable {ω p q r s t : K}
           -- 因此，复数单位根是圆周上均匀分布的n个点，这是由于欧拉公式和三角函数的周期性特性导致的。
 --  2.2.IsRoot p x:就是x代入p的值为0，即p的根
 -- 3.cyclotomic_prime p R这个现实世界感觉没见过： p是素数的话, cyclotomic p R = ∑ i in range p, X ^ i 即： p分圆多项式=多项式（∑ i in range p, X ^ i），（X是多项式变量）
--- 4. Finset.sum_range_succ ： 求和n+1项=求和n项+（第n+1项）
+-- 4. Finset.sum_range_succ ： 求和n+1项=求和n项 +（第n+1项）
+
 theorem cube_root_of_unity_sum (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0 := by -- ???为什么可以这样定义k-单位根的第二个属性：∀ l : ℕ, ζ ^ l = 1 → k ∣ l
   have h1:= hω.isRoot_cyclotomic (by decide)
   simpa [cyclotomic_prime, Finset.sum_range_succ] using h1
 #print cube_root_of_unity_sum
 
--- theorem cube_root_of_unity_sum2 (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0
---   := by
---   let h1 : IsRoot (cyclotomic 3 K) ω
---     := by
---     exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
---   have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
---     := by
---     sorry
---   simp only [IsRoot] at h2
---   simp only [IsRoot] at h1
+theorem cube_root_of_unity_sum2 (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0
+  := by
+  let h1 : IsRoot (cyclotomic 3 K) ω
+    := by
+    exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
+  have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
+    := by
+    rw [cyclotomic_prime]
+    refine' congrArg _ _
+    rw [Finset.sum_range_succ]
+    rw [Finset.sum_range_succ]
+    rw [Finset.sum_range_succ]
+    simp only [Finset.range_zero, Finset.sum_empty, pow_zero, zero_add, pow_one]
+  have h3 : (eval ω (1 + X + X ^ 2) = 0) = (1 + ω + ω ^ 2 = 0) -- eval x p是 x代入多项式p的值
+    := by
+    simp only [eval_add, eval_one, eval_X, eval_pow]
+  rw [← h3]
+  simp only [eval_add, eval_one, eval_X, eval_pow]
+  have h4 :IsRoot (cyclotomic 3 K) ω = IsRoot (1 + X + X ^ 2) ω
+    := by
+    exact congrFun h2 ω
+  have h5 : IsRoot (1 + X + X ^ 2) ω = (eval ω (1 + X + X ^ 2) = 0)
+    := by
+    simp only [IsRoot.def, eval_add, eval_one, eval_X, eval_pow]
+  clear h2
+  have h6:= h4.trans h5
+  clear h4 h5
+  have h7:= h6.trans h3
+  clear h6 h3
+  rw [h7] at h1
+  exact h1
+  done
+
+
 
 -- theorem cube_root_of_unity_sum3 : ∀ {K : Type u_1} [inst : Field K] {ω : K},
 --   IsPrimitiveRoot ω 3 → 1 + ω + ω ^ 2 = 0 :=
