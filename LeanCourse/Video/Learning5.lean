@@ -94,7 +94,7 @@ variable {ω p q r s t : K}
   -- //
 
   /-- 去掉二次方项的形式 -/
-  theorem cubic_basic_eq_zero_iff
+  theorem cubic_basic_eq_zero_iff2
   (hω : IsPrimitiveRoot ω 3) --条件这么苛刻，s有2条；p也有3条；q也有3条
   (hp_nonzero : p ≠ 0)
   (hr : r ^ 2 = q ^ 2 + p ^ 3)
@@ -115,19 +115,40 @@ variable {ω p q r s t : K}
     have h₁ : ∀ x a₁ a₂ a₃ : K, x = a₁ ∨ x = a₂ ∨ x = a₃
     ↔ (x - a₁) * (x - a₂) * (x - a₃) = 0
       := by
-      intros; simp only [mul_eq_zero, sub_eq_zero, or_assoc]
+      intros;
+      simp only [mul_eq_zero]
+      simp only [sub_eq_zero]
+      simp only [or_assoc]
     rw [h₁]
+    clear h₁
     refine' Eq.congr _ rfl
     have hs_nonzero : s ≠ 0
       := by
       contrapose! hp_nonzero with hs_nonzero
-      linear_combination -1 * ht + t * hs_nonzero
+      linear_combination -1 * ht + t * hs_nonzero -- linear_combination：等号左右分别相加
     rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)]
     have H := cube_root_of_unity_sum2 hω
+    clear hω
+    have lc1: (-q + r + s ^ 3) * s ^ 3
+    = (-q + r + s ^ 3) * (q + r)
+      := by
+      simp only [mul_eq_mul_left_iff]
+      exact mul_eq_mul_left_iff.mp (congrArg (HMul.hMul (-q + r + s ^ 3)) hs3)
+    have lc2: (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * (t * s)
+    = (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * p
+      := by
+      simp only [mul_eq_mul_left_iff]
+      exact
+        mul_eq_mul_left_iff.mp
+          (congrArg (HMul.hMul (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2)) ht)
     linear_combination
-      hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
+      hr +
+      lc1 -
+      lc2 +
       (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
         (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+
+  #print cubic_basic_eq_zero_iff2
 
   -- /-- 三次方项系数为1的形式 -/
   -- theorem cubic_monic_eq_zero_iff2 (hω : IsPrimitiveRoot ω 3) (hp : p = (3 * c - b ^ 2) / 9)
