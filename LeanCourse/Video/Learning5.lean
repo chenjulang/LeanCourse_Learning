@@ -1,6 +1,8 @@
 import Mathlib.Tactic.LinearCombination
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import Mathlib.Data.Polynomial.Eval
+import Mathlib.Data.Real.Sqrt
+
 
 namespace testroot3
 
@@ -270,6 +272,12 @@ variable {ω p q r s t : K}
     rw [h₄]
     done
 
+
+  --  def a_2 :ℚ :=1/3
+  -- def b_2 :ℚ :=-1
+  -- def c_2 :ℚ :=1
+  -- def d_2 :ℚ :=-1/3
+
   theorem cubic_eq_zero_iff_of_p_eq_zero
   (ha : a ≠ 0)
   (hω : IsPrimitiveRoot ω 3)
@@ -331,53 +339,26 @@ variable {ω p q r s t : K}
 
 
 
+  def a2 :ℚ :=1/3
+  def b2 :ℚ :=-1
+  def c2 :ℚ :=1
+  def d2 :ℚ :=-1/3
+  def q2 :ℚ := (9 * a2 * b2 * c2 - 2 * b2 ^ 3 - 27 * a2 ^ 2 * d2) / (54 * a2 ^ 3)
+  #eval q2 -- 0
+  def s_2_pre :=  2 * q --0
+  -- def s_2 := Cubic.roots (s_2_pre) --0
+  -- x = s - b / (3 * a) -- x₁ = 0 - (-1)/1 = 1
+  -- ∨
+  -- x = s * ω - b / (3 * a) -- x₂ = - (-1)/1 = 1
+  -- ∨
+  -- x = s * ω ^ 2 - b / (3 * a) -- x₃ = - (-1)/1 = 1
 
 
-  def fun5
-  (a b c d t s ω: K)
-  {ha : a ≠ 0} -- a有一个限制条件
-  {hω : IsPrimitiveRoot ω 3}
-  {hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2)} -- p 由a,b,c定义出来
-  {hp_nonzero : p ≠ 0} -- p的一个限制条件
-  {hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3)} -- q 由a,b,c,d定义出来
-  {hr : r ^ 2 = q ^ 2 + p ^ 3} -- r 由q,p定义出来
-  {hs3 : s ^ 3 = q + r} -- s 由r,q定义出来
-  {ht : t * s = p}  -- t 由s,p定义出来
-  {x : K}
-  : (a * x ^ 3 + b * x ^ 2 + c * x + d = 0)
-  ↔
-    x = s - t - b / (3 * a) -- 第一个解
-    ∨
-    x = s * ω - t * ω ^ 2 - b / (3 * a) -- 第二个解
-    ∨
-    x = s * ω ^ 2 - t * ω - b / (3 * a) -- 第三个解
-     := by
-     apply MainGoal5
-     · exact ha
-     · exact hω
-     · exact hp
-     · exact hp_nonzero
-     · exact hq
-     · exact hr
-     · exact hs3
-     · exact ht
-     done
 
-  variable (a_ := (3:K))
-  (b_ := (-4:K))
-  (c_ := (6:K))
-  (d_ := (5:K))
-  (p_ := (3 * a_ * c_ - b_ ^ 2) / (9 * a_ ^ 2))
-  (t_ : K :=  p/s)
-  (s_ : K :=  p/t)
 
-  #check fun5 (3:K) ((-4):K) (6:K) (5:K) t_ s_
-  #check fun5 a_ b_ c_ d_ t_ s_
-
-  -- 最后再看看如何解方程？
-  def equation1 {x : K} := 3 * x ^ 3 - 4 * x ^ 2 + 6 * x + 5 = 0
-
-  -- IsPrimitiveRoot ω 3 的ω如何显式表示？
+  -- -- 最后再看看如何解方程？
+  -- -- def equation1 {x : K} := 1/3 * x ^ 3 - 1 * x ^ 2 + 1 * x - 1/3 = 0
+  -- -- IsPrimitiveRoot ω 3 的ω如何显式表示？
 
 end Field
 
