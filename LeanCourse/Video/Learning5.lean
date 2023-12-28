@@ -95,14 +95,13 @@ variable {ω p q r s t : K}
 
   /-- 去掉二次方项的形式 -/
   theorem cubic_basic_eq_zero_iff2
-  (hω : IsPrimitiveRoot ω 3) --条件这么苛刻，s有2条；p也有3条；q也有3条
+  (hω : IsPrimitiveRoot ω 3) -- p q可以任意取
   (hp_nonzero : p ≠ 0)
-  (hr : r ^ 2 = q ^ 2 + p ^ 3)
-  (hs3 : s ^ 3 = q + r)
-  (ht : t * s = p)
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 从p和q定义出来
+  (hs3 : s ^ 3 = q + r) -- s 从q和r定义出来
+  (ht : t * s = p)  -- t 从s和p定义出来
   (x : K) :
   (x ^ 3 + 3 * p * x - 2 * q = 0)
-
     ↔
 
     (x = s - t
@@ -166,46 +165,79 @@ variable {ω p q r s t : K}
 
 
   /-- 三次方项系数为1的形式 -/
-  theorem cubic_monic_eq_zero_iff2 (hω : IsPrimitiveRoot ω 3) (hp : p = (3 * c - b ^ 2) / 9)
-      (hp_nonzero : p ≠ 0) (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54)
-      (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
-      x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
-        x = s - t - b / 3 ∨ x = s * ω - t * ω ^ 2 - b / 3 ∨ x = s * ω ^ 2 - t * ω - b / 3 := by
+  theorem cubic_monic_eq_zero_iff2
+  (hω : IsPrimitiveRoot ω 3) --b c任意取
+  (hp : p = (3 * c - b ^ 2) / 9) -- p 从b和c定义出来
+  (hp_nonzero : p ≠ 0) -- p有一个限制条件
+  (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54) -- p 从b和c和d定义出来
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 从q和p定义出来
+  (hs3 : s ^ 3 = q + r) -- s 从r和q定义出来
+  (ht : t * s = p) -- t 从s和p定义出来
+  (x : K)
+  : (x ^ 3 + b * x ^ 2 + c * x + d = 0)
+  ↔
+    x = s - t - b / 3
+    ∨
+    x = s * ω - t * ω ^ 2 - b / 3
+    ∨
+    x = s * ω ^ 2 - t * ω - b / 3
+
+    := by
     let y := x + b / 3
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _ -- 有倒数的数不为零
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have h₁ : x ^ 3 + b * x ^ 2 + c * x + d
+    = y ^ 3 + 3 * p * y - 2 * q := by
+      rw [hp, hq]
+      field_simp [h9, h54]; -- 通分细节略过
+      ring
+    rw [h₁, cubic_basic_eq_zero_iff2 hω hp_nonzero hr hs3 ht y]
+    simp only
+    rw [eq_sub_iff_add_eq] -- rw长龙～～～
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    rw [eq_sub_iff_add_eq]
+    -- simp_rw [eq_sub_iff_add_eq] --替换写法
+    done
+
+  /-- 通用的一般形式，求出三个解 -/
+  theorem MainGoal5
+  (ha : a ≠ 0)
+  (hω : IsPrimitiveRoot ω 3)
+  (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2))
+  (hp_nonzero : p ≠ 0)
+  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
+  (hr : r ^ 2 = q ^ 2 + p ^ 3)
+  (hs3 : s ^ 3 = q + r)
+  (ht : t * s = p)
+  (x : K)
+  : (a * x ^ 3 + b * x ^ 2 + c * x + d = 0)
+  ↔
+    x = s - t - b / (3 * a) ∨
+          x = s * ω - t * ω ^ 2 - b / (3 * a) ∨ x = s * ω ^ 2 - t * ω - b / (3 * a) := by
     have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
     have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
     have h9 : (9 : K) = 3 ^ 2 := by norm_num
     have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
-    have h₁ : x ^ 3 + b * x ^ 2 + c * x + d = y ^ 3 + 3 * p * y - 2 * q := by
-      rw [hp, hq]
-      field_simp [h9, h54]; ring
-    rw [h₁, cubic_basic_eq_zero_iff2 hω hp_nonzero hr hs3 ht y]
-    simp_rw [eq_sub_iff_add_eq]
-
-  -- /-- 通用的一般形式，求出三个解 -/
-  -- theorem MainGoal5 (ha : a ≠ 0) (hω : IsPrimitiveRoot ω 3)
-  --     (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2)) (hp_nonzero : p ≠ 0)
-  --     (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
-  --     (hr : r ^ 2 = q ^ 2 + p ^ 3) (hs3 : s ^ 3 = q + r) (ht : t * s = p) (x : K) :
-  --     a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔
-  --       x = s - t - b / (3 * a) ∨
-  --         x = s * ω - t * ω ^ 2 - b / (3 * a) ∨ x = s * ω ^ 2 - t * ω - b / (3 * a) := by
-  --   have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
-  --   have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
-  --   have h9 : (9 : K) = 3 ^ 2 := by norm_num
-  --   have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
-  --   have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) :=
-  --     by field_simp; ring
-  --   have h₂ : ∀ x, a * x = 0 ↔ x = 0 := by intro x; simp [ha]
-  --   have hp' : p = (3 * (c / a) - (b / a) ^ 2) / 9 := by field_simp [hp, h9]; ring_nf
-  --   have hq' : q = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54 := by
-  --     field_simp [hq, h54]; ring_nf
-  --   rw [h₁, h₂, cubic_monic_eq_zero_iff2 (b / a) (c / a) (d / a) hω hp' hp_nonzero hq' hr hs3 ht x]
-  --   have h₄ :=
-  --     calc
-  --       b / a / 3 = b / (a * 3) := by field_simp [ha]
-  --       _ = b / (3 * a) := by rw [mul_comm]
-  --   rw [h₄]
+    have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) :=
+      by field_simp; ring
+    have h₂ : ∀ x, a * x = 0 ↔ x = 0 := by intro x; simp [ha]
+    have hp' : p = (3 * (c / a) - (b / a) ^ 2) / 9 := by field_simp [hp, h9]; ring_nf
+    have hq' : q = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54 := by
+      field_simp [hq, h54]; ring_nf
+    rw [h₁, h₂, cubic_monic_eq_zero_iff2 (b / a) (c / a) (d / a) hω hp' hp_nonzero hq' hr hs3 ht x]
+    have h₄ :=
+      calc
+        b / a / 3 = b / (a * 3) := by field_simp [ha]
+        _ = b / (3 * a) := by rw [mul_comm]
+    rw [h₄]
 
 
 
