@@ -207,40 +207,121 @@ variable {ω p q r s t : K}
     -- simp_rw [eq_sub_iff_add_eq] --替换写法
     done
 
-  /-- 通用的一般形式，求出三个解 -/
-  theorem MainGoal5
-  (ha : a ≠ 0)
+  /-- 通用的一般形式，但判定式为非零，求出三个解 -/
+  theorem MainGoal5 -- a b c d任意取
+  (ha : a ≠ 0) -- a有一个限制条件
   (hω : IsPrimitiveRoot ω 3)
-  (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2))
-  (hp_nonzero : p ≠ 0)
-  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
-  (hr : r ^ 2 = q ^ 2 + p ^ 3)
-  (hs3 : s ^ 3 = q + r)
-  (ht : t * s = p)
+  (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2)) -- p 由a,b,c定义出来
+  (hp_nonzero : p ≠ 0) -- p的一个限制条件
+  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3)) -- q 由a,b,c,d定义出来
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 由q,p定义出来
+  (hs3 : s ^ 3 = q + r) -- s 由r,q定义出来
+  (ht : t * s = p)  -- t 由s,p定义出来
   (x : K)
   : (a * x ^ 3 + b * x ^ 2 + c * x + d = 0)
   ↔
-    x = s - t - b / (3 * a) ∨
-          x = s * ω - t * ω ^ 2 - b / (3 * a) ∨ x = s * ω ^ 2 - t * ω - b / (3 * a) := by
+    x = s - t - b / (3 * a) -- 第一个解
+    ∨
+    x = s * ω - t * ω ^ 2 - b / (3 * a) -- 第二个解
+    ∨
+    x = s * ω ^ 2 - t * ω - b / (3 * a) -- 第三个解
+    := by
     have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
     have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
     have h9 : (9 : K) = 3 ^ 2 := by norm_num
     have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
-    have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) :=
-      by field_simp; ring
-    have h₂ : ∀ x, a * x = 0 ↔ x = 0 := by intro x; simp [ha]
-    have hp' : p = (3 * (c / a) - (b / a) ^ 2) / 9 := by field_simp [hp, h9]; ring_nf
-    have hq' : q = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54 := by
-      field_simp [hq, h54]; ring_nf
+    have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d
+    = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) --a写到分母
+      := by
+      field_simp;
+      ring
+    have h₂ : ∀ x, a * x = 0 ↔ x = 0
+      := by
+      intro x;
+      simp [ha]
+    have hp' : p = (3 * (c / a) - (b / a) ^ 2) / 9
+      := by
+      rw [hp]
+      field_simp [hp, h9];
+      ring_nf
+    have hq' : q
+    = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54
+    := by
+      rw [hq]
+      field_simp [hq, h54];
+      ring_nf
     rw [h₁, h₂, cubic_monic_eq_zero_iff2 (b / a) (c / a) (d / a) hω hp' hp_nonzero hq' hr hs3 ht x]
     have h₄ :=
       calc
-        b / a / 3 = b / (a * 3) := by field_simp [ha]
-        _ = b / (3 * a) := by rw [mul_comm]
+        b / a / 3
+          = b / (a * 3)
+            := by
+            field_simp [ha]
+        _ = b / (3 * a)
+            := by rw [mul_comm]
     rw [h₄]
+    done
 
+  theorem cubic_eq_zero_iff_of_p_eq_zero
+  (ha : a ≠ 0)
+  (hω : IsPrimitiveRoot ω 3)
+  (hpz : 3 * a * c - b ^ 2 = 0)
+  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3))
+  (hs3 : s ^ 3 = 2 * q)
+  (x : K) :
+    a * x ^ 3 + b * x ^ 2 + c * x + d = 0
+    ↔
 
+    x = s - b / (3 * a)
+    ∨
+    x = s * ω - b / (3 * a)
+    ∨
+    x = s * ω ^ 2 - b / (3 * a)
+    := by
+    have h₁ : ∀ x a₁ a₂ a₃ : K, x = a₁ ∨ x = a₂ ∨ x = a₃
+    ↔ (x - a₁) * (x - a₂) * (x - a₃) = 0
+    := by
+      intros;
+      simp only [mul_eq_zero, sub_eq_zero, or_assoc]
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have hb2 : b ^ 2 = 3 * a * c
+      := by
+      rw [sub_eq_zero] at hpz;
+      rw [hpz]
+    have hb3 : b ^ 3 = 3 * a * b * c
+      := by
+      rw [pow_succ, hb2];
+      ring
+    have h₂ :=
+      calc
+        a * x ^ 3 + b * x ^ 2 + c * x + d
+        = a * (x + b / (3 * a)) ^ 3 + (c - b ^ 2 / (3 * a)) * x + (d - b ^ 3 * a / (3 * a) ^ 3) :=
+          by field_simp; ring
+        _ = a * (x + b / (3 * a)) ^ 3 + (d - (9 * a * b * c - 2 * b ^ 3) * a / (3 * a) ^ 3)
+          := by
+          simp only [hb2];
+          simp only [hb3];
+          field_simp;
+          ring
+        _ = a * ((x + b / (3 * a)) ^ 3 - s ^ 3) := by rw [hs3, hq]; field_simp [h54]; ring
+    have h₃ : ∀ x, a * x = 0 ↔ x = 0
+      := by intro x; simp [ha]
+    have h₄ : ∀ x : K, x ^ 3 - s ^ 3 = (x - s) * (x - s * ω) * (x - s * ω ^ 2)
+      := by
+      intro x
+      calc
+        x ^ 3 - s ^ 3 = (x - s) * (x ^ 2 + x * s + s ^ 2) := by ring
+        _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + (1 + ω + ω ^ 2) * x * s + s ^ 2) := by ring
+        _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + ω ^ 3 * s ^ 2) := by
+          rw [hω.pow_eq_one, cube_root_of_unity_sum2 hω]; simp
+        _ = (x - s) * (x - s * ω) * (x - s * ω ^ 2) := by ring
+    rw [h₁, h₂, h₃, h₄ (x + b / (3 * a))]
+    ring_nf
 
+  -- 最后再看看如何解方程？
+  -- IsPrimitiveRoot ω 3 的ω如何表示
 
 end Field
 
