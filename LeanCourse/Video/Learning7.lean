@@ -1,7 +1,7 @@
 import Mathlib.LinearAlgebra.Basis
 
 -- 向量空间的基
--- 最终目标?
+-- 最终目标?下面里选一个
 
 
 structure Basis where
