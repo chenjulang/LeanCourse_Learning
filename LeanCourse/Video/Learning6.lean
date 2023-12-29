@@ -1,9 +1,9 @@
 import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.LinearAlgebra.Span
 
--- 生成集，
+-- 生成集，引入：我们想知道由有限的东西扩展出来的集合，会有什么特别之处。能否解释其他东西？
   -- 横看成岭侧成峰
-  -- 最终证明:某个矩阵A的各列和实数（这样的实数排列起来就是任意向量x）的所有线性组合 = 该矩阵A乘以任意向量x的值域
+  -- 最终证明:某个矩阵A,A的各列,实数,（这样的实数排列起来就是任意向量x）。A的各列和实数的所有线性组合 = 矩阵A乘以任意n*1向量x的值域
     -- 换句话说，列向量生成了一个矩阵乘积的所有结果。
     -- 准确来说，矩阵乘积的所有结果和列向量生成的集合刚好相等。
 
@@ -46,9 +46,11 @@ noncomputable section
     variable {R : Type*} [Semiring R]
     variable {l m n : Type*}
     variable [Fintype m] [DecidableEq m]
+
     theorem range_vecMulLinear2 (M : Matrix m n R) :  --第二层
     LinearMap.range M.vecMulLinear
-    = span R (range M) := by
+    = span R (range M)
+      := by --todo
       letI := Classical.decEq m
       simp_rw [range_eq_map, --???
       ← iSup_range_stdBasis,--???
@@ -75,11 +77,31 @@ noncomputable section
     variable {R : Type*} [CommSemiring R]
     variable {k l m n : Type*}
     variable [Fintype n]
+
+    -- 关键的小引理，思想通常很简单：就是定义
+    lemma vecMul_transpose2 [Fintype n] (A : Matrix m n R) (x : n → R)
+    : vecMul x Aᵀ = mulVec A x := by
+      ext x1
+      rw[vecMul]
+      rw[mulVec]
+      simp only [transpose_apply]
+      exact dotProduct_comm x fun i ↦ A x1 i
+
+    lemma Matrix.vecMulLinear_transpose2 [Fintype n] (M : Matrix m n R)
+    : Mᵀ.vecMulLinear = M.mulVecLin
+      := by
+      ext;
+      simp only [vecMulLinear_apply, mulVecLin_apply]--这里可以顺便讲一下递归定义和函数定义的等价性：
+                                                      --     def vecMul [Fintype m] (v : m → α) (M : Matrix m n α) : n → α
+                                                      -- | j => v ⬝ᵥ fun i => M i j
+                                                      -- -- := fun j => v ⬝ᵥ fun i => M i j -- 一个意思
+      simp [vecMul_transpose2]
+
     theorem Matrix.range_mulVecLin2 (M : Matrix m n R) : --第一层
     LinearMap.range M.mulVecLin
     = span R (range Mᵀ)
-    := by
-      rw [← vecMulLinear_transpose,
+    := by --todo
+      rw [← vecMulLinear_transpose2,
       range_vecMulLinear2]
   end mulVec
 
@@ -94,9 +116,15 @@ noncomputable section
     -- ![4, 5, 6],
     -- ![7, 8, 9]]   的第1列的矩阵+第2列的矩阵+第3列的矩阵 加起来的这个3*1矩阵的集合。
       :=
-      Matrix.range_mulVecLin2 _
+      Matrix.range_mulVecLin2 M
 
-    -- 改一个命题：某个矩阵A的各列和实数（这样的实数排列起来就是任意向量x）的所有线性组合 = 该矩阵A乘以任意向量x的值域
+    -- lemma equal1  (M : Matrix m n R):Matrix.toLin' M = M.mulVecLin
+    --   := by
+    --   exact Eq.refl (toLin' M)
+    -- tolin 需要作用到M上，看到invFun 是 Matrix.mulVecLin，一摸一样的，结果当然也是M.mulVec
+    -- M.mulVecLin则是这样,直接作用于M后的结果是,所以不需要参数M写在后面：结果都是M.mulVec,也就是M准备和一个向量做矩阵乘法
+
+
 
   end ToMatrix'
 
