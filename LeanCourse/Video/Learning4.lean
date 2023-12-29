@@ -5,16 +5,14 @@ import Mathlib.Data.Matrix.ColumnRowPartitioned
 import Mathlib.Data.Real.Sqrt
 import Mathlib.GroupTheory.Perm.Fin
 import Mathlib.GroupTheory.Perm.Sign
--- import Duper
-
--- leanproject upgrade
--- lake update Duper
--- example : True := by duper
-
-
-
 
 -- 线性独立
+-- 最终目标：已知A是m*n矩阵，
+      -- 对于任意m维向量b，
+      -- 线性方程组AX=b至多只有一个解，
+      -- =>用lean代码证明：A的各列向量线性无关
+
+
 noncomputable section
 
   open Function Set Submodule Matrix
@@ -241,8 +239,6 @@ noncomputable section
       -- =>用lean代码证明：A的各列向量线性无关
 
       -- 最终目标：已知A是m*n矩阵，对于任意m维向量b，线性方程组AX=b至多只有一个解，用lean代码证明：A的各列向量线性无关
-
-      -- 命题还没有写出来。最后A的各列向量线性无关应该怎么写呢？？用哪个定义比较好？
       variable {m n : Type*} [Fintype m] [Fintype n]
 
           theorem MainGoal4_1 {R : Type*} [CommRing R]
@@ -265,7 +261,7 @@ noncomputable section
       (hA : ∀ b : m → R, ∃! x, A.mulVec x = b) -- mulVec就是矩阵和向量的乘法运算
       :LinearIndependent R (fun i ↦ A.transpose i)
         := by
-        -- refine' linearIndependent_iff'.2 _
+        -- refine' linearIndependent_iff'.2 _  --这个引理不对
         refine' Fintype.linearIndependent_iff.mpr _
         have h6:= hA 0
         have _h6:= hA 0
