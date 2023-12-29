@@ -109,28 +109,30 @@ namespace Matrix
   --     ![6, 4]] 20-12 = 8
   -- 计算出来的行列式；9就是第2列替换matrixb后计算的行列式
   #eval cramer001
-  def solution := (1/matrix1_det) • (cramer matrix1 matrixb)
+  -- def solution := (1/matrix1_det) • (cramer matrix1 matrixb)
   --  如何表示除法要有理数才行的
-  #eval solution -- 解应该是x=![-4 4.5]
+  -- #eval solution -- 解应该是x=![-4 4.5]
 
 
 
--- Pi.single 的使用
+-- Pi.single 单取函数的使用
   def matrixPiSingle : Matrix (Fin 3) (Fin 3) ℝ :=
     ![![1, 2, 3],
       ![4, 5, 6],
       ![7, 8, 9]]
-  #eval matrixPiSingle 0 0
-  #eval matrixPiSingle 0 1
-  #eval matrixPiSingle 2 0
-  -- def Single001 (i k:Fin 3):= Pi.single k (matrixPiSingle i k)
-  -- def Single001 (A : Matrix n2 n2 α2) (i k:n2)
-  --   :n2 → α2
-  --   := (Pi.single k (A i k))
+  #eval matrixPiSingle 0 0 --1
+  #eval matrixPiSingle 0 1 -- 2
+  #eval matrixPiSingle 2 0 -- 7
+
   def Single001 (i k j:Fin 3)
       :Fin 3 → ℝ
-      := Pi.single j (matrixPiSingle (i-1) (k-1)) -- 这里j是标志判断位，
-  #eval (Single001 3 1 2) 2 --最后一个输入2才是重点，如何和j相同，就输出预设好的(matrixPiSingle (i-1) (k-1))的值，否则输出0
+      := Pi.single j (matrixPiSingle (i-1) (k-1)) -- 这里j是标志判断位，默认是0
+  -- 第一个参数：索引位
+  -- 第二个参数：可选结果，什么类型都可以
+  #eval (Single001 3 1 2)
+  #eval (Single001 3 1 2) 2
+  --最后一个输入2才是重点，如何和j相同，
+  -- 就输出预设好的(matrixPiSingle (i-1) (k-1))的值，否则输出0
 
 
 

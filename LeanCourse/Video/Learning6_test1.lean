@@ -19,16 +19,61 @@ variable {x : M} (p p' : Submodule R M)
 variable [Semiring R₂] {σ₁₂ : R →+* R₂}
 variable [AddCommMonoid M₂] [Module R₂ M₂] {F : Type*} [SemilinearMapClass F σ₁₂ M M₂]
 
-variable (R)
-
+variable (R) -- 这个是span2的隐式参数,但是不知道为什么不能写在span2的名称后面
 def span2 (s : Set M) : Submodule R M :=
-sInf { p | s ⊆ p }
+  sInf { p | s ⊆ p }
 
--- //
 
-variable {R2 : Type*} [CommSemiring R2]
-variable {k2 l2 m2 n2 : Type*} [DecidableEq n2] [Fintype n2]
+-- //// 下面是应用在矩阵的代码：
 
-theorem Matrix.range_toLin2' (M2 : Matrix m2 n2 R2) :
-    LinearMap.range (Matrix.toLin' M2) = span2 R2 (range M2ᵀ) :=
-  Matrix.range_mulVecLin _
+
+
+
+noncomputable section
+
+open LinearMap Matrix Set Submodule
+
+open BigOperators
+
+open Matrix
+
+-- universe u v w
+
+-- instance {n m} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n] (R) [Fintype R] :
+--     Fintype (Matrix m n R) := by unfold Matrix; infer_instance
+
+
+
+
+section mulVec
+
+  variable {R : Type*} [CommSemiring R]
+
+  variable {k l m n : Type*}
+
+  variable [Fintype n]
+
+  theorem Matrix.range_mulVecLin2 (M : Matrix m n R) :
+  LinearMap.range M.mulVecLin
+  = span R (range Mᵀ) := by
+    rw [
+    ← vecMulLinear_transpose,
+    range_vecMulLinear]
+
+end mulVec
+
+section ToMatrix'
+
+  variable {R : Type*} [CommSemiring R]
+
+  variable {k l m n : Type*} [DecidableEq n] [Fintype n]
+
+  theorem Matrix.range_toLin'2 (M : Matrix m n R) :
+  LinearMap.range (Matrix.toLin' M)
+  = span2 R (range Mᵀ)
+    :=
+    Matrix.range_mulVecLin2 M
+
+end ToMatrix'
+
+end
