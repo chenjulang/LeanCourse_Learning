@@ -4,7 +4,8 @@ import Mathlib.GroupTheory.Perm.Sign
 import Mathlib.Data.Real.Sqrt
 import Mathlib.Data.List.Perm
 
--- 本文件最终目标是证明行列式中矩阵相乘的运算规律：det (M * N) = det M * det N
+-- 本文件最终目标是证明行列式中矩阵相乘的运算规律：
+  -- det (M * N) = det M * det N
 -- set_option trace.Meta.synthInstance true
 -- set_option maxHeartbeats 400000 -- 原来要很多时间的
 
