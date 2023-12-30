@@ -66,12 +66,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
 
 
   -- 正式开始：
-
-
-
---
-
-
   lemma MainGoal_1 (M N : Matrix n n R): det (M * N)
   = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
     := by
@@ -105,156 +99,118 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     done
 
 
-
-    lemma hhh1 (M N : Matrix n n R) :
-        ∑ p : n → n,
-          ∑ σ : Perm n,
-            ε σ
-            *
-            ∏ i,
-              M (σ i) (p i) * N (p i) i
-        =
-        ∑ p in (@univ (n → n) _).filter Bijective, -- (@univ (n → n) _) 表示一个集合，包含了 n 到 n 函数类型的所有可能的函数
-          ∑ σ : Perm n,
-            ε σ
-            *
-            ∏ i,
-              M (σ i) (p i) * N (p i) i
-        := by
-        apply Eq.symm
-        apply sum_subset --s₁ ⊆ s₂， x ∈ s₂, x ∉ s₁的情况为0，则可以直接去掉
-        · intro h1 h2
-          exact mem_univ h1
-        intros h3 h4 h5
-        apply det_mul_aux -- 这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。
-          -- 一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
-          -- 举个例子，p=[1,1],Perm 2只有两个变换：1.恒等变换，简称id；2.换位变换，简称swap
-          -- ε id * (M (id 1)(p 1) * N (p 1)1) * (M (id 2)(p 2) * N (p 2)2)
-          -- = 1 * (M 1 1 * N 1 1) * (M 2 1 * N 1 2)
-          -- = M 1 1 * N 1 1 * M 2 1 * N 1 2
-
-          -- ε swap * (M (swap 1)(p 1) * N (p 1)1) * (M (swap 2)(p 2) * N (p 2)2)
-          -- = -1 * (M 2 1 * N 1 2) * (M 1 1 * N 1 1)
-          -- = -M 2 1 * N 1 2 * M 1 1 * N 1 1
-        simp only [mem_filter] at h5 -- 就是filter的定义呗，是属于某个集合里面的，而且满足条件1
-        simp only [mem_univ] at h5
-        simp only [true_and_iff] at h5
-        set h6 := fun x ↦ h3 x -- 写这个h6,h7是为了补充说明，其实这里h6就是和h3同一个映射，写法不一样而已
-        have h7: h6=h3
-        := by
-          exact rfl
-        exact h5
-
   lemma MainGoal_2 (M N : Matrix n n R): ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
   = ∑ p in (@univ (n → n) _).filter Bijective,∑ σ: Perm n, ε σ * (∏ i, M (σ i) (p i) * N (p i) i)
     := by
-    exact (hhh1 M N)
+    apply Eq.symm
+    apply sum_subset --s₁ ⊆ s₂， x ∈ s₂, x ∉ s₁的情况为0，则可以直接去掉
+    · intro h1 h2
+      exact mem_univ h1
+    intros h3 h4 h5
+    apply det_mul_aux -- 这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。
+      -- 一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
+      -- 举个例子，p=[1,1],Perm 2只有两个变换：1.恒等变换，简称id；2.换位变换，简称swap
+      -- ε id * (M (id 1)(p 1) * N (p 1)1) * (M (id 2)(p 2) * N (p 2)2)
+      -- = 1 * (M 1 1 * N 1 1) * (M 2 1 * N 1 2)
+      -- = M 1 1 * N 1 1 * M 2 1 * N 1 2
 
-
-    lemma hhh2 (M N : Matrix n n R) :
-    ∑
-      p in (@univ (n → n) _).filter Bijective,
-        ∑
-          σ : Perm n,
-            (
-              ε σ
-              *
-              ∏ i, M (σ i) (p i) * N (p i) i
-            )
-        = ∑ τ : Perm n,
-            ∑ σ : Perm n,
-                ε σ
-                *
-                ∏ i,
-                  M (σ i) (τ i) * N (τ i) i
-        := by
-        rw [sum_comm]
-        rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
-        refine' sum_bij _ _ _ _ _ -- 这个需要问一下gpt找到数学世界里的对应定理名称。不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
-        -- 举例：
-        -- 假设我们有以下集合和映射：
-        -- 令 α = {1, 2, 3}，即集合 {1, 2, 3}。
-        -- 令 β = {a, b, c}，即集合 {a, b, c}。
-        -- 令 γ = {x, y, z}，即集合 {x, y, z}。
-        -- 定义函数 f: α → β 和 g: γ → β 如下：
-        -- 对于 f，我们定义 f(1) = a，f(2) = b，f(3) = c。
-        -- 对于 g，我们定义 g(x) = a，g(y) = b，g(z) = c。
-        -- 接下来，定义函数 i: α → γ 如下：
-        -- i(1) = x
-        -- i(2) = y
-        -- i(3) = z
-        -- 现在，我们可以检查定理的条件是否满足：
-        -- 映射关系 (h)： 对于所有 a 属于 {1, 2, 3}，我们有 f a = g (i a)。
-        -- 这是满足的，例如，对于 a = 1，我们有 f(1) = a 和 g(i(1)) = g(x) = a。
-        -- i 是单射 (i_inj)： 如果 i a₁ = i a₂，则 a₁ = a₂。
-        -- 这是满足的，因为 i 的定义是一对一的，不同的 a 映射到不同的 γ 中的元素。
-        -- i 是满射 (i_surj)： 对于任意 b 属于 {x, y, z}，存在 a 属于 {1, 2, 3}，使得 b = i a。
-        -- 这也是满足的，因为 i 的定义覆盖了整个 γ。
-        -- 如果这些条件满足，我们可以应用定理，从而得出：
-        -- [
-        -- \prod_{x \in {1, 2, 3}} f(x) = \prod_{x \in {x, y, z}} g(x)
-        -- ]
-        -- 即，
-        -- [
-        -- abc = abc
-        -- ]
-        · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
-          have ih3:= (mem_filter.mp ih2).right
-          have ih4:= ofBijective ih1 ih3
-          simp only [Perm]
-          exact ih4 -- 如果这里定义错了，下面满盘皆输
-        -- 注意不能像以下这样定义
-        -- intros ih1 ih2
-        --   have ih3:= Equiv.refl n
-        --   simp only [Perm]
-        --   exact ih3
-        · intro h1
-          intro h2 --原来这里会用到refine1的证明
-          simp only [mem_univ]
-        · intros h_1 h_2
-          have h_3:= mem_filter.1 h_2
-          obtain ⟨h_4,h_5⟩ := h_3
-          simp only [id_eq]
-          set h_6 := ofBijective h_1 h_5 -- h_1和h_6相等吗？，由ofBijective的toFun定义知道就是h_1
-          have h1_equal_h6 : h_1=h_6
-            := by
-            exact rfl
-          rfl
-        · intros inj_1 inj_2 inj_3 inj_4 inj_5
-          simp only [id_eq] at inj_5 -- 看起来很明显，但就是完成不了
-          ext x
-          have inj_6:= ofBijective_apply inj_1
-          have inj_7:= ofBijective_apply inj_2
-          rw [← inj_6,
-          inj_5,
-          inj_7]
-          done
-        · intros b x
-          refine' Exists.intro b _ -- 存在，给出例子，然后代入第二个参数中，比如这里就是把a全部替换成了b
-          -- 如果第二个参数中不用直接替换的，比如下面这行，就直接证明第二个参数代表的命题即可
-          refine' Exists.intro _ _ -- 比如这里ha在第二个参数中没有需要替换的，直接证明第二个命题即可
-          · refine' mem_filter.mpr _
-            constructor
-            · refine' mem_univ (↑b)
-            · exact Equiv.bijective b
-          · refine' coe_fn_injective _ --在外层套了一个不变的映射
-            simp only [id_eq]
-            simp only [FunLike.coe_fn_eq]
-            refine' Equiv.ext _
-            intros x2
-            -- ↑(ofBijective ↑b (_ : Bijective ↑b))前面这个和↑b作用效果一样吗?查一下ofBijective的toFun := f定义就知道，就是f本身
-            -- 下面是进一步的探究，不看了
-            -- have equalTest: (ofBijective ↑b (_ : Bijective ↑b)) = b
-              -- := by
-              -- refine ((fun {α β} {e₁ e₂} ↦ Equiv.coe_inj.mp) rfl).symm
-            rfl
-          done
-        done
+      -- ε swap * (M (swap 1)(p 1) * N (p 1)1) * (M (swap 2)(p 2) * N (p 2)2)
+      -- = -1 * (M 2 1 * N 1 2) * (M 1 1 * N 1 1)
+      -- = -M 2 1 * N 1 2 * M 1 1 * N 1 1
+    simp only [mem_filter] at h5 -- 就是filter的定义呗，是属于某个集合里面的，而且满足条件1
+    simp only [mem_univ] at h5
+    simp only [true_and_iff] at h5
+    set h6 := fun x ↦ h3 x -- 写这个h6,h7是为了补充说明，其实这里h6就是和h3同一个映射，写法不一样而已
+    have h7: h6=h3
+    := by
+      exact rfl
+    exact h5
 
   lemma MainGoal_3 (M N : Matrix n n R): ∑ p in (@univ (n → n) _).filter Bijective,∑ σ: Perm n, ε σ * (∏ i, M (σ i) (p i) * N (p i) i)
   = ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i)
     := by
-    exact (hhh2 M N)
+    rw [sum_comm]
+    rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
+    refine' sum_bij _ _ _ _ _ -- 这个需要问一下gpt找到数学世界里的对应定理名称。不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+    -- 举例：
+    -- 假设我们有以下集合和映射：
+    -- 令 α = {1, 2, 3}，即集合 {1, 2, 3}。
+    -- 令 β = {a, b, c}，即集合 {a, b, c}。
+    -- 令 γ = {x, y, z}，即集合 {x, y, z}。
+    -- 定义函数 f: α → β 和 g: γ → β 如下：
+    -- 对于 f，我们定义 f(1) = a，f(2) = b，f(3) = c。
+    -- 对于 g，我们定义 g(x) = a，g(y) = b，g(z) = c。
+    -- 接下来，定义函数 i: α → γ 如下：
+    -- i(1) = x
+    -- i(2) = y
+    -- i(3) = z
+    -- 现在，我们可以检查定理的条件是否满足：
+    -- 映射关系 (h)： 对于所有 a 属于 {1, 2, 3}，我们有 f a = g (i a)。
+    -- 这是满足的，例如，对于 a = 1，我们有 f(1) = a 和 g(i(1)) = g(x) = a。
+    -- i 是单射 (i_inj)： 如果 i a₁ = i a₂，则 a₁ = a₂。
+    -- 这是满足的，因为 i 的定义是一对一的，不同的 a 映射到不同的 γ 中的元素。
+    -- i 是满射 (i_surj)： 对于任意 b 属于 {x, y, z}，存在 a 属于 {1, 2, 3}，使得 b = i a。
+    -- 这也是满足的，因为 i 的定义覆盖了整个 γ。
+    -- 如果这些条件满足，我们可以应用定理，从而得出：
+    -- [
+    -- \prod_{x \in {1, 2, 3}} f(x) = \prod_{x \in {x, y, z}} g(x)
+    -- ]
+    -- 即，
+    -- [
+    -- abc = abc
+    -- ]
+    · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
+      have ih3:= (mem_filter.mp ih2).right
+      have ih4:= ofBijective ih1 ih3
+      simp only [Perm]
+      exact ih4 -- 如果这里定义错了，下面满盘皆输
+    -- 注意不能像以下这样定义
+    -- intros ih1 ih2
+    --   have ih3:= Equiv.refl n
+    --   simp only [Perm]
+    --   exact ih3
+    · intro h1
+      intro h2 --原来这里会用到refine1的证明
+      simp only [mem_univ]
+    · intros h_1 h_2
+      have h_3:= mem_filter.1 h_2
+      obtain ⟨h_4,h_5⟩ := h_3
+      simp only [id_eq]
+      set h_6 := ofBijective h_1 h_5 -- h_1和h_6相等吗？，由ofBijective的toFun定义知道就是h_1
+      have h1_equal_h6 : h_1=h_6
+        := by
+        exact rfl
+      rfl
+    · intros inj_1 inj_2 inj_3 inj_4 inj_5
+      simp only [id_eq] at inj_5 -- 看起来很明显，但就是完成不了
+      ext x
+      have inj_6:= ofBijective_apply inj_1
+      have inj_7:= ofBijective_apply inj_2
+      rw [← inj_6,
+      inj_5,
+      inj_7]
+      done
+    · intros b x
+      refine' Exists.intro b _ -- 存在，给出例子，然后代入第二个参数中，比如这里就是把a全部替换成了b
+      -- 如果第二个参数中不用直接替换的，比如下面这行，就直接证明第二个参数代表的命题即可
+      refine' Exists.intro _ _ -- 比如这里ha在第二个参数中没有需要替换的，直接证明第二个命题即可
+      · refine' mem_filter.mpr _
+        constructor
+        · refine' mem_univ (↑b)
+        · exact Equiv.bijective b
+      · refine' coe_fn_injective _ --在外层套了一个不变的映射
+        simp only [id_eq]
+        simp only [FunLike.coe_fn_eq]
+        refine' Equiv.ext _
+        intros x2
+        -- ↑(ofBijective ↑b (_ : Bijective ↑b))前面这个和↑b作用效果一样吗?查一下ofBijective的toFun := f定义就知道，就是f本身
+        -- 下面是进一步的探究，不看了
+        -- have equalTest: (ofBijective ↑b (_ : Bijective ↑b)) = b
+          -- := by
+          -- refine ((fun {α β} {e₁ e₂} ↦ Equiv.coe_inj.mp) rfl).symm
+        rfl
+      done
+    done
 
   lemma MainGoal_4 (M N : Matrix n n R): ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i)
   = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε τ) * ∏ j, M (τ j) (σ j)
@@ -291,25 +247,19 @@ def printPerms (n : ℕ) : List (List ℕ) :=
             := by
             simp only [inv_mul_cancel_right]
 
-    lemma hhh3 (M N : Matrix n n R) : ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * ε τ * (∏ j, M (τ j) (σ j))
-        = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * (∏ i, M (τ i) i)
-        := by
-        refine' sum_congr _ _ --定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
-        · rfl
-        · intros h1 h2
-          refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的相关证明
-          · exact Equiv.mulRight h1⁻¹ -- 这是一步需要后面依赖的证明，所以不能随意证明，通常都是第一步这样
-          · intros h5 --其实infoview里面的 ?1:?2 这样的写法，?1就是一个随机的属于?2的对象或元素
-            simp_rw [Equiv.coe_mulRight]
-            simp_rw [(h6 h5 h1)]
-            simp only [(hhh3_h4 M N h5 h1)]
-        done
-
-
   lemma MainGoal_5 (M N : Matrix n n R): ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε τ) * ∏ j, M (τ j) (σ j)
   = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
     := by
-    exact (hhh3 M N)
+    refine' sum_congr _ _ --定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
+    · rfl
+    · intros h1 h2
+      refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的相关证明
+      · exact Equiv.mulRight h1⁻¹ -- 这是一步需要后面依赖的证明，所以不能随意证明，通常都是第一步这样
+      · intros h5 --其实infoview里面的 ?1:?2 这样的写法，?1就是一个随机的属于?2的对象或元素
+        simp_rw [Equiv.coe_mulRight]
+        simp_rw [(h6 h5 h1)]
+        simp only [(hhh3_h4 M N h5 h1)]
+    done
 
   -- /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -330,11 +280,10 @@ def printPerms (n : ℕ) : List (List ℕ) :=
             have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
             exact h2_1_2_3
 
-        def MainGoal_6_1_1_3 (M N: Matrix n n R):= (MainGoal_6_1_1_1 M).trans (MainGoal_6_1_1_2 M) -- .trans就是等号传递
-
 
       def MainGoal_6_1_1 (M N : Matrix n n R): det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
-        := by exact (MainGoal_6_1_1_3 M N)
+        := by
+        exact (MainGoal_6_1_1_1 M).trans (MainGoal_6_1_1_2 M) -- .trans就是等号传递
 
 
         def h2_2_1(N : Matrix n n R):= det_apply' N
@@ -352,11 +301,9 @@ def printPerms (n : ℕ) : List (List ℕ) :=
               have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
               exact h2_2_2_3
 
-        def h2_2_3(N : Matrix n n R):= (h2_2_1 N).trans (h2_2_2 N)
-
       def MainGoal_6_1_2 (N : Matrix n n R): det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
-        := by exact (h2_2_3 N)
-
+        := by
+        exact (h2_2_1 N).trans (h2_2_2 N)
 
     lemma MainGoal_6_1 (M N : Matrix n n R): det M * det N
     = ∑ x : Perm n, (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)) * ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
@@ -365,7 +312,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       have temp2:= (MainGoal_6_1_2 N)
       have h1 := congr (congrArg HMul.hMul temp1) (temp2) -- congr就是相同函数，相同参数，结果一样的意思；congrArg也是类似的意思
       exact h1.trans mul_sum
-
 
     --//
 
@@ -380,7 +326,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
           exact h3_3_1_1
         have h3_3_2:= h3_3_1.trans mul_sum
         exact h3_3_2
-
 
       def h3_4 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
       : ∑ x_1 : Perm n, (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (x_1 x) x) * (ε x_1))
@@ -420,7 +365,7 @@ def printPerms (n : ℕ) : List (List ℕ) :=
         have h3_5:= (h3_3 M N h3_1 h3_2).trans (h3_4 M N h3_1 h3_2)
         exact h3_5
 
-    --
+    --//
 
     def MainGoal_6_3 (M N : Matrix n n R):= (MainGoal_6_1 M N).trans (MainGoal_6_2 M N)
 
