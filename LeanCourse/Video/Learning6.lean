@@ -35,8 +35,6 @@ def span2 (s : Set M) : Submodule R M :=
 
 -- //// 下面是应用在矩阵的代码：
 
-
-
 noncomputable section
   open LinearMap Matrix Set Submodule
   open BigOperators
@@ -47,30 +45,40 @@ noncomputable section
     variable {l m n : Type*}
     variable [Fintype m] [DecidableEq m]
 
-    theorem range_vecMulLinear2 (M : Matrix m n R) :  --第二层
+    theorem range_vecMulLinear2 (M : Matrix m n R) :  --第二层这个太难了群论知识很深
     LinearMap.range M.vecMulLinear
     = span R (range M)
-      := by --todo
-      letI := Classical.decEq m
-      simp_rw [range_eq_map, --???
-      ← iSup_range_stdBasis,--???
-      Submodule.map_iSup,
-      range_eq_map,
-      ← Ideal.span_singleton_one,
-      Ideal.span,
-      Submodule.map_span,
-      image_image,
-      image_singleton,
+      := by
+      letI := Classical.decEq m --???
+      -- ⊢ LinearMap.range (vecMulLinear M) = span R (Set.range M)
+      simp_rw [range_eq_map, --range f = map f ⊤， 其中⊤表示全体集合，这里指所有(m → R)的m*1矩阵
+      -- ⨆ ：也是一种并？只不过将子空间加起来。
+      -- LinearMap.stdBasis ：具体来说，对于一个 n 维向量空间 V，stdBasis R φ i ：
+          -- 表示标准基向量的第 i 个分量，其中 R 是标量域，φ 是从索引集合到向量空间的映射。
+          -- 例如，在三维空间中，我们可以定义标准基向量为 e₁ = (1, 0, 0)，e₂ = (0, 1, 0)，e₃ = (0, 0, 1)。这些基向量分别代表 x、y、z 轴的方向
+      -- Ideal.span {1}
+      -- ⨆不同于“并” ⨆ i, span R (p i) = span R (⋃ i, p i)
+      ← iSup_range_stdBasis,--我的理解：所有基向量通过任意映射φ，标量域R形成一个子空间。
+      -- 将所有这样的子空间1，2，3...n并起来。这里指的就是(m → R)的m*1矩阵的这个Rm空间，可以由这样的子空间并起来组成。
+      Submodule.map_iSup,--todo???
+      range_eq_map,--???
+      ← Ideal.span_singleton_one,--???
+      Ideal.span,--???
+      Submodule.map_span,--???
+      image_image,--???
+      image_singleton,--只有一个值映射
       Matrix.vecMulLinear_apply,
-      iSup_span,
-      range_eq_iUnion,
-      iUnion_singleton_eq_range,
-      LinearMap.stdBasis,
-      coe_single]
+      iSup_span,--???
+      range_eq_iUnion,--???
+      iUnion_singleton_eq_range,--???
+      LinearMap.stdBasis,--???怎么把single带出来的？
+      coe_single]--???
       unfold vecMul
       simp_rw [single_dotProduct,
       one_mul]
       done
+
+    -- #print range_vecMulLinear2
   end ToMatrixRight
 
   section mulVec

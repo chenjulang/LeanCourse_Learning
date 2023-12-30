@@ -21,7 +21,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
   variable {R : Type v} [CommRing R]
 
   local notation "ε " σ:arg => ((sign σ : ℤ) : R)
-set_option linter.unusedVariables false
+  set_option linter.unusedVariables false
 
 -- -----/行列式
 
@@ -36,7 +36,7 @@ set_option linter.unusedVariables false
   --     LinearMap.proj
   -- )
   -- have h1fun:= h1.toFun
-  MultilinearMap.alternatization ( -- 基本的要素都齐了，求和，连乘，全体置换，置换的符号。具体逻辑还不懂
+  MultilinearMap.alternatization ( -- ???基本的要素都齐了，求和，连乘，全体置换，置换的符号。具体逻辑还不懂
     (MultilinearMap.mkPiAlgebra R n R).compLinearMap
       LinearMap.proj)
 
@@ -51,7 +51,7 @@ set_option linter.unusedVariables false
 
   --  前置知识
 
-  -- Perm 的使用
+  -- Perm 的使用,排列组合
   -- 以下是一些关于 Perm n 的示例，其中 n 取不同的值：
   -- 当 n = 1 时，Perm 1 表示长度为 1 的置换，即 [0]。
   -- 当 n = 2 时，Perm 2 表示长度为 2 的置换，共有两种情况：[0, 1] 和 [1, 0]。
@@ -60,6 +60,8 @@ set_option linter.unusedVariables false
 def printPerms (n : ℕ) : List (List ℕ) :=
   List.map List.reverse (List.permutations (List.range n))
 #eval printPerms 4
+#eval printPerms 3
+
 
 
 
@@ -89,7 +91,8 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       · intro h1 h2
         exact mem_univ h1
       intros h3 h4 h5
-      apply det_mul_aux -- 这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
+      apply det_mul_aux -- 这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。
+        -- 一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
         -- 举个例子，p=[1,1],Perm 2只有两个变换：1.恒等变换，简称id；2.换位变换，简称swap
         -- ε id * (M (id 1)(p 1) * N (p 1)1) * (M (id 2)(p 2) * N (p 2)2)
         -- = 1 * (M 1 1 * N 1 1) * (M 2 1 * N 1 2)
@@ -274,7 +277,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- = 2 * 1 + 2 * 4 + 3 * 1 + 3 * 4
     -- = 2 + 8 + 3 + 12
     -- = 25
-
 -- 因此，根据 Finset.prod_univ_sum 定理，左侧和右侧的值相等，都等于25。
     simp only [mul_sum]
     simp only [Fintype.piFinset_univ]
@@ -447,10 +449,10 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     have h1 :det (M * N) = det M * det N :=
       calc
           det (M * N)
-          = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i
+          = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i --第1个变式
             := by
             exact MainGoal_1 M N
-          _ = ∑ p
+          _ = ∑ p --第2个变式
                 in (@univ (n → n) _).filter Bijective,
                   ∑ σ
                     : Perm n,
@@ -459,10 +461,10 @@ def printPerms (n : ℕ) : List (List ℕ) :=
                       (∏ i, M (σ i) (p i) * N (p i) i)
             := by
             exact MainGoal_2 M N
-          _ = ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i)
+          _ = ∑ τ : Perm n,∑ σ : Perm n, (ε σ) * (∏ i, M (σ i) (τ i) * N (τ i) i) --第3个变式
             := by
             exact MainGoal_3 M N
-          _ = ∑ σ
+          _ = ∑ σ --第4个变式
                 : Perm n,
                   ∑ τ
                     : Perm n,
@@ -473,13 +475,13 @@ def printPerms (n : ℕ) : List (List ℕ) :=
                       ∏ j, M (τ j) (σ j)
             := by
             exact MainGoal_4 M N
-          _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i
+          _ = ∑ σ : Perm n, ∑ τ : Perm n, (∏ i, N (σ i) i) * (ε σ * ε τ) * ∏ i, M (τ i) i --第5个变式
             := by
             exact MainGoal_5 M N
-          _ = det M * det N
+          _ = det M * det N --第6个变式
             := by
             -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
-            exact MainGoal_6 M N
+            exact MainGoal_6 M N --//
     exact h1
     done
 
