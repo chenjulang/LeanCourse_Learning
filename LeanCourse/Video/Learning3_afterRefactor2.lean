@@ -182,8 +182,10 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- abc = abc
     -- ]
     · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
+      -- 感性理解就是容易犯错，不想犯错还是得程序验证
       have ih3:= (mem_filter.mp ih2).right
-      have ih4:= ofBijective ih1 ih3
+      have ih4:= ofBijective ih1 ih3 -- 单射+满射的映射，向上升级概念为（或者叫自然拓展性质）：具有双边逆的映射（实质并没有发生任何变化）
+      -- 提一句：通常名字为of的函数，就是讲一些等价的概念互相转换。
       simp only [Perm]
       exact ih4 -- 如果这里定义错了，下面满盘皆输
     -- 注意不能像以下这样定义
