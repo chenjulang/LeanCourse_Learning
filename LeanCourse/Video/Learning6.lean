@@ -1,5 +1,7 @@
 import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.LinearAlgebra.Span
+import Mathlib.Data.Real.Sqrt
+
 
 -- 生成集，引入：我们想知道由有限的东西扩展出来的集合，会有什么特别之处。能否解释其他东西？
   -- 横看成岭侧成峰
@@ -74,36 +76,50 @@ noncomputable section
     variable {l m n : Type*}
     variable [Fintype m] [DecidableEq m]
 
+    -- def fai : ℕ → ℝ := sorry
+    -- #check LinearMap.stdBasis R fai
+
     theorem range_vecMulLinear2 (M : Matrix m n R) :  --第二层这个太难了群论知识很深
     LinearMap.range M.vecMulLinear
     = span R (range M)
       := by
       letI := Classical.decEq m --???
-      -- ⊢ LinearMap.range (vecMulLinear M) = span R (Set.range M)
-      simp_rw [range_eq_map, --range f = map f ⊤， 其中⊤表示全体集合，这里指所有(m → R)的m*1矩阵
-      -- ⨆ ：也是一种并？只不过将子空间加起来。
-      -- LinearMap.stdBasis ：具体来说，对于一个 n 维向量空间 V，stdBasis R φ i ：
-          -- 表示标准基向量的第 i 个分量，其中 R 是标量域，φ 是从索引集合到向量空间的映射。
-          -- 例如，在三维空间中，我们可以定义标准基向量为 e₁ = (1, 0, 0)，e₂ = (0, 1, 0)，e₃ = (0, 0, 1)。这些基向量分别代表 x、y、z 轴的方向
-      -- Ideal.span {1} :
-      -- ⨆不同于“并” ⨆ i, span R (p i) = span R (⋃ i, p i)
-      ← iSup_range_stdBasis,--我的理解：所有基向量通过任意映射φ，标量域R形成一个子空间。
-      -- 将所有这样的子空间1，2，3...n并起来。这里指的就是(m → R)的m*1矩阵的这个Rm空间，可以由这样的子空间并起来组成。
-      Submodule.map_iSup,--todo???
-      range_eq_map,--???
+      simp_rw [
+      range_eq_map, --range f = map f ⊤，
+
+      -- ⊤:其中⊤表示全体定义域的集合，也是空间
+      -- （⊤也是因地制宜的，这里指所有的m → R向量形成的空间），
+      -- 这里指所有(m → R)的m*1矩阵
+
+      -- LinearMap.stdBasis ：
+        --举例⊤
+        -- = (⨆ i, LinearMap.range (LinearMap.stdBasis R (fun i ↦ R) i)
+        --左右都是一个空间
+        -- 左边是所有m → R向量线性组合的空间
+        -- 右边是n个空间并起来的大空间，比如说i=1时
+        --LinearMap.stdBasis R (fun i ↦ R) i的类型是 R →ₗ[R] m → R ，（能否理解成1=》（1，0，0，0，...）呢？）
+        -- 理解成直接替换成Pi.single i ， 那值域就是任意取R，（R，0，0，0，...）
+        -- i=1时 就是（0，R，0，0，0，...） 当然这个是一个空间来的，R是一个一般形式，实际上是无数个向量
+        -- （0，1，0，0，0，...）， （0，1.1，0，0，0，...），（0，2，0，0，0，...），......
+
+      ← iSup_range_stdBasis,--todo
+      Submodule.map_iSup,--???--分开基向量
+      range_eq_map,
       ← Ideal.span_singleton_one,--???
       Ideal.span,--???
-      Submodule.map_span,--???
-      image_image,--???
+      Submodule.map_span,--???先映射再组合=先组合再映射
+      image_image,--???变成复合函数
       image_singleton,--只有一个值映射
       Matrix.vecMulLinear_apply,
       iSup_span,--???
-      range_eq_iUnion,--???
-      iUnion_singleton_eq_range,--???
+      range_eq_iUnion,--函数结果=定义域集合列举，然后作用
+      iUnion_singleton_eq_range,--和上一行反过来
       LinearMap.stdBasis,--???怎么把single带出来的？
-      coe_single]--???
+      -- LinearMap.stdBasis R (fun i ↦ R) x 为什么等于single x
+      coe_single]--看single的toFun定义可知
       unfold vecMul
-      simp_rw [single_dotProduct,
+      simp_rw [
+      single_dotProduct,
       one_mul]
       done
 
@@ -118,19 +134,22 @@ noncomputable section
 
     -- 关键的小引理，思想通常很简单：就是定义
     lemma vecMul_transpose2 [Fintype n] (A : Matrix m n R) (x : n → R)
-    : vecMul x Aᵀ = mulVec A x := by
+    : vecMul x Aᵀ
+    = mulVec A x
+      := by
       ext x1
       rw[vecMul]
       rw[mulVec]
       simp only [transpose_apply]
-      exact dotProduct_comm x fun i ↦ A x1 i
+      exact dotProduct_comm x fun i ↦ A x1 i --点乘顺序无关
+      done
 
     lemma Matrix.vecMulLinear_transpose2 [Fintype n] (M : Matrix m n R)
     : Mᵀ.vecMulLinear
     = M.mulVecLin
       := by
       ext
-      simp only [vecMulLinear_apply]
+      simp only [vecMulLinear_apply] --2个向下兼容
       simp only [mulVecLin_apply]
       --这里可以顺便讲一下递归定义和函数定义的等价性：
       --     def vecMul [Fintype m] (v : m → α) (M : Matrix m n α) : n → α
