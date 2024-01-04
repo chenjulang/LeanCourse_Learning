@@ -36,7 +36,9 @@ namespace Matrix --目的是避免模糊定义mul_apply
 
   def printPerms (n : ℕ) : List (List ℕ) :=
     List.map List.reverse (List.permutations (List.range n))
-  -- Perm n
+  -- ???Perm n的理解错了：Perm n即Equiv α α
+  -- α ≃ α 则是 Equiv α α的记号
+  -- α ≃ β is the type of functions from α → β with a two-sided inverse，是有双边逆的映射，而不是等价关系。
   -- #eval printPerms 4
   -- #eval printPerms 3
 
@@ -169,7 +171,8 @@ namespace Matrix --目的是避免模糊定义mul_apply
       have ih3:= (mem_filter.mp ih2).right
       have ih4:= ofBijective ih1 ih3 --???现实中的意义有待
       simp only [Perm]
-      exact ih4 -- 如果这里定义错了，下面满盘皆输
+      exact ih4
+    -- 如果这里定义错了，下面满盘皆输
     -- 注意不能像以下这样定义
     -- intros ih1 ih2
     --   have ih3:= Equiv.refl n
@@ -219,6 +222,8 @@ namespace Matrix --目的是避免模糊定义mul_apply
         rfl
       done
     done
+
+
 
 
 end Matrix

@@ -3,7 +3,8 @@ import Mathlib.LinearAlgebra.Span
 
 -- 生成集，引入：我们想知道由有限的东西扩展出来的集合，会有什么特别之处。能否解释其他东西？
   -- 横看成岭侧成峰
-  -- 最终证明:某个矩阵A,A的各列,实数,（这样的实数排列起来就是任意向量x）。A的各列和实数的所有线性组合 = 矩阵A乘以任意n*1向量x的值域
+  -- 最终证明:某个矩阵A,A的各列,实数,（这样的实数排列起来就是任意向量x）。
+  -- A的各列和实数的所有线性组合 = 矩阵A乘以任意n*1向量x的值域
     -- 换句话说，列向量生成了一个矩阵乘积的所有结果。
     -- 准确来说，矩阵乘积的所有结果和列向量生成的集合刚好相等。
 
@@ -56,7 +57,7 @@ noncomputable section
       -- LinearMap.stdBasis ：具体来说，对于一个 n 维向量空间 V，stdBasis R φ i ：
           -- 表示标准基向量的第 i 个分量，其中 R 是标量域，φ 是从索引集合到向量空间的映射。
           -- 例如，在三维空间中，我们可以定义标准基向量为 e₁ = (1, 0, 0)，e₂ = (0, 1, 0)，e₃ = (0, 0, 1)。这些基向量分别代表 x、y、z 轴的方向
-      -- Ideal.span {1}
+      -- Ideal.span {1} :
       -- ⨆不同于“并” ⨆ i, span R (p i) = span R (⋃ i, p i)
       ← iSup_range_stdBasis,--我的理解：所有基向量通过任意映射φ，标量域R形成一个子空间。
       -- 将所有这样的子空间1，2，3...n并起来。这里指的就是(m → R)的m*1矩阵的这个Rm空间，可以由这样的子空间并起来组成。
@@ -108,7 +109,7 @@ noncomputable section
     theorem Matrix.range_mulVecLin2 (M : Matrix m n R) : --第一层
     LinearMap.range M.mulVecLin
     = span R (range Mᵀ)
-    := by --todo
+    := by
       rw [← vecMulLinear_transpose2,
       range_vecMulLinear2]
   end mulVec
