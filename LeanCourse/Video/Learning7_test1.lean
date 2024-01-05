@@ -2,36 +2,29 @@ import Mathlib.LinearAlgebra.Basis
 
 -- 向量空间的基
 -- 最终目标?下面里选一个
-noncomputable section
+universe u
 
-  universe u
+open Function Set Submodule
+open BigOperators
 
-  open Function Set Submodule
-  open BigOperators
-
-  variable {ι : Type*} {ι' : Type*} {R : Type*} {R₂ : Type*} {K : Type*}
-  variable {M : Type*} {M' M'' : Type*} {V : Type u} {V' : Type*}
-
-  section Module
-
-    variable [Semiring R]
-    variable [AddCommMonoid M] [Module R M] [AddCommMonoid M'] [Module R M']
+variable {ι : Type*} {ι' : Type*} {R : Type*} {R₂ : Type*} {K : Type*}
+variable {M : Type*} {M' M'' : Type*} {V : Type u} {V' : Type*}
+variable [Semiring R]
+variable [AddCommMonoid M] [Module R M] [AddCommMonoid M'] [Module R M']
+variable (ι R M)
 
 
-    variable (ι R M)
+structure Basis2 where
+/-- `Basis.ofRepr` constructs a basis given an assignment of coordinates to each vector. -/
+ofRepr ::
+  /-- `repr` is the linear equivalence sending a vector `x` to its coordinates:
+  the `c`s such that `x = ∑ i, c i`. -/
+  repr : M ≃ₗ[R] ι →₀ R
 
-    structure Basis2 where
-    /-- `Basis.ofRepr` constructs a basis given an assignment of coordinates to each vector. -/
-    ofRepr ::
-      /-- `repr` is the linear equivalence sending a vector `x` to its coordinates:
-      the `c`s such that `x = ∑ i, c i`. -/
-      repr : M ≃ₗ[R] ι →₀ R
+-- 从哪里看出：参数repr，该参数是一个从向量到坐标的线性等价映射（linear equivalence）
 
 
 
-  end Module
-
-end
 
 
 
