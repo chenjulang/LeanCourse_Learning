@@ -1,8 +1,8 @@
 import Mathlib.LinearAlgebra.Basis
 import LeanCourse.Video.Learning4
 
--- 向量空间的基
--- 最终目标?下面里选一个
+-- 向量空间的基 -- 这集跳过，不做视频。材料不足。
+-- 最终目标:任何向量可以由基线性组合得到，这节很容易的一个定理。
 universe u
 
 open Function Set Submodule
@@ -47,6 +47,24 @@ ofRepr ::
 namespace Basis
   variable (b b₁ : Basis ι R M) (i : ι) (c : R) (x : M)
 
+  -- theorem coe_repr_symm2 : ↑b.repr.symm = Finsupp.total ι M R b
+  -- := by
+  --   refine' LinearMap.ext _
+  --   intros v
+  --   exact b.repr_symm_apply v
+
+
+  -- theorem repr_total2 (v) :
+  -- b.repr (Finsupp.total _ _ _ b v)
+  -- -- 把b理解成（3，0）映射成{1=>3,2=>0}即（3,0）?
+  -- -- （0，1）映射成{1=>0,2=>1}即(0,1)?
+  -- -- 这样的映射（将向量映射成“映射”）
+  -- = v
+  --   := by
+  --   rw [← b.coe_repr_symm2]
+  --   exact b.repr.apply_symm_apply v -- todo
+
+  -- 基是线性独立的
   protected theorem linearIndependent2
   : LinearIndependent2 R b
     := by
@@ -54,15 +72,41 @@ namespace Basis
     intros l hl
     calc
       l
-      = b.repr (Finsupp.total _ _ _ b l)
-        := by exact (b.repr_total l).symm
+      = b.repr (Finsupp.total _ _ _ b l) -- 如何理解b.repr (Finsupp.total _ _ _ b l)
+        := by
+        exact (b.repr_total l).symm
       _ = 0
-        := by rw [hl, LinearEquiv.map_zero]
+        := by
+        rw [hl, LinearEquiv.map_zero] --todo
     done
 
 
 
 end Basis
+
+
+
+/-- If the submodule `P` has a basis, `x ∈ P` iff it is a linear combination of basis vectors. -/
+theorem mem_submodule_iff {P : Submodule R M} (b : Basis ι R P) {x : M} :
+x ∈ P
+↔
+∃ c : ι →₀ R, x = Finsupp.sum c fun i x => x • (b i : M)
+  := by
+  -- constructor
+  -- · sorry
+  -- · intros h1
+  --   rw [← P.range_subtype, ← Submodule.map_top, ← b.span_eq, Submodule.map_span, ← Set.range_comp,
+  --       ← Finsupp.range_total]
+  --   simp only [coeSubtype, LinearMap.mem_range]
+  conv_lhs => -- conv_lhs是什么意思？
+    rw [← P.range_subtype, ← Submodule.map_top, ← b.span_eq, Submodule.map_span, ← Set.range_comp,
+        ← Finsupp.range_total]
+  simp [@eq_comm _ x, Function.comp, Finsupp.total_apply]
+
+
+
+
+
 
 
 
@@ -118,16 +162,6 @@ end Basis
 -- theorem eq_ofRepr_eq_repr {b₁ b₂ : Basis2 ι R M} (h : ∀ x i, b₁.repr x i = b₂.repr x i) : b₁ = b₂ :=
 --   repr_injective2 <| by ext; apply h
 
-/-- If the submodule `P` has a basis, `x ∈ P` iff it is a linear combination of basis vectors. -/
-theorem mem_submodule_iff {P : Submodule R M} (b : Basis ι R P) {x : M} :
-x ∈ P
-↔
-∃ c : ι →₀ R, x = Finsupp.sum c fun i x => x • (b i : M)
-  := by
-  conv_lhs =>
-    rw [← P.range_subtype, ← Submodule.map_top, ← b.span_eq, Submodule.map_span, ← Set.range_comp,
-        ← Finsupp.range_total]
-  simp [@eq_comm _ x, Function.comp, Finsupp.total_apply]
 
 
 -- theorem Basis.mem_submodule_iff' {P : Submodule R M} (b : Basis ι R P) {x : M} :
