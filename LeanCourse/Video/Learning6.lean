@@ -117,19 +117,25 @@ noncomputable section
       range_eq_map,--LinearMap.range和Submodule.map两种写法互换
       ← Ideal.span_singleton_one,--理解成Pi.single的第一个参数是自然数，自然数可以由1和加法减法生成
       Ideal.span,--由1这个元素加法乘法减法生成的空间
-      Submodule.map_span,--???先组合再映射=先映射再组合
-      image_image,--???变成复合函数
+      Submodule.map_span,--先组合再映射=先映射再组合
+      -- s = {(1, 0, 0), (0, 1, 0)}
+      -- f((x₁, x₂, x₃)) = (x₁, x₂)
+      -- (span ℝ {(1, 0, 0), (0, 1, 0)}).map f = span ℝ₂ (f '' {(1, 0, 0), (0, 1, 0)})
+      -- 左边即：map f（m,n,0） , 也就是（m,n）
+      -- 右边即：由于f '' {(1, 0, 0), (0, 1, 0)}={(1, 0), (0, 1)}
+      -- {(1, 0), (0, 1)}的生成集是 (m,n)
+      image_image,--变成复合函数
       image_singleton,--只有一个值映射
       Matrix.vecMulLinear_apply,
-      iSup_span,--???
-      range_eq_iUnion,--函数结果=定义域集合列举，然后作用
-      iUnion_singleton_eq_range,--和上一行反过来
-      LinearMap.stdBasis,--???怎么把single带出来的？
+      iSup_span,--类似于之前的Submodule.map_iSup，单个向量生成集，有多个，并起来=多个向量直接生成集。这里不举例子了。
+      range_eq_iUnion,--函数结果=定义域列举，分别代入后得到所有值并起来。
+      iUnion_singleton_eq_range,--和上一行反过来，所以把上一行的也作用到了，而且把等号左边的也作用到了
+      LinearMap.stdBasis,
       coe_single]--看single的toFun定义可知
       unfold vecMul
       simp_rw [
-      single_dotProduct,
-      one_mul]
+      single_dotProduct,--只有一处为非零的向量，当然了，结果只有一项
+      one_mul] -- fun x x_1 ↦ 1 * M x x_1和 fun x ↦ M x 是一样的：这样验证，都给两个参数进去，得到的值是同一个矩阵的同一项
       done
 
     -- #print range_vecMulLinear2
