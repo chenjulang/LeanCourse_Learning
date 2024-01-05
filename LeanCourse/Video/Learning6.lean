@@ -98,16 +98,26 @@ noncomputable section
         -- 左边是所有m → R向量线性组合的空间
         -- 右边是n个空间并起来的大空间，比如说i=1时
         --LinearMap.stdBasis R (fun i ↦ R) i的类型是 R →ₗ[R] m → R ，（能否理解成1=》（1，0，0，0，...）呢？）
-        -- 理解成直接替换成Pi.single i ， 那值域就是任意取R，（R，0，0，0，...）
+        -- LinearMap.stdBasis R (fun i ↦ R) i可以理解成直接替换成Pi.single i ， 那值域就是任意取R得到的（R，0，0，0，...）
         -- i=1时 就是（0，R，0，0，0，...） 当然这个是一个空间来的，R是一个一般形式，实际上是无数个向量
         -- （0，1，0，0，0，...）， （0，1.1，0，0，0，...），（0，2，0，0，0，...），......
 
-      ← iSup_range_stdBasis,--todo
-      Submodule.map_iSup,--???--分开基向量
-      range_eq_map,
-      ← Ideal.span_singleton_one,--???
-      Ideal.span,--???
-      Submodule.map_span,--???先映射再组合=先组合再映射
+      ← iSup_range_stdBasis,
+      Submodule.map_iSup,----分开基向量
+      -- def vecMul [Fintype m] (v : m → α) (M : Matrix m n α) : n → α
+      -- | j => v ⬝ᵥ fun i => M i j -- 列向量点乘
+      -- ![![1, 2],
+      --   ![3, 4]]
+      -- 分开（m，0），（0，n）再加起来即
+      -- i=1时： ![1m+0 , 2m+0]
+      -- i=2时： ![0+3n , 0+4n]
+      -- 和不分开（m,n）
+      -- ![m+3n , 2m+4n]
+      -- 的值域相等吗？当然值域是一样的
+      range_eq_map,--LinearMap.range和Submodule.map两种写法互换
+      ← Ideal.span_singleton_one,--理解成Pi.single的第一个参数是自然数，自然数可以由1和加法减法生成
+      Ideal.span,--由1这个元素加法乘法减法生成的空间
+      Submodule.map_span,--???先组合再映射=先映射再组合
       image_image,--???变成复合函数
       image_singleton,--只有一个值映射
       Matrix.vecMulLinear_apply,
@@ -115,7 +125,6 @@ noncomputable section
       range_eq_iUnion,--函数结果=定义域集合列举，然后作用
       iUnion_singleton_eq_range,--和上一行反过来
       LinearMap.stdBasis,--???怎么把single带出来的？
-      -- LinearMap.stdBasis R (fun i ↦ R) x 为什么等于single x
       coe_single]--看single的toFun定义可知
       unfold vecMul
       simp_rw [
