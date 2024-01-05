@@ -27,28 +27,38 @@ namespace Matrix --目的是避免模糊定义mul_apply
   def detRowAlternating2
   : AlternatingMap R (n → R) R n  --- 最后这个参数n属于补充说明,实际形式上只需传三个参数即可
   :=
-    MultilinearMap.alternatization ( -- ???基本的要素都齐了，求和，连乘，全体置换，置换的符号。具体逻辑还不懂
-      (MultilinearMap.mkPiAlgebra R n R).compLinearMap
-        LinearMap.proj)
+  MultilinearMap.alternatization ( -- ???基本的要素都齐了，求和，连乘，全体置换，置换的符号。具体逻辑还不懂
+    (MultilinearMap.mkPiAlgebra R n R).compLinearMap
+      LinearMap.proj)
 
   abbrev det2 (M : Matrix n n R): R :=
-    (detRowAlternating2) M
+    (detRowAlternating2) M -- 这里为什么类型是R，因为detRowAlternating2相当于detRowAlternating2.toFun
 
-  def printPerms (n : ℕ) : List (List ℕ) :=
-    List.map List.reverse (List.permutations (List.range n))
-  -- ???Perm n的理解错了：Perm n即Equiv α α
+
+    --  前置知识
+  -- Perm 的使用,排列组合
+  -- 以下是一些关于 Perm n 的示例，其中 n 取不同的值：
+  -- 当 n = 1 时，Perm 1 表示长度为 1 的置换，即 [0]。
+  -- 当 n = 2 时，Perm 2 表示长度为 2 的置换，共有两种情况：[0, 1] 和 [1, 0]。
+  -- 当 n = 3 时，Perm 3 表示长度为 3 的置换，共有六种情况：[0, 1, 2]、[0, 2, 1]、[1, 0, 2]、[1, 2, 0]、[2, 0, 1] 和 [2, 1, 0]。
+-- #eval Finset.val (Finset.univ : Finset (Fin 4))
+def printPerms (n : ℕ) : List (List ℕ) :=
+  List.map List.reverse (List.permutations (List.range n))
+ -- ???Perm n的理解错了：Perm n即Equiv α α
   -- α ≃ α 则是 Equiv α α的记号
   -- α ≃ β is the type of functions from α → β with a two-sided inverse，是有双边逆的映射，而不是等价关系。
-  -- #eval printPerms 4
-  -- #eval printPerms 3
+-- #check Perm n
+-- #eval printPerms 4
+-- #eval printPerms 3 -- [0, 1, 2] [2, 1, 0]
+
 
 
   -- 正式开始：
-  lemma MainGoal_1 (M N : Matrix n n R):
+  lemma MainGoal_1 (M N : Matrix n n R) :
   det (M * N)
-  = ∑ p : n → n,
+  = ∑ p : n → n, -- {1,2,3} → {1,2,3}
       ∑ σ : Perm n,
-        (ε σ)
+        ε σ
         *
         ∏ i,
           M (σ i) (p i) * N (p i) i
@@ -77,21 +87,23 @@ namespace Matrix --目的是避免模糊定义mul_apply
     -- = 2 + 8 + 3 + 12
     -- = 25
 -- 因此，根据 Finset.prod_univ_sum 定理，左侧和右侧的值相等，都等于25。
-    simp only [mul_sum] --???用gpt举个例子来理解
-    simp only [Fintype.piFinset_univ] --???Fintype.piFinset的使用 -- 1，2，3 =》 3，2，1
-    rw [Finset.sum_comm] --???两阶求和顺序互换的相关定理
+    simp only [mul_sum]
+    simp only [Fintype.piFinset_univ]--???
+    rw [Finset.sum_comm]
     done
+
+
 
   lemma MainGoal_2 (M N : Matrix n n R):
   ∑ p : n → n,
     ∑ σ : Perm n,
-      ε σ
+      (ε σ)
       *
       ∏ i,
         M (σ i) (p i) * N (p i) i
   = ∑ p in (@univ (n → n) _).filter Bijective,
-      ∑ σ: Perm n,
-        (ε σ)
+      ∑ σ : Perm n,
+        ε σ
         *
         (∏ i,
           M (σ i) (p i) * N (p i) i)
@@ -115,11 +127,12 @@ namespace Matrix --目的是避免模糊定义mul_apply
       simp only [mem_univ] at h5
       simp only [true_and_iff] at h5
       set h6 := fun x ↦ h3 x -- 写这个h6,h7是为了补充说明，其实这里h6就是和h3同一个映射，写法不一样而已
-      -- have h7: h6=h3 -- 为了让大家理解
+      -- have h7: h6=h3 --为了讲解而写的
       -- := by
       --   exact rfl
       exact h5
     done
+
 
   lemma MainGoal_3 (M N : Matrix n n R):
   ∑ p in (@univ (n → n) _).filter Bijective,
@@ -138,8 +151,8 @@ namespace Matrix --目的是避免模糊定义mul_apply
     := by
     rw [sum_comm]
     rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
-    refine' sum_bij _ _ _ _ _ -- ???这个需要问一下gpt找到数学世界里的对应定理名称。
-    -- 不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+    -- 反向推理
+    refine' sum_bij _ _ _ _ _ -- ???这个需要问一下gpt找到数学世界里的对应定理名称。不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
     -- 举例：
     -- 假设我们有以下集合和映射：
     -- 令 α = {1, 2, 3}，即集合 {1, 2, 3}。
@@ -168,11 +181,13 @@ namespace Matrix --目的是避免模糊定义mul_apply
     -- abc = abc
     -- ]
     · intros ih1 ih2 -- 这里ih1潜台词是随机的ih1
-      have ih3:= (mem_filter.mp ih2).right
-      have ih4:= ofBijective ih1 ih3 --???现实中的意义有待
+      -- 感性理解就是容易犯错，不想犯错还是得程序验证
       simp only [Perm]
-      exact ih4
-    -- 如果这里定义错了，下面满盘皆输
+      have ih3:= (mem_filter.mp ih2).right
+      have ih4:= ofBijective ih1 ih3 -- 单射+满射的映射，向上升级概念为（或者叫自然拓展性质）：具有双边逆的映射（实质并没有发生任何变化）
+      -- 提一句：通常名字为of的函数，就是讲一些等价的概念互相转换。
+      exact ih4 -- 如果这里定义错了，下面满盘皆输
+      -- 证明的一个哲学意义是：给出某一个例子，是属于这个命题说的类的。
     -- 注意不能像以下这样定义
     -- intros ih1 ih2
     --   have ih3:= Equiv.refl n
@@ -186,7 +201,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
       obtain ⟨h_4,h_5⟩ := h_3
       simp only [id_eq]
       set h_6 := ofBijective h_1 h_5 -- h_1和h_6相等吗？，由ofBijective的toFun定义知道就是h_1
-      -- have h1_equal_h6 : h_1=h_6 -- 为了说明而写的，因为ofBijective的实际效果是和toFun相同的，是定义导致的相同
+      -- have h1_equal_h6 : h_1=h_6 --为了讲解
       --   := by
       --   exact rfl
       rfl
@@ -195,23 +210,22 @@ namespace Matrix --目的是避免模糊定义mul_apply
       ext x
       have inj_6:= ofBijective_apply inj_1
       have inj_7:= ofBijective_apply inj_2
-      have bij_inj_3:= (mem_filter.mp inj_3).right
-      rw [← inj_6]
-      rw[inj_5,
+      rw [
+      ← inj_6,
+      inj_5,
       inj_7]
       done
     · intros b x
-      refine' Exists.intro b _ -- 要证明存在某个原始使得某个命题成立，只需要，给出例子，然后让例子代入后面描述的命题中，该命题为真即可。
-      -- 比如这里就是把a全部替换成了b
+      refine' Exists.intro b _ -- 存在，给出例子，然后代入第二个参数中，比如这里就是把a全部替换成了b
       -- 如果第二个参数中不用直接替换的，比如下面这行，就直接证明第二个参数代表的命题即可
       refine' Exists.intro _ _ -- 比如这里ha在第二个参数中没有需要替换的，直接证明第二个命题即可
-      · refine' mem_filter.mpr _
+      · refine' mem_filter.2 _
         constructor
         · refine' mem_univ (↑b)
         · exact Equiv.bijective b
-      · refine' coe_fn_injective _ --在外层套了一个不变的映射
+      · -- refine' coe_fn_injective _ --在外层套了一个不变的映射
         simp only [id_eq]
-        simp only [FunLike.coe_fn_eq]
+        -- simp only [FunLike.coe_fn_eq]
         refine' Equiv.ext _
         intros x2
         -- ↑(ofBijective ↑b (_ : Bijective ↑b))前面这个和↑b作用效果一样吗?查一下ofBijective的toFun := f定义就知道，就是f本身
@@ -222,8 +236,6 @@ namespace Matrix --目的是避免模糊定义mul_apply
         rfl
       done
     done
-
-
 
 
 end Matrix
