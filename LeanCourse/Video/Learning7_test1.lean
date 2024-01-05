@@ -1,4 +1,5 @@
 import Mathlib.LinearAlgebra.Basis
+import LeanCourse.Video.Learning4
 
 -- 向量空间的基
 -- 最终目标?下面里选一个
@@ -21,7 +22,52 @@ ofRepr ::
   the `c`s such that `x = ∑ i, c i`. -/
   repr : M ≃ₗ[R] ι →₀ R
 
+-- 这里定义的基，只需要满足性质repr，repr是一个等价映射，它能将空间M中的元素，映射成一个映射：按索引来映射每一个分量的一个映射。
+
+
 -- 从哪里看出：参数repr，该参数是一个从向量到坐标的线性等价映射（linear equivalence）
+-- 假设我们有一个向量空间 M，其中的向量由三个分量组成，可以表示为三维实数向量空间。
+-- 指标集合 ι 是 {1, 2, 3}，域 R 是实数域。
+-- 那么，M ≃ₗ[ℝ] ι →₀ ℝ 表示一个线性等价映射，它将三维实数向量空间中的向量映射到
+-- 由 {1, 2, 3} 到实数域的有限线性组合上。
+-- 具体来说，假设我们有一个向量 v = (2.5, -1.3, 0)，它在基 {e₁, e₂, e₃} 下的坐标
+-- 表示是 {2.5, -1.3, 0}。那么，根据线性等价映射 M ≃ₗ[ℝ] ι →₀ ℝ，我们可以
+-- 将向量 v 映射到指标集合 {1, 2, 3} 到实数域的有限线性组合上，即 {1 → 2.5, 2 → -1.3, 3 → 0}。
+
+
+
+-- #check Basis2.repr -- : M ≃ₗ[R] ι →₀ R
+-- 什么是线性等价映射≃ₗ？
+  -- 一个从 V 到 W 的映射 f 被称为线性等价映射，如果满足以下条件：
+  -- 线性性质：对于任意的向量 u 和 v，以及标量 c，有 f(u + v) = f(u) + f(v) 和 f(cu) = cf(u)。
+  -- 双射性质：映射 f 是一对一且满射的。也就是说，对于任意的向量 w ∈ W，存在唯一的向量 v ∈ V，使得 f(v) = w。
+
+
+
+namespace Basis
+  variable (b b₁ : Basis ι R M) (i : ι) (c : R) (x : M)
+
+  protected theorem linearIndependent2
+  : LinearIndependent2 R b
+    := by
+    refine' linearIndependent_iff.2 _
+    intros l hl
+    calc
+      l
+      = b.repr (Finsupp.total _ _ _ b l)
+        := by exact (b.repr_total l).symm
+      _ = 0
+        := by rw [hl, LinearEquiv.map_zero]
+    done
+
+
+
+end Basis
+
+
+
+
+
 
 
 
@@ -30,9 +76,8 @@ ofRepr ::
 
 
 -- /-- Each vector space has a basis. -/
--- noncomputable def ofVectorSpace : Basis (ofVectorSpaceIndex K V) K V :=
+-- noncomputable def ofVectorSpace : Basis2 (ofVectorSpaceIndex K V) K V :=
 --   Basis.extend (linearIndependent_empty K V)
--- #align basis.of_vector_space Basis.ofVectorSpace
 
 
 
@@ -66,17 +111,23 @@ ofRepr ::
 
 
 
--- -- goal：？
--- theorem eq_ofRepr_eq_repr {b₁ b₂ : Basis ι R M} (h : ∀ x i, b₁.repr x i = b₂.repr x i) : b₁ = b₂ :=
---   repr_injective <| by ext; apply h
+-- theorem repr_injective2 : Injective (repr : Basis2 ι R M → M ≃ₗ[R] ι →₀ R) := fun f g h => by
+--   cases f; cases g; congr
 
--- /-- If the submodule `P` has a basis, `x ∈ P` iff it is a linear combination of basis vectors. -/
--- theorem mem_submodule_iff {P : Submodule R M} (b : Basis ι R P) {x : M} :
---     x ∈ P ↔ ∃ c : ι →₀ R, x = Finsupp.sum c fun i x => x • (b i : M) := by
---   conv_lhs =>
---     rw [← P.range_subtype, ← Submodule.map_top, ← b.span_eq, Submodule.map_span, ← Set.range_comp,
---         ← Finsupp.range_total]
---   simp [@eq_comm _ x, Function.comp, Finsupp.total_apply]
+-- goal：？
+-- theorem eq_ofRepr_eq_repr {b₁ b₂ : Basis2 ι R M} (h : ∀ x i, b₁.repr x i = b₂.repr x i) : b₁ = b₂ :=
+--   repr_injective2 <| by ext; apply h
+
+/-- If the submodule `P` has a basis, `x ∈ P` iff it is a linear combination of basis vectors. -/
+theorem mem_submodule_iff {P : Submodule R M} (b : Basis ι R P) {x : M} :
+x ∈ P
+↔
+∃ c : ι →₀ R, x = Finsupp.sum c fun i x => x • (b i : M)
+  := by
+  conv_lhs =>
+    rw [← P.range_subtype, ← Submodule.map_top, ← b.span_eq, Submodule.map_span, ← Set.range_comp,
+        ← Finsupp.range_total]
+  simp [@eq_comm _ x, Function.comp, Finsupp.total_apply]
 
 
 -- theorem Basis.mem_submodule_iff' {P : Submodule R M} (b : Basis ι R P) {x : M} :
