@@ -92,18 +92,40 @@ M
   obtain ⟨L, L', D, h⟩ := h1
   --另一种写法： rcases exists_list_transvec_mul_mul_list_transvec_eq_diagonal M with ⟨L, L', D, h⟩
   refine' ⟨L.reverse.map TransvectionStruct.inv, L'.reverse.map TransvectionStruct.inv, D, _⟩--todo
-  suffices
-    M =
-      (L.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod * (L.map toMatrix).prod * M *
-        ((L'.map toMatrix).prod * (L'.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod)
-    by simpa [← h, Matrix.mul_assoc]
+  simp only [List.map_map] --//
+  have changeTarget :
+    List.prod (List.map (toMatrix ∘ TransvectionStruct.inv) (List.reverse L)) * diagonal D *
+      List.prod (List.map (toMatrix ∘ TransvectionStruct.inv) (List.reverse L'))
+    =
+      (L.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod
+      * (L.map toMatrix).prod
+      * M
+      * ((L'.map toMatrix).prod
+          *
+          (L'.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod
+        )
+    := by
+      simp only [← h]
+      simp only [Matrix.mul_assoc]
+      done
+  -- 另一种写法suffices
+  --   M =
+  --     (L.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod
+  --     * (L.map toMatrix).prod
+  --     * M
+  --     * ((L'.map toMatrix).prod
+  --         *
+  --        (L'.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod
+  --       )
+  --   by
+    -- simpa [← h, Matrix.mul_assoc]
+  rw [changeTarget]
   rw [
   reverse_inv_prod_mul_prod,
   prod_mul_reverse_inv_prod,
   Matrix.one_mul,
   Matrix.mul_one]
 
--- #print exists_list_transvec_mul_diagonal_mul_list_transvec2
 
 
 end Pivot
@@ -115,4 +137,4 @@ end Pivot
 -- Sum n p是不相交并集类型
 -- inl是上一行的特殊化：左并
 -- Transvection.lean看到toMatrix_sumInl
--- diagonal是什么？
+-- diagonal是对角矩阵
