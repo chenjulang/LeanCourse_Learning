@@ -84,12 +84,14 @@ theorem exists_list_transvec_mul_diagonal_mul_list_transvec2
 M
 = (L.map toMatrix).prod
   *
-  diagonal D
+  diagonal D --左上->右下的对角线才有非零的数的方阵
   *
   (L'.map toMatrix).prod
   := by
-  rcases exists_list_transvec_mul_mul_list_transvec_eq_diagonal M with ⟨L, L', D, h⟩
-  refine' ⟨L.reverse.map TransvectionStruct.inv, L'.reverse.map TransvectionStruct.inv, D, _⟩
+  have h1 := exists_list_transvec_mul_mul_list_transvec_eq_diagonal M
+  obtain ⟨L, L', D, h⟩ := h1
+  --另一种写法： rcases exists_list_transvec_mul_mul_list_transvec_eq_diagonal M with ⟨L, L', D, h⟩
+  refine' ⟨L.reverse.map TransvectionStruct.inv, L'.reverse.map TransvectionStruct.inv, D, _⟩--todo
   suffices
     M =
       (L.reverse.map (toMatrix ∘ TransvectionStruct.inv)).prod * (L.map toMatrix).prod * M *
@@ -112,5 +114,5 @@ end Pivot
 -- List.prod是列表中的元素从左到右全部乘起来
 -- Sum n p是不相交并集类型
 -- inl是上一行的特殊化：左并
--- todo Transvection.lean看到toMatrix_sumInl
+-- Transvection.lean看到toMatrix_sumInl
 -- diagonal是什么？
