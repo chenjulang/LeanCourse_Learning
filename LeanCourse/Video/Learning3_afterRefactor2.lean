@@ -60,7 +60,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
 -- #eval Finset.val (Finset.univ : Finset (Fin 4))
 def printPerms (n : ℕ) : List (List ℕ) :=
   List.map List.reverse (List.permutations (List.range n))
- -- ???Perm n的理解错了：Perm n即Equiv α α
+ -- Perm n的理解错了：Perm n即Equiv α α
   -- α ≃ α 则是 Equiv α α的记号
   -- α ≃ β is the type of functions from α → β with a two-sided inverse，是有双边逆的映射，而不是等价关系。
 -- #check Perm

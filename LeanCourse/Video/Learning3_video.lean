@@ -44,7 +44,7 @@ namespace Matrix --目的是避免模糊定义mul_apply
 -- #eval Finset.val (Finset.univ : Finset (Fin 4))
 def printPerms (n : ℕ) : List (List ℕ) :=
   List.map List.reverse (List.permutations (List.range n))
- -- ???Perm n的理解错了：Perm n即Equiv α α
+ -- Perm n的理解错了：Perm n即Equiv α α
   -- α ≃ α 则是 Equiv α α的记号
   -- α ≃ β is the type of functions from α → β with a two-sided inverse，是有双边逆的映射，而不是等价关系。
 -- #check Perm n
@@ -65,27 +65,55 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     := by
     simp only [det_apply']
     simp only [mul_apply]
-    simp only [prod_univ_sum] -- ???与"先连加，再连乘，等于，先连乘，再连加"，还有笛卡尔积“全覆盖”，相关的定理
-    -- 如何理解Fintype.piFinset t
+    simp only [prod_univ_sum] -- 我称之为连加和连乘之间的分配律，与"先连加，再连乘，等于，先连乘，再连加"，还有笛卡尔积“全覆盖”，相关的定理
+    -- Fintype.piFinset的使用：
+    -- 接受1个参数，参数一：t 是一个从集合到有限集合的映射。
+    -- 结果是一个笛卡尔积
+    -- ∏ a : α, ∑ b in t a, f a b = ∑ p in Fintype.piFinset t, ∏ x : α, f x (p x)
+
+    -- ∏ x_1 : n, ∑ j : n, M (↑x x_1) j * N j x_1
+    -- = ∑ p in Fintype.piFinset fun a ↦ univ, ∏ x_1 : n, M (↑x x_1) (p x_1) * N (p x_1) x_1
+
+    -- 实际上就是：
+    -- 比如n=2
+    -- α = {1, 2}
+    --  f₁(a,b) = M (↑x a) b * N b a
+    -- t a由于j : n范围还是{1, 2} ，所以知道定义t为 t(1) = {1，2}, t(2)= {1，2}
+    -- 左边就是：（
+    --    (M (↑x 1) 1 * N 1 1 + M (↑x 1) 2 * N 2 1）) //x_1=1，j=1，2
+    -- *  (M (↑x 2) 1 * N 1 2 + M (↑x 2) 2 * N 2 2）) //x_1=2，j=1，2
+    --  = (f₁ 1 1 + f₁ 1 2)
+    --  * (f₁ 2 1 + f₁ 2 2)
+    -- 右边是：
+    -- Fintype.piFinset t 是{(1, 1), (1, 2), (2, 1), (2, 2)}
+    -- f₂(a,b) = M (↑x b) (a b) * N (a b) b
+    --   M (↑x 1) (1) * N (1) 1  *  M (↑x 2) (1) * N (1) 2  //a=(1, 1) b=1，2
+    -- + M (↑x 1) (1) * N (1) 1  *  M (↑x 2) (2) * N (2) 2  //a=(1, 2) b=1，2
+    -- + M (↑x 1) (2) * N (2) 1  *  M (↑x 2) (1) * N (1) 2  //a=(2, 1) b=1，2
+    -- + M (↑x 1) (2) * N (2) 1  *  M (↑x 2) (2) * N (2) 2 //a=(2, 2) b=1，2
+
+
+
     -- 假设 t 是一个从集合 {1, 2} 到有限集合的映射，其中 t(1) = {a, b}，t(2) = {x, y}。
-        -- 那么 Fintype.piFinset t 就表示集合 {(a, x), (a, y), (b, x), (b, y)}，即这两个集合的笛卡尔积。
+        -- 那么 Fintype.piFinset t 就表示集合 {(a, x), (a, y), (b, x), (b, y)}，即这两个集合t(1)和t(2)的笛卡尔积。
     -- 举例说明prod_univ_sum
     --     首先，让我们假设集合α包含元素1和2，对应的集合分别为t1和t2。而且我们有以下映射关系：
-    -- t1 = {a, b}, t2 = {x, y}
-    -- 对应的函数f如下：
-    -- f(1, a) = 2, f(1, b) = 3, f(2, x) = 1, f(2, y) = 4
+    -- α = {1, 2}
+    -- t(1) = {a, b}, t(2) = {x, y}
+    -- 对应的函数f假设定义如下：
+    -- f(1, a) = A1 , f(1, b) = A2, f(2, x) = A3, f(2, y) = A4
     -- 现在我们来计算左侧和右侧的值。
     -- 左侧：(∏ a, ∑ b in t a, f a b)
-    -- = (∑ b in t1, f(1, b)) * (∑ b in t2, f(2, b))
+    -- = (∑ b in t(1), f(1, b)) * (∑ b in t(2), f(2, b))
     -- = (f(1, a) + f(1, b)) * (f(2, x) + f(2, y))
-    -- = (2 + 3) * (1 + 4)
-    -- = 5 * 5
-    -- = 25
+    -- = (A1 + A2) * (A3 + A4)
     -- 右侧：∑ p in Fintype.piFinset t, ∏ x, f x (p x)
-    -- = f(1, a) * f(2, x) + f(1, a) * f(2, y) + f(1, b) * f(2, x) + f(1, b) * f(2, y)
-    -- = 2 * 1 + 2 * 4 + 3 * 1 + 3 * 4
-    -- = 2 + 8 + 3 + 12
-    -- = 25
+    -- = f(1, a) * f(2, x)
+    -- + f(1, a) * f(2, y)
+    -- + f(1, b) * f(2, x)
+    -- + f(1, b) * f(2, y)
+    -- = A1 * A3 + A1 * A4 + A2 * A3 + A2 * A4
+
 -- 因此，根据 Finset.prod_univ_sum 定理，左侧和右侧的值相等，都等于25。
     simp only [mul_sum]
     simp only [Fintype.piFinset_univ]--???

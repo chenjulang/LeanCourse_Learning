@@ -14,14 +14,14 @@ variable [LE α] [@DecidableRel α (· ≤ ·)]
 
 -- ### Merging and splitting
 
-def merge : List α → List α → List α
+def merge : List α → List α → List α -- 使用前提通常是x和y列表都已经排列好了
 | [ ]   , y      => y
 | x     , [ ]    => x
 | a :: x, b :: y => if a ≤ b
                     then a :: merge x (b :: y)
                     else b :: merge (a :: x) y
 termination_by
-  merge x y => x.length + y.length
+  merge x y => x.length + y.length -- 应该是结果长度等于什么（两个列表长度之和）的时候就递归停止。
 -- 它接受两个List类型的参数x和y，并返回一个List类型的结果。
 -- 函数的作用是将两个有序列表合并成一个有序列表。具体而言，函数的逻辑如下：
 -- 如果列表x为空，则返回列表y。
@@ -30,19 +30,35 @@ termination_by
 -- 如果a小于等于b，则将a添加到结果列表中，并递归调用merge函数处理剩余的列表x和b :: y。
 -- 如果a大于b，则将b添加到结果列表中，并递归调用merge函数处理剩余的列表a :: x和y。
 
+-- result = merge x y
+-- 首先，我们比较两个列表的头部元素，即 1 和 2。由于 1 小于 2，所以我们将 1 加入结果列表中，并继续递归地调用 merge 函数来合并剩余的元素：
+-- result = [1] + merge [3, 5, 7] [2, 4, 6, 8, 9]
+-- 接下来，我们比较 3 和 2。由于 2 小于 3，所以我们将 2 加入结果列表中，并继续递归地调用 merge 函数：
+-- result = [1, 2] + merge [3, 5, 7] [4, 6, 8, 9]
+-- 继续比较剩余的元素，直到一个或两个列表为空。最终，我们得到合并后的列表：
+-- result = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-/-- Creates a list made of every other element of given list, starting with its head.  -/
+
+
+/-- Creates a list made of every odd element of given list, starting with its head.  -/
 def eo : List α → List α
 | [ ]         => [ ]
 | [ a ]       => [ a ]
-| a :: _ :: s => a :: eo s
+| a :: _ :: s => a :: eo s -- 这里_占位指的是列表的第二个元素
+
+-- 如果输入列表为空（[ ]），则直接返回一个空列表（[ ]）。
+-- 如果输入列表只包含一个元素（[ a ]），则直接返回包含该元素的列表（[ a ]）。
+-- 如果输入列表包含至少两个元素，那么从列表的头部取出第一个元素（a），并忽略第二个元素和之后的所有元素，然后递归地调用 eo 函数，只处理剩余的元素（s）。
+-- 这种情况下，我们可以理解为每次只保留列表中的奇数位置的元素，也就是从第一个元素开始，每隔一个元素取一个。
+-- #eval eo {1,2,3,4,5} --[1, 3, 5]
 
 -- ### We need some lemmas for well-founded induction
 
 lemma length_eo_cons (a : α) (s : List α) :
-  (eo s).length ≤ (eo (a :: s)).length ∧
-  (eo (a :: s)).length ≤ (eo s).length.succ :=
-by
+  (eo s).length ≤ (eo (a :: s)).length
+  ∧
+  (eo (a :: s)).length ≤ (eo s).length.succ
+:= by --todo
   induction s with
   | nil => simp [eo]
   | cons d l ih =>

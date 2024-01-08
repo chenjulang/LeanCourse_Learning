@@ -1,4 +1,4 @@
-import Paperproof
+-- import Paperproof
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Real.Sqrt
 
