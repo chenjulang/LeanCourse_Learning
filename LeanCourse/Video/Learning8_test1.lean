@@ -82,11 +82,12 @@ theorem exists_list_transvec_mul_diagonal_mul_list_transvec2
 ∃ (L L' : List (TransvectionStruct n 𝕜))
 (D : n → 𝕜),
 M
-= (L.map toMatrix).prod
-  *
-  diagonal D --左上->右下的对角线才有非零的数的方阵
-  *
-  (L'.map toMatrix).prod
+=
+(L.map toMatrix).prod
+*
+diagonal D --左上->右下的对角线才有非零的数的方阵
+*
+(L'.map toMatrix).prod
   := by
   have h1 := exists_list_transvec_mul_mul_list_transvec_eq_diagonal M
   obtain ⟨L, L', D, h⟩ := h1

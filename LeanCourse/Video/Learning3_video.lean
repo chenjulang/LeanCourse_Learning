@@ -93,7 +93,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     done
 
 
-
   lemma MainGoal_2 (M N : Matrix n n R):
   ∑ p : n → n,
     ∑ σ : Perm n,
@@ -236,6 +235,359 @@ def printPerms (n : ℕ) : List (List ℕ) :=
         rfl
       done
     done
+
+
+  lemma MainGoal_4 (M N : Matrix n n R):
+  ∑ τ : Perm n,
+    ∑ σ : Perm n,
+      (ε σ)
+      *
+      (∏ i,
+        M (σ i) (τ i) * N (τ i) i)
+  = ∑ σ : Perm n,
+      ∑ τ : Perm n,
+        (∏ i,
+           N (σ i) i)
+        *
+        (ε τ)
+        * ∏ j, M (τ j) (σ j)
+    := by
+    simp only [mul_comm]
+    simp only [mul_left_comm]
+    simp only [prod_mul_distrib] --  1个连乘变成2个连乘相关的定理
+    simp only [mul_assoc]
+    done
+
+-- ///
+
+      def hhh3_h4 (M N : Matrix n n R) (h5: Perm n) (h1: Perm n)
+      : --映射间组合的一个定理
+      ∏ j,
+         M (h5 j) (h1 j) =
+      ∏ j,
+        M ((h5 * h1⁻¹) j) j -- perm n之间的乘法是什么结果呢？还是perm n
+        := by
+        rw [← (h1⁻¹ : _ ≃ _).prod_comp] -- 两个函数的连乘的结果一样的相关证明（感性理解：置换后反正都要遍历的对吧，连乘应该都一样的哦）
+        simp only [Equiv.Perm.coe_mul]
+        simp only [apply_inv_self]
+        simp only [Function.comp_apply]
+        done
+
+      def h6  (h5: Perm n) (h1: Perm n)
+      : (ε h1) * (ε (h5 * h1⁻¹))  -- [1,2,3] => [3,1,2]
+      = (ε h5) -- 转置的符号相关的定理
+        :=
+        calc
+          (ε h1) * ε (h5 * h1⁻¹)
+          = ε (h5 * h1⁻¹ * h1)
+            := by
+            rw [mul_comm, sign_mul (h5 * h1⁻¹)] --???sign_mul
+            -- simp only [_root_.map_mul]
+            simp only [sign_mul]
+            simp only [map_inv]--???map_inv这个证明可以细讲
+            simp only [Int.units_inv_eq_self] -- 1或-1的倒数还是自己
+            simp only [Units.val_mul] --明明一看就知道相等的。。。
+            simp only [Int.cast_mul]
+          _ = ε h5
+            := by
+            simp only [inv_mul_cancel_right]
+
+  lemma MainGoal_5 (M N : Matrix n n R):
+  ∑ σ : Perm n,
+    ∑ τ : Perm n,
+      (∏ i, N (σ i) i)
+      *
+      (ε τ)
+      *
+      ∏ j, M (τ j) (σ j)
+  =
+  ∑ σ : Perm n,
+    ∑ τ : Perm n,
+      (∏ i, N (σ i) i)
+      *
+      (ε σ * ε τ)
+      *
+      ∏ i,
+        M (τ i) i
+    := by
+    refine' sum_congr _ _ --定义域一样，定义域内f和g的映射值一样，则两个求和结果一样
+    · rfl
+    · intros h1 h2
+      refine' Fintype.sum_equiv _ _ _ _ --两个不同函数求和的结果一样的相关证明
+      · exact Equiv.mulRight h1⁻¹ -- 将映射1变成映射2的一个映射，具体作用是右乘，这是一步需要后面依赖的证明，所以不能随意证明，通常都是第一步这样
+      -- [1,2,3] h1=> [3,2,1] h1⁻¹=> [1,2,3]
+      -- [1,2,3] h10=> [2,3,1] => [2,1,3]
+      -- h10 * h1⁻¹ (Perm n)
+      -- (? * h1⁻¹)
+      · intros h5 --其实infoview里面的 ?1:?2 这样的写法，?1就是一个随机的属于?2的对象或元素
+        simp_rw [Equiv.coe_mulRight]
+        simp_rw [(h6 h5 h1)]
+        simp only [(hhh3_h4 M N h5 h1)]
+    done
+
+
+-- //
+
+
+        def MainGoal_6_1_1_1 (M: Matrix n n R)
+          := (det_apply' M)
+
+        def MainGoal_6_1_1_2 (M: Matrix n n R):
+        ∑ x : Perm n, (ε x) * ∏ x_1 : n, M (x x_1) x_1
+        = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x) -- 这明明就是一个交换律能完成的，偏要congr一下拆开。。。
+          := by
+          refine' sum_congr _ _
+          · exact (Eq.refl univ)
+          · intros h212x h212a
+            have h2_1_2_1
+              : (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1 = (ε h212x) * ∏ x_1 : n, M (h212x x_1) x_1
+              := by
+              exact rfl --竟然直接搞定了
+            have h2_1_2_2 := mul_comm (ε h212x) (∏ x_1 : n, M (h212x x_1) x_1)
+            have h2_1_2_3 := h2_1_2_1.trans h2_1_2_2
+            exact h2_1_2_3
+
+      def MainGoal_6_1_1 (M N : Matrix n n R):
+      det M = ∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x)
+        := by
+        exact (MainGoal_6_1_1_1 M).trans (MainGoal_6_1_1_2 M) -- .trans就是等号传递
+
+        def h2_2_1(N : Matrix n n R):= det_apply' N
+
+        def h2_2_2(N : Matrix n n R):  ∑ x : Perm n, (ε x) * ∏ x_1 : n, N (x x_1) x_1
+        = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x) -- 又是一个内部交换就好了
+            := by
+            refine' sum_congr _ _
+            · exact Eq.refl univ
+            · intros h222x h222a
+              have h2_2_2_1 : (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1 = (ε h222x) * ∏ x_1 : n, N (h222x x_1) x_1
+                := by
+                rfl
+              have h2_2_2_2:= (mul_comm ((ε h222x)) (∏ x_1 : n, N (h222x x_1) x_1))
+              have h2_2_2_3:= h2_2_2_1.trans h2_2_2_2
+              exact h2_2_2_3
+
+      def MainGoal_6_1_2 (N : Matrix n n R): det N = ∑ x : Perm n, (∏ x_1 : n, N (x x_1) x_1) * (ε x)
+        := by
+        exact (h2_2_1 N).trans (h2_2_2 N)
+
+    lemma MainGoal_6_1 (M N : Matrix n n R):
+    det M * det N
+    = ∑ x : Perm n,
+        (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
+        *
+        ((∏ x_1 : n, N (x x_1) x_1) * (ε x))
+      := by
+      have temp1:= (MainGoal_6_1_1 M N)
+      have temp2:= (MainGoal_6_1_2 N)
+      have h1 := congr (congrArg HMul.hMul temp1) (temp2) -- congr就是相同函数，相同参数，结果一样的意思；congrArg也是类似的意思
+      rw [h1]
+      exact mul_sum
+      -- exact h1.trans mul_sum
+
+    --//
+
+      def h3_3 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
+      : (∑ x : Perm n,
+          (∏ x_1 : n, M (x x_1) x_1)
+          *
+          (ε x)
+        )
+        *
+        (
+          (∏ x_1 : n, N (h3_1 x_1) x_1)
+        *
+          (ε h3_1)
+        )
+      = ∑ x : Perm n,
+          (∏ x_1 : n, N (h3_1 x_1) x_1)
+          *
+          (ε h3_1)
+          *
+          (
+            (∏ x_1 : n, M (x x_1) x_1)
+          *
+            (ε x)
+          )
+
+        := by
+        have h3_3_1 :
+        (∑ x : Perm n,
+          (∏ x_1 : n, M (x x_1) x_1)
+          *
+          (ε x)
+        )
+        *
+        (
+          (∏ x_1 : n, N (h3_1 x_1) x_1)
+          *
+          (ε h3_1)
+        )
+        =
+        (∏ x_1 : n, N (h3_1 x_1) x_1)
+        *
+        (ε h3_1)
+        *
+        ∑ x : Perm n,
+          (∏ x_1 : n, M (x x_1) x_1)
+          *
+          (ε x)
+        := by
+          have h3_3_1_1 := mul_comm
+            (∑ x : Perm n, (∏ x_1 : n, M (x x_1) x_1) * (ε x))
+            ((∏ x_1 : n, N (h3_1 x_1) x_1) * (ε h3_1))
+          exact h3_3_1_1
+        have h3_3_2:= h3_3_1.trans mul_sum
+        exact h3_3_2
+
+      def h3_4 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
+      :
+      ∑ x_1 : Perm n,
+        (∏ x_2 : n, N (h3_1 x_2) x_2)
+        *
+        (ε h3_1)
+        *
+        (
+          (∏ x : n, M (x_1 x) x)
+        *
+          (ε x_1)
+        )
+      =
+      ∑ x_1 : Perm n,
+        (∏ x_2 : n, N (h3_1 x_2) x_2)
+        *
+        (
+          (∏ x : n, M (x_1 x) x)
+        *
+          ((ε h3_1) * (ε x_1))
+        ) -- 又是交换就可以了。。。
+        := by
+        refine' sum_congr _ _
+        · exact (Eq.refl univ)
+        · intros h34x_1 h34a
+          have h3_4_1 : (∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1) * ((∏ x : n, M (h34x_1 x) x) * (ε h34x_1))
+          = (∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+            := ((mul_left_comm ((∏ x_2 : n, N (h3_1 x_2) x_2) * (ε h3_1)) (∏ x : n, M (h34x_1 x) x)
+                      (ε h34x_1)).trans
+                  (congrArg (HMul.hMul (∏ x : n, M (h34x_1 x) x))
+                    (mul_assoc (∏ x_2 : n, N (h3_1 x_2) x_2) (ε h3_1) (ε h34x_1))))
+          have h3_4_2 :  (∏ x : n, M (h34x_1 x) x) * ((∏ x_2 : n, N (h3_1 x_2) x_2) * ((ε h3_1) * (ε h34x_1)))
+          =(∏ x_2 : n, N (h3_1 x_2) x_2) * ((∏ x : n, M (h34x_1 x) x) * ((ε h3_1) * (ε h34x_1)))
+            := (mul_left_comm (∏ x : n, M (h34x_1 x) x) (∏ x_2 : n, N (h3_1 x_2) x_2)
+                ((ε h3_1) * (ε h34x_1)))
+          have h3_4_3:= h3_4_1.trans h3_4_2
+          exact h3_4_3
+
+    lemma MainGoal_6_2 (M N : Matrix n n R)
+    :
+    ∑ x : Perm n,
+      (∑ x : Perm n,
+        (∏ x_1 : n, M (x x_1) x_1)
+        *
+        (ε x)
+      )
+    *
+    (
+      (∏ x_1 : n, N (x x_1) x_1)
+    *
+      (ε x)
+    )
+    =
+    ∑ x : Perm n,
+      ∑ x_1 : Perm n,
+        (∏ x_2 : n, N (x x_2) x_2)
+        *
+        (
+          (∏ x : n,M (x_1 x) x)
+        *
+          ((ε x) * (ε x_1))
+        )
+      := by
+      have h2 := MainGoal_6_1 M N
+      refine' sum_congr _ _
+      · exact (Eq.refl univ)
+      · intros h3_1 h3_2
+        have h3_5:= (h3_3 M N h3_1 h3_2).trans (h3_4 M N h3_1 h3_2)
+        exact h3_5
+
+    --//
+
+    def MainGoal_6_3 (M N : Matrix n n R):= (MainGoal_6_1 M N).trans (MainGoal_6_2 M N)
+
+  lemma MainGoal_6 (M N : Matrix n n R):
+  ∑ σ : Perm n,
+    ∑ τ : Perm n,
+      (∏ i, N (σ i) i)
+      *
+      (ε σ * ε τ)
+      *
+      (∏ i, M (τ i) i)
+  = det M * det N
+    := by
+    have h4:= MainGoal_6_3 M N
+    simp only [h4]
+    congr -- 去掉两边套在最外的，恰好是相同的函数
+    funext xx1
+    congr
+    funext xx2
+    rw [mul_right_comm]
+    repeat rw [← mul_assoc]
+    done
+
+
+
+
+   -- @[simp]
+  theorem MainGoal (M N : Matrix n n R)
+  : det (M * N) = det M * det N
+  := by
+    have h1 :det (M * N) = det M * det N :=
+      calc
+          det (M * N)
+          = ∑ p : n → n, ∑ σ : Perm n, ε σ * ∏ i, M (σ i) (p i) * N (p i) i --第1个变式
+            := by
+            exact MainGoal_1 M N
+          _ = ∑ p in (@univ (n → n) _).filter Bijective,--第2个变式
+                ∑ σ : Perm n,
+                  ε σ
+                  *
+                  (∏ i, M (σ i) (p i) * N (p i) i)
+            := by
+            exact MainGoal_2 M N
+          _ = ∑ τ : Perm n, --第3个变式
+                ∑ σ : Perm n,
+                  (ε σ)
+                  *
+                  (∏ i,
+                    M (σ i) (τ i) * N (τ i) i)
+            := by
+            exact MainGoal_3 M N
+          _ = ∑ σ : Perm n,--第4个变式
+                ∑ τ : Perm n,
+                  (∏ i, N (σ i) i)
+                  *
+                  ε τ
+                  *
+                  ∏ j, M (τ j) (σ j)
+            := by
+            exact MainGoal_4 M N
+          _ = ∑ σ : Perm n, --第5个变式
+                ∑ τ : Perm n,
+                  (∏ i, N (σ i) i)
+                  *
+                  (ε σ * ε τ)
+                  *
+                  ∏ i,
+                    M (τ i) i
+            := by
+            exact MainGoal_5 M N
+          _ = det M * det N --第6个变式
+            := by
+            -- simp only [det_apply', Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] --这里无法分步，所以直接分析print来写成下面这样子：
+            exact MainGoal_6 M N
+    exact h1
+    done
+
 
 
 end Matrix
