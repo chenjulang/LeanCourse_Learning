@@ -40,7 +40,8 @@ termination_by
 
 
 
-/-- Creates a list made of every odd element of given list, starting with its head.  -/
+/-- Creates a list made of every odd element of given list, starting with its head.
+只保留列表中的奇数位置的元素-/
 def eo : List α → List α
 | [ ]         => [ ]
 | [ a ]       => [ a ]
@@ -58,13 +59,13 @@ lemma length_eo_cons (a : α) (s : List α) :
   (eo s).length ≤ (eo (a :: s)).length
   ∧
   (eo (a :: s)).length ≤ (eo s).length.succ
-:= by --todo
+:= by
   induction s with
   | nil => simp [eo]
-  | cons d l ih =>
-    cases l with
+  | cons d l ih => -- 对于长度为l的都成立，推l+1的也成立
+    cases l with -- 分类讨论l，l长度为0，l长度大于0
     | nil => simp [eo, ih]
-    | cons d' l' =>
+    | cons d' l' => -- 当l大于0，又可以由d'和l'来组成
       simp [eo] at ih ⊢
       constructor
       · exact ih.right
@@ -72,8 +73,8 @@ lemma length_eo_cons (a : α) (s : List α) :
         exact ih.left
 
 lemma length_eo2_lt (a b : α) (s : List α) :
-  (eo (a :: b :: s)).length < s.length.succ.succ :=
-by
+  (eo (a :: b :: s)).length < s.length.succ.succ
+:= by
   induction s with
   | nil => simp [eo]
   | cons d l ih =>
@@ -97,24 +98,40 @@ by
 
 -- ### The algorithm
 
-def mergesort : List α → List α
+def mergesort : List α → List α --todo
 | [ ]         => [ ]
 | [ a ]       => [ a ]
 | a :: b :: s => merge (mergesort (eo (a :: b :: s))) (mergesort (eo (b :: s)))
 -- the compiler needs the following hints
-termination_by mergesort l => l.length
-decreasing_by
+termination_by mergesort l => l.length -- 判断会终止的条件
+decreasing_by -- 会终止的原因
   simp_wf
   simp [length_eo1_lt, length_eo2_lt]
 
+-- 如何理解这一步：a :: b :: s =>
+-- 如何理解，为什么需要：termination_by
+-- 如何理解，为什么需要：decreasing_by
+-- 例子：[3,2,1]
+-- a=3 :: b=2 :: s={1}
+-- merge (mergesort (eo (a=3 :: b=2 :: s={1}))) (mergesort (eo (b=2 :: s={1})))
+  -- 其中 eo (a=3 :: b=2 :: s={1})结果是{3,1} //
+  -- 其中mergesort (eo (a=3 :: b=2 :: s={1}))结果是 merge (mergesort ({3,1})) (mergesort ({2}))),
+    -- 其中mergesort ({3,1}) = merge (mergesort (eo (a :: b :: s))) (mergesort (eo (b :: s)))，此处a=3,b=1，s={nil}, 也就是 merge {3} {1}={1,3}
+-- 所以merge (mergesort ({3,1})) (mergesort ({2}))) = merge {1,3} {2} = 此处a=1,b=2,x={3},y={nil}, 所以结果是{a :: merge {3} {2}}= {1,2,3}
+
 -- ### A unit test (just for fun) and a definition of the property "is sorted" (crucial later on)
+--  merge (mergesort (eo (a :: b :: s))) (mergesort (eo (b :: s))) 其中a=3 :: b=2 :: s={1}
+#eval mergesort [3,1] -- [1,3]
+#eval mergesort [2] -- [2]
+#eval merge [1,3] [2] -- [1,2,3]
+
 
 #eval mergesort [3, 5, 7, 1, 9, 5, 0, 2, 4, 6, 8]  -- 0..9 with 5 twice
 
 def Sorted : List α → Prop
 | [ ]         => True
 | [ _ ]       => True
-| a :: b :: s => a ≤ b ∧ Sorted (b :: s)
+| a :: b :: s => a ≤ b ∧ Sorted (b :: s) -- 递归的判断排序性
 
 end decidrelle
 
@@ -148,10 +165,12 @@ lemma sorted_of_sorted_cons {a : α} {s : List α} (has : Sorted (a :: s)) :
   Sorted s :=
 by
   cases s with
-  | nil => trivial
-  | cons => exact has.right
+  | nil => trivial -- 简单的策略
+  | cons => exact has.right -- 还能这样取right的吗？
 
-lemma sorted_of_sorted_append {x y : List α} (hxy : Sorted (x ++ y)) :
+
+-- #eval [1,2,3] ++ [4,5,6] -- [1, 2, 3, 4, 5, 6]
+lemma sorted_of_sorted_append {x y : List α} (hxy : Sorted (x ++ y)) : -- 这个感觉stronger than the last one
   Sorted x :=
 by
   induction x with
@@ -163,19 +182,23 @@ by
       unfold Sorted at hxy
       constructor
       · exact hxy.left
-      · apply ih
-        exact hxy.right
+      · apply ih --反推
+        exact hxy.right -- 还能这样用d :: (a :: s ++ y)
 
-lemma consecutive_le_of_sorted {l : List α} (hl : Sorted l)
-    {n : ℕ} (hnl : n < l.length) (hnsl : n.succ < l.length) :
-  l.get ⟨n, hnl⟩ ≤ l.get ⟨n.succ, hnsl⟩ :=
-by
-  revert n
+lemma consecutive_le_of_sorted
+{l : List α}
+(hl : Sorted l)
+{n : ℕ}
+(hnl : n < l.length)
+(hnsl : n.succ < l.length) :
+  l.get ⟨n, hnl⟩ ≤ l.get ⟨n.succ, hnsl⟩
+:= by
+  revert n -- intro的逆操作
   induction l with
   | nil =>
     intro n impos
     exfalso
-    simp at impos
+    simp at impos -- 空数组的长度是0，n不可能是负数
   | cons a l' ih =>
     cases l' with
     | nil =>
@@ -188,12 +211,12 @@ by
       cases n with
       | zero => convert hl.left
       | succ m =>
-        simp only [List.get_cons_succ]
+        simp only [List.get_cons_succ] --该定理的目标是证明 (a :: as) 中索引为 i + 1 的元素与列表 as 中索引为 i 的元素相等
         apply ih hl.right
         simp only [List.length_cons] at hnsl ⊢
         exact Nat.lt_of_succ_lt_succ hnsl
 
-lemma dropWhile_head_false {l : List α} {P : α → Bool} (hlP : l.dropWhile P ≠ []) :
+lemma dropWhile_head_false {l : List α} {P : α → Bool} (hlP : l.dropWhile P ≠ []) : --todo
   P ((l.dropWhile P).head hlP) = false :=
 by
   induction l with
