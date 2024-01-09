@@ -228,7 +228,7 @@ lemma dropWhile_head_false {l : List α} {P : α → Bool}
   | nil => simp at hlP
   | cons a => by_cases P a <;> simp_all [List.dropWhile]
 
-lemma weaken_sorted_merge --todo
+lemma weaken_sorted_merge
 {x s : List α}
 {a b : α}
 (hab : a ≤ b)
@@ -412,7 +412,7 @@ lemma weaken_sorted_merge --todo
           apply consecutive_le_of_sorted
           exact sorted_of_sorted_append hx
         · exact ih
-  specialize main_indu x₀.length (by rfl)
+  specialize main_indu x₀.length (by rfl) --???
   rw [Nat.sub_self, List.drop_zero] at main_indu
   exact main_indu
 
@@ -483,7 +483,7 @@ by
               · exact sure
               · exact ih sure
 
-lemma mergesort_sorts {n : ℕ} {x : List α} (hnxl : x.length ≤ n) :
+lemma mergesort_sorts {n : ℕ} {x : List α} (hnxl : x.length ≤ n) : -- 这个就是本次的最终目标，归并排序结果是有序的
   Sorted (mergesort x) :=
 by
   revert x
@@ -523,7 +523,7 @@ where `~` is a binary relation defined by the following four rules.
 • if `x`, `y`, `z` are lists such that `x ~ y` and `y ~ z` then we have: `x ~ z`
 -/
 
-lemma merge_permutes (x y : List α) :
+lemma merge_permutes (x y : List α) : --???
   merge x y ~ x ++ y :=
 by
   revert y
