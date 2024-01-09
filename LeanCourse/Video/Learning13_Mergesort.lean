@@ -216,17 +216,26 @@ lemma consecutive_le_of_sorted
         simp only [List.length_cons] at hnsl ⊢
         exact Nat.lt_of_succ_lt_succ hnsl
 
-lemma dropWhile_head_false {l : List α} {P : α → Bool} (hlP : l.dropWhile P ≠ []) : --todo
-  P ((l.dropWhile P).head hlP) = false :=
-by
+-- dropWhile p l从列表中删除元素，直到找到第一个元素 为此p返回假；该元素及其返回后的所有内容。
+  -- 例子：dropWhile (· < 4) [1, 3, 2, 4, 2, 7, 4] = [4, 2, 7, 4]
+lemma dropWhile_head_false {l : List α} {P : α → Bool}
+(hlP : l.dropWhile P ≠ []) :
+-- (l.dropWhile P).head hlP 表示对列表 l 进行 dropWhile 操作后的结果列表的头部元素。
+-- 这里的 hlP 是一个附加的证明，它保证 l.dropWhile P 不是空列表，即 l.dropWhile P ≠ []
+  P ((l.dropWhile P).head hlP) = false
+  := by
   induction l with
   | nil => simp at hlP
   | cons a => by_cases P a <;> simp_all [List.dropWhile]
 
-lemma weaken_sorted_merge {x s : List α} {a b : α} (hab : a ≤ b)
-    (hx : Sorted x) (hxabs : Sorted (merge x (a :: b :: s))) :
-  Sorted (merge x (b :: s)) :=
-by
+lemma weaken_sorted_merge --todo
+{x s : List α}
+{a b : α}
+(hab : a ≤ b)
+(hx : Sorted x)
+(hxabs : Sorted (merge x (a :: b :: s))) :
+  Sorted (merge x (b :: s))
+  := by
   let x₀ := x.takeWhile (· ≤ a)
   let xₐ := x.dropWhile (· ≤ a)
   have parts : x₀ ++ xₐ = x
