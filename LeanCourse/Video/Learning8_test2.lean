@@ -82,7 +82,7 @@ variable {n p} [Fintype n] [Fintype p]
 
 theorem exists_isTwoBlockDiagonal_of_ne_zero2 (hM : M (inr unit) (inr unit) ≠ 0) : --???
     ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
-      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod)
+      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod) --二块对角矩阵
   := by
   let L : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜) :=
     List.ofFn fun i : Fin r =>
@@ -97,15 +97,16 @@ theorem exists_isTwoBlockDiagonal_of_ne_zero2 (hM : M (inr unit) (inr unit) ≠ 
   exact isTwoBlockDiagonal_listTransvecCol_mul_mul_listTransvecRow M hM
 
 
-
 theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Matrix p p 𝕜) --???
     (e : p ≃ n)
     (H :
       ∃ (L L' : List (TransvectionStruct n 𝕜)) (D : n → 𝕜),
         (L.map toMatrix).prod * Matrix.reindexAlgEquiv 𝕜 e M * (L'.map toMatrix).prod =
-          diagonal D) :
+          diagonal D
+    ) :
     ∃ (L L' : List (TransvectionStruct p 𝕜)) (D : p → 𝕜),
-      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D := by
+      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D
+  := by
   rcases H with ⟨L₀, L₀', D₀, h₀⟩
   refine' ⟨L₀.map (reindexEquiv e.symm), L₀'.map (reindexEquiv e.symm), D₀ ∘ e, _⟩
   have : M = reindexAlgEquiv 𝕜 e.symm (reindexAlgEquiv 𝕜 e M) := by
@@ -117,11 +118,11 @@ theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Mat
   simp only [Equiv.symm_symm, reindex_apply, submatrix_diagonal_equiv, reindexAlgEquiv_apply]
 
 
-
 theorem exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec2
     (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
     ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
-      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod) := by
+      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod)
+  := by
   by_cases H : IsTwoBlockDiagonal M
   · refine' ⟨List.nil, List.nil, by simpa using H⟩
   -- we have already proved this when the last coefficient is nonzero
@@ -162,10 +163,12 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
     (IH :
       ∀ M : Matrix (Fin r) (Fin r) 𝕜,
         ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜)) (D₀ : Fin r → 𝕜),
-          (L₀.map toMatrix).prod * M * (L₀'.map toMatrix).prod = diagonal D₀)
+          (L₀.map toMatrix).prod * M * (L₀'.map toMatrix).prod = diagonal D₀
+    )
     (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
     ∃ (L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜)) (D : Sum (Fin r) Unit → 𝕜),
-      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D := by
+      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D
+  := by
   rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec2 M with ⟨L₁, L₁', hM⟩
   let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod
   let M'' := toBlocks₁₁ M'
@@ -210,9 +213,6 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2 (n : Type) [
     apply
       exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 fun N =>
         IH (Fin r) N (by simp)
-
-
-
 
 
 theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Matrix n n 𝕜) : --???

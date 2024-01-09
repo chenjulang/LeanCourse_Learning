@@ -4,7 +4,8 @@
 -- 线性方程组可解的充分必要条件：
 theorem exists_mulVec_eq_zero_iff' {A : Type*} (K : Type*) [DecidableEq n] [CommRing A]
     [Nontrivial A] [Field K] [Algebra A K] [IsFractionRing A K] {M : Matrix n n A} :
-    (∃ (v : _) (_ : v ≠ 0), M.mulVec v = 0) ↔ M.det = 0 := by
+    (∃ (v : _) (_ : v ≠ 0), M.mulVec v = 0) ↔ M.det = 0
+    := by
   have : (∃ (v : _) (_ : v ≠ 0), mulVec ((algebraMap A K).mapMatrix M) v = 0) ↔ _ :=
     exists_mulVec_eq_zero_iff_aux
   rw [← RingHom.map_det, IsFractionRing.to_map_eq_zero_iff] at this
