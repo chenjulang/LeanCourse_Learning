@@ -1,7 +1,7 @@
 import Mathlib.LinearAlgebra.Matrix.Transvection
 -- 高斯：任意矩阵可化成对角形式 -- 线性方程组的人肉解
 
-
+open Nat
 
 --TransvectionStruct：是行变换的结构，保存了关键信息
 -- L.map：是 L.map f 即应用f到列表的每个元素，结果也是一个List。
@@ -83,13 +83,10 @@ variable {n p} [Fintype n] [Fintype p]
 -- 改成追查3层定理算了，时间不充裕。
 
 /-第3层引理 -------------------/
--- 可能真正能理解的精髓都在这里，一个递推有关的定理
--- Sum (Fin r) Unit是什么意思？是加一个位置的意思吗？
-theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
+theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
 (IH :
   ∀ M : Matrix (Fin r) (Fin r) 𝕜,
-    ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜))
-    (D₀ : Fin r → 𝕜),
+    ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜)) (D₀ : Fin r → 𝕜),
       (L₀.map toMatrix).prod * M * (L₀'.map toMatrix).prod
       = diagonal D₀
 )
@@ -100,16 +97,14 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
-  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩ --弱化的定理，先能变成块对角矩阵
-  let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod -- (r+1)*(r+1)
-  let M'' := toBlocks₁₁ M' -- 提取对应的 “左上角”子矩阵 r*r
-  rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩ -- IH和M''得到的结论拿到
-  set c := M' (inr unit) (inr unit) -- 1*1的矩阵，用0扩充，扩充成(r+1)*(r+1)矩阵
-  refine' -- 填充Goal的存在假设
-    ⟨L₀.map (sumInl Unit) ++ L₁,
-     L₁' ++ L₀'.map (sumInl Unit),
-    Sum.elim D₀ fun _ => M' (inr unit) (inr unit),
-      _⟩
+  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩
+  let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod
+  let M'' := toBlocks₁₁ M'
+  rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩
+  set c := M' (inr unit) (inr unit)
+  refine'
+    ⟨L₀.map (sumInl Unit) ++ L₁, L₁' ++ L₀'.map (sumInl Unit),
+      Sum.elim D₀ fun _ => M' (inr unit) (inr unit), _⟩
   suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod * M' * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
       diagonal (Sum.elim D₀ fun _ => c) by
     simpa [Matrix.mul_assoc]
@@ -156,7 +151,7 @@ theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2
 
 
 /-- 第2层引理 -------------------/
-theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2
+theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2 --???
 (n : Type)
 [Fintype n]
 [DecidableEq n]
@@ -170,32 +165,38 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2
   -- 下面这里对n的数量进行归纳，0-（n-1）
   -- 还有n数量为n₁时（记为r），成立假设即IH
   -- 要推r+1的情况也成立。
-  induction' hn : Fintype.card n with r IH generalizing n M
+  induction' n : Fintype.card n using twoStepInduction
   · refine' ⟨List.nil, List.nil, fun _ => 1, _⟩ --填充Goal里的存在假设
     ext i j
-    rw [Fintype.card_eq_zero_iff] at hn
-    exact hn.elim' i -- 这里用到了矛盾推一切
-    -- 已知p真，任意命题q，p∨q
-    -- 1.则：p∨q是真的。
-    -- 2. ∨的两边至少一个真的，命题才是真的
-    -- 3. 给到¬p, 则分析p∨q已知是真的，由2知p和q至少一个真的，但是¬p说的是p不是真的，所以只能是q是真的
-    -- 由此推出q是真的。
-    -- 但注意这是一个不一致的系统，有不满足“排中律”的两个命题存在，比如p和¬p
-  · have e : n ≃ Sum (Fin r) Unit := by -- n = r+1 所以，1-n 一一对应 0-（n-1）也就是0-r
-      refine' Fintype.equivOfCardEq _
-      rw [hn]
-      rw [@Fintype.card_sum (Fin r) Unit _ _]
-      simp
-    apply reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 M e
-    apply exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
-    intro N
-    apply IH
-    simp only [Fintype.card_fin]
-    done
-    -- exact IH (Fin r) N (by simp)
-    -- apply exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 fun N => --???
-    --     IH (Fin r) N (by simp)
-  done
+    rw [Fintype.card_eq_zero_iff] at n
+    exact n.elim' i -- ???这里用到了矛盾推一切
+  · set x1 := 0
+    refine' ⟨List.nil, List.nil, fun x => (M x1 x1), _⟩
+    ext i j
+
+  · sorry
+
+  -- induction' hn : Fintype.card n with r IH generalizing n M
+  -- · refine' ⟨List.nil, List.nil, fun _ => 1, _⟩ --填充Goal里的存在假设
+  --   ext i j
+  --   rw [Fintype.card_eq_zero_iff] at hn
+  --   exact hn.elim' i -- ???这里用到了矛盾推一切
+  --   -- 已知p真，任意命题q，p∨q
+  --   -- 1.则：p∨q是真的。
+  --   -- 2. ∨的两边至少一个真的，命题才是真的
+  --   -- 3. 给到¬p, 则分析p∨q已知是真的，由2知p和q至少一个真的，但是¬p说的是p不是真的，所以只能是q是真的
+  --   -- 由此推出q是真的。
+  --   -- 但注意这是一个不一致的系统，有不满足“排中律”的两个命题存在，比如p和¬p
+  -- · have e : n ≃ Sum (Fin r) Unit := by
+  --     refine' Fintype.equivOfCardEq _
+  --     rw [hn]
+  --     rw [@Fintype.card_sum (Fin r) Unit _ _]
+  --     simp
+  --   apply reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 M e
+  --   apply
+  --     exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 fun N =>
+  --       IH (Fin r) N (by simp)
+  -- done
 
 /-- 第1层引理 -------------------/
 theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal2
