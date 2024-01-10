@@ -118,13 +118,17 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
 
 
 /-- 第2层引理 -------------------/
-theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 --???
+theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2
 (M : Matrix p p 𝕜)
 (e : p ≃ n)
 (H :
   ∃ (L L' : List (TransvectionStruct n 𝕜))
   (D : n → 𝕜),
     (L.map toMatrix).prod * Matrix.reindexAlgEquiv 𝕜 e M * (L'.map toMatrix).prod
+-- Matrix.reindexAlgEquiv 重新建立索引,我理解是从1-n索引改成0-（n-1）这样子来取矩阵的值
+-- ，实际上矩阵本体没有变，类型变了，不影响理解：
+-- Matrix p p 𝕜 变成了：
+-- Matrix (Fin (Fintype.card n)) (Fin (Fintype.card n)) R
     = diagonal D
 )
 :
@@ -133,32 +137,45 @@ theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 --???
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
-  rcases H with ⟨L₀, L₀', D₀, h₀⟩
-  refine' ⟨L₀.map (reindexEquiv e.symm), L₀'.map (reindexEquiv e.symm), D₀ ∘ e, _⟩
-  have : M = reindexAlgEquiv 𝕜 e.symm (reindexAlgEquiv 𝕜 e M) := by
+  rcases H with ⟨L₀, L₀', D₀, h₀⟩ -- 获取已知假设
+  refine' ⟨L₀.map (reindexEquiv e.symm), L₀'.map (reindexEquiv e.symm), D₀ ∘ e, _⟩ -- 填充Goal里面的存在假设
+  -- 在我看来reindexEquiv e.symm没有变本体
+  have : M = reindexAlgEquiv 𝕜 e.symm (reindexAlgEquiv 𝕜 e M) := by --  两次重新建索引而已，变回自己
     simp only [Equiv.symm_symm, submatrix_submatrix, reindex_apply, submatrix_id_id,
-      Equiv.symm_comp_self, reindexAlgEquiv_apply]
+      Equiv.symm_comp_self, reindexAlgEquiv_apply]-- 但可能蕴藏别的意义，所以打个???
   rw [this]
-  simp only [toMatrix_reindexEquiv_prod, List.map_map, reindexAlgEquiv_apply]
-  simp only [← reindexAlgEquiv_apply, ← reindexAlgEquiv_mul, h₀]
-  simp only [Equiv.symm_symm, reindex_apply, submatrix_diagonal_equiv, reindexAlgEquiv_apply]
+  simp only [toMatrix_reindexEquiv_prod, List.map_map, reindexAlgEquiv_apply]-- 但可能蕴藏别的意义，所以打个??
+  simp only [← reindexAlgEquiv_apply, ← reindexAlgEquiv_mul, h₀]-- 但可能蕴藏别的意义，所以打个??
+  simp only [Equiv.symm_symm, reindex_apply, submatrix_diagonal_equiv, reindexAlgEquiv_apply]-- 但可能蕴藏别的意义，所以打个??
   done
 
 
 /-- 第2层引理 -------------------/
 theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2 --???
 (n : Type)
-[Fintype n] [DecidableEq n]
-(M : Matrix n n 𝕜) :
-∃ (L L' : List (TransvectionStruct n 𝕜)) (D : n → 𝕜),
+[Fintype n]
+[DecidableEq n]
+(M : Matrix n n 𝕜)
+:
+∃ (L L' : List (TransvectionStruct n 𝕜))
+(D : n → 𝕜),
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
+  -- 下面这里对n的数量进行归纳，0-（n-1）
+  -- 还有n数量为n₁时（记为r），成立假设即IH
+  -- 要推r+1的情况也成立。
   induction' hn : Fintype.card n with r IH generalizing n M
-  · refine' ⟨List.nil, List.nil, fun _ => 1, _⟩
+  · refine' ⟨List.nil, List.nil, fun _ => 1, _⟩ --填充Goal里的存在假设
     ext i j
     rw [Fintype.card_eq_zero_iff] at hn
-    exact hn.elim' i
+    exact hn.elim' i -- ???这里用到了矛盾推一切
+    -- 已知p真，任意命题q，p∨q
+    -- 1.则：p∨q是真的。
+    -- 2. ∨的两边至少一个真的，命题才是真的
+    -- 3. 给到¬p, 则分析p∨q已知是真的，由2知p和q至少一个真的，但是¬p说的是p不是真的，所以只能是q是真的
+    -- 由此推出q是真的。
+    -- 但注意这是一个不一致的系统，有不满足“排中律”的两个命题存在，比如p和¬p
   · have e : n ≃ Sum (Fin r) Unit := by
       refine' Fintype.equivOfCardEq _
       rw [hn]
