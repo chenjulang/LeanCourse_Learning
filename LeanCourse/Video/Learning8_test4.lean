@@ -100,7 +100,7 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
-  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩ --弱化的定理，先能变成块对角矩阵
+  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩ --???弱化的定理，先能变成块对角矩阵
   let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod -- (r+1)*(r+1)
   let M'' := toBlocks₁₁ M' -- 提取对应的 “左上角”子矩阵 r*r
   rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩ -- IH和M''得到的结论拿到
@@ -110,7 +110,9 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
      L₁' ++ L₀'.map (sumInl Unit),
     Sum.elim D₀ fun _ => M' (inr unit) (inr unit),
       _⟩
-  suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod * M' * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
+  suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod
+  * M'
+  * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
       diagonal (Sum.elim D₀ fun _ => c) by
     simpa [Matrix.mul_assoc]
   have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) := by
