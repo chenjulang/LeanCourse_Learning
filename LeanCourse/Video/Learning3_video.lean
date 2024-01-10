@@ -70,10 +70,8 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- 接受1个参数，参数一：t 是一个从集合到有限集合的映射。
     -- 结果是一个笛卡尔积
     -- ∏ a : α, ∑ b in t a, f a b = ∑ p in Fintype.piFinset t, ∏ x : α, f x (p x)
-
     -- ∏ x_1 : n, ∑ j : n, M (↑x x_1) j * N j x_1
     -- = ∑ p in Fintype.piFinset fun a ↦ univ, ∏ x_1 : n, M (↑x x_1) (p x_1) * N (p x_1) x_1
-
     -- 实际上就是：
     -- 比如n=2
     -- α = {1, 2}
@@ -91,9 +89,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- + M (↑x 1) (1) * N (1) 1  *  M (↑x 2) (2) * N (2) 2  //a=(1, 2) b=1，2
     -- + M (↑x 1) (2) * N (2) 1  *  M (↑x 2) (1) * N (1) 2  //a=(2, 1) b=1，2
     -- + M (↑x 1) (2) * N (2) 1  *  M (↑x 2) (2) * N (2) 2 //a=(2, 2) b=1，2
-
-
-
     -- 假设 t 是一个从集合 {1, 2} 到有限集合的映射，其中 t(1) = {a, b}，t(2) = {x, y}。
         -- 那么 Fintype.piFinset t 就表示集合 {(a, x), (a, y), (b, x), (b, y)}，即这两个集合t(1)和t(2)的笛卡尔积。
     -- 举例说明prod_univ_sum
@@ -113,7 +108,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- + f(1, b) * f(2, x)
     -- + f(1, b) * f(2, y)
     -- = A1 * A3 + A1 * A4 + A2 * A3 + A2 * A4
-
 -- 因此，根据 Finset.prod_univ_sum 定理，左侧和右侧的值相等，都等于25。
     simp only [mul_sum]
     simp only [Fintype.piFinset_univ]
@@ -124,14 +118,13 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- 对于任意个映射f : n → n
       -- 1  => ? 1/2
       -- 2  => ? 1/2
-
       -- 1  => 2
       -- 2  => 1
       -- 写成（2，1），
         -- （1，1），（1，2）， （2，2）
       -- 实际上就是n={1,2} 分别映射到→ n={2,1}
     -- 笛卡尔积是什么呢(1,1) (1,2) (2,1) (2,2)
-    /-----/
+    -- //
     -- 再举例说明n=3,  t(1)={1,2,3}, t(2)={1,2,3}， t(3)={1,2,3}
     -- n={1,2,3} → n={1,2,3}
     -- 对于某个映射f : n → n
@@ -140,8 +133,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       -- 3  => ? 1/2/3
        -- 写成（2，1，3）......
     -- 笛卡尔积是什么呢（1，3，2），（2，1，3）
-
-
     rw [Finset.sum_comm]
     done
 
@@ -165,16 +156,35 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     · intro h1 h2
       exact mem_univ h1
     · intros h3 h4 h5
-      apply det_mul_aux -- ???这个先不理解，后面专门出一个视频来教如何读证明并且分解证明成策略模式。
+      apply det_mul_aux -- ???这个先感性理解。
+      --  ∑ σ : Perm n, ↑↑(↑sign σ) * ∏ x : n, M (↑σ x) (p x) * N (p x) x = 0
         -- 一个先连乘，再连加的东西，结果是0，关键是非双射导致的，有点意思
-        -- 举个例子，p=[1,1],Perm 2只有两个变换：1.恒等变换，简称id；2.换位变换，简称swap
+        -- 举个例子n=2，p不是双射，举例p=(1,1),Perm 2只有两个变换：
+        -- 1.恒等变换，简称id=σ=(1,2)；2.换位变换，简称swap=σ=(2,1)
         -- ε id * (M (id 1)(p 1) * N (p 1)1) * (M (id 2)(p 2) * N (p 2)2)
         -- = 1 * (M 1 1 * N 1 1) * (M 2 1 * N 1 2)
         -- = M 1 1 * N 1 1 * M 2 1 * N 1 2
-
+        -- 第二个是
         -- ε swap * (M (swap 1)(p 1) * N (p 1)1) * (M (swap 2)(p 2) * N (p 2)2)
-        -- = -1 * (M 2 1 * N 1 2) * (M 1 1 * N 1 1)
+        -- = -1 * (M 2 1 * N 1 1) * (M 1 1 * N 1 2)
         -- = -M 2 1 * N 1 2 * M 1 1 * N 1 1
+        -- //
+        -- 举个例子n=3
+        -- p不是双射的n→n，举例p=(1,1,2)
+        -- 比如任意取一个σ:Perm 3 一一对应的n→n映射，σ=(1,3,2)
+        -- ↑↑(↑sign σ) * ∏ x : n, M (↑σ x) (p x) * N (p x) x
+        -- = (-1)^1 * (M1(1)*N(1)(1) * M3(1)*N(1)(2) * M2(2)*N(2)(3))
+        -- σ=(?=3,?=1,2)
+        -- = (-1)^2 * (M3(1)*N(1)(1) * M1(1)*N(1)(2) * M2(2)*N(2)(3)) -- M2(2)*N(2)(3)这一项就找到了对应的相反数项
+        -- 再举个例子，要找 M3(1)*N(1)(2)的相反项
+        -- σ=(?=2,?=3,?=1) 1.中间必须填3；2.构造相反的符号1，2填进去必然有正负可选；
+        -- = (-1)^2 * (M2(1)*N(1)(1) * M3(1)*N(1)(2) * M1(2)*N(2)(3)) -- 这就找到了抵消项
+        -- 实际上最简单操作是，原来的事1，3，2所以只需要固定3，即 1，3，2，将1和2交换就得到了一个相反数项
+        -- 任意长度的情况，对于 n1,n2,n3,m,n4,n5,n6 , 固定m后，交换任意一对都能得到一对正负项，可知共有6*5/2=15对，即该正项会出现15次，被抵消15次。
+
+
+
+
       simp only [mem_filter] at h5 -- 就是filter的定义呗，是属于某个集合里面的，而且满足条件1
       simp only [mem_univ] at h5
       simp only [true_and_iff] at h5
@@ -379,8 +389,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     done
 
 
--- //
-
 
         def MainGoal_6_1_1_1 (M: Matrix n n R)
           := (det_apply' M)
@@ -437,8 +445,7 @@ def printPerms (n : ℕ) : List (List ℕ) :=
       rw [h1]
       exact mul_sum
       -- exact h1.trans mul_sum
-
-    --//
+    --
 
       def h3_3 (M N : Matrix n n R) (h3_1: Perm n) (h3_2: h3_1 ∈ univ)
       : (∑ x : Perm n,
@@ -563,7 +570,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
         have h3_5:= (h3_3 M N h3_1 h3_2).trans (h3_4 M N h3_1 h3_2)
         exact h3_5
 
-    --//
 
     def MainGoal_6_3 (M N : Matrix n n R):= (MainGoal_6_1 M N).trans (MainGoal_6_2 M N)
 
