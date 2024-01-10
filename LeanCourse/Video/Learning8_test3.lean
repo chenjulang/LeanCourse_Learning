@@ -80,24 +80,98 @@ variable {n p} [Fintype n] [Fintype p]
 
 -- 改成追查3层定理算了，时间不充裕。
 
+-- /-- 第5层引理 -------------------/
+-- theorem exists_isTwoBlockDiagonal_of_ne_zero2 (hM : M (inr unit) (inr unit) ≠ 0) : --???
+--     ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
+--       IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod) --二块对角矩阵
+--   := by
+--   let L : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜) :=
+--     List.ofFn fun i : Fin r =>
+--       ⟨inl i, inr unit, by simp, -M (inl i) (inr unit) / M (inr unit) (inr unit)⟩
+--   let L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜) :=
+--     List.ofFn fun i : Fin r =>
+--       ⟨inr unit, inl i, by simp, -M (inr unit) (inl i) / M (inr unit) (inr unit)⟩
+--   refine' ⟨L, L', _⟩
+--   have A : L.map toMatrix = listTransvecCol M := by simp [listTransvecCol, (· ∘ ·)]
+--   have B : L'.map toMatrix = listTransvecRow M := by simp [listTransvecRow, (· ∘ ·)]
+--   rw [A, B]
+--   exact isTwoBlockDiagonal_listTransvecCol_mul_mul_listTransvecRow M hM
 
-theorem exists_isTwoBlockDiagonal_of_ne_zero2 (hM : M (inr unit) (inr unit) ≠ 0) : --???
-    ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
-      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod) --二块对角矩阵
+
+-- /-- 第4层引理 -------------------/
+-- theorem exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec2
+--     (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
+--     ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
+--       IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod)
+--   := by
+--   by_cases H : IsTwoBlockDiagonal M
+--   · refine' ⟨List.nil, List.nil, by simpa using H⟩
+--   -- we have already proved this when the last coefficient is nonzero
+--   by_cases hM : M (inr unit) (inr unit) ≠ 0
+--   · exact exists_isTwoBlockDiagonal_of_ne_zero2 M hM
+--   -- when the last coefficient is zero but there is a nonzero coefficient on the last row or the
+--   -- last column, we will first put this nonzero coefficient in last position, and then argue as
+--   -- above.
+--   push_neg at hM
+--   simp only [not_and_or, IsTwoBlockDiagonal, toBlocks₁₂, toBlocks₂₁, ← Matrix.ext_iff] at H
+--   have : ∃ i : Fin r, M (inl i) (inr unit) ≠ 0 ∨ M (inr unit) (inl i) ≠ 0 := by
+--     cases' H with H H
+--     · contrapose! H
+--       rintro i ⟨⟩
+--       exact (H i).1
+--     · contrapose! H
+--       rintro ⟨⟩ j
+--       exact (H j).2
+--   rcases this with ⟨i, h | h⟩
+--   · let M' := transvection (inr Unit.unit) (inl i) 1 * M
+--     have hM' : M' (inr unit) (inr unit) ≠ 0 := by simpa [hM]
+--     rcases exists_isTwoBlockDiagonal_of_ne_zero2 M' hM' with ⟨L, L', hLL'⟩
+--     rw [Matrix.mul_assoc] at hLL'
+--     refine' ⟨L ++ [⟨inr unit, inl i, by simp, 1⟩], L', _⟩
+--     simp only [List.map_append, List.prod_append, Matrix.mul_one, toMatrix_mk, List.prod_cons,
+--       List.prod_nil, List.map, Matrix.mul_assoc (L.map toMatrix).prod]
+--     exact hLL'
+--   · let M' := M * transvection (inl i) (inr unit) 1
+--     have hM' : M' (inr unit) (inr unit) ≠ 0 := by simpa [hM]
+--     rcases exists_isTwoBlockDiagonal_of_ne_zero2 M' hM' with ⟨L, L', hLL'⟩
+--     refine' ⟨L, ⟨inl i, inr unit, by simp, 1⟩::L', _⟩
+--     simp only [← Matrix.mul_assoc, toMatrix_mk, List.prod_cons, List.map]
+--     rw [Matrix.mul_assoc (L.map toMatrix).prod]
+--     exact hLL'
+
+
+
+/-第3层引理 -------------------/
+theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
+    (IH :
+      ∀ M : Matrix (Fin r) (Fin r) 𝕜,
+        ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜)) (D₀ : Fin r → 𝕜),
+          (L₀.map toMatrix).prod * M * (L₀'.map toMatrix).prod = diagonal D₀
+    )
+    (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
+    ∃ (L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜)) (D : Sum (Fin r) Unit → 𝕜),
+      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D
   := by
-  let L : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜) :=
-    List.ofFn fun i : Fin r =>
-      ⟨inl i, inr unit, by simp, -M (inl i) (inr unit) / M (inr unit) (inr unit)⟩
-  let L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜) :=
-    List.ofFn fun i : Fin r =>
-      ⟨inr unit, inl i, by simp, -M (inr unit) (inl i) / M (inr unit) (inr unit)⟩
-  refine' ⟨L, L', _⟩
-  have A : L.map toMatrix = listTransvecCol M := by simp [listTransvecCol, (· ∘ ·)]
-  have B : L'.map toMatrix = listTransvecRow M := by simp [listTransvecRow, (· ∘ ·)]
-  rw [A, B]
-  exact isTwoBlockDiagonal_listTransvecCol_mul_mul_listTransvecRow M hM
+  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩
+  let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod
+  let M'' := toBlocks₁₁ M'
+  rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩
+  set c := M' (inr unit) (inr unit)
+  refine'
+    ⟨L₀.map (sumInl Unit) ++ L₁, L₁' ++ L₀'.map (sumInl Unit),
+      Sum.elim D₀ fun _ => M' (inr unit) (inr unit), _⟩
+  suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod * M' * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
+      diagonal (Sum.elim D₀ fun _ => c) by
+    simpa [Matrix.mul_assoc]
+  have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) := by
+    -- porting note: simplified proof, because `congr` didn't work anymore
+    rw [← fromBlocks_toBlocks M', hM.1, hM.2]
+    rfl
+  rw [this]
+  simp [h₀]
 
 
+/-- 第2层引理 -------------------/
 theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Matrix p p 𝕜) --???
     (e : p ≃ n)
     (H :
@@ -119,76 +193,8 @@ theorem reindex_exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Mat
   simp only [Equiv.symm_symm, reindex_apply, submatrix_diagonal_equiv, reindexAlgEquiv_apply]
 
 
-theorem exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec2
-    (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
-    ∃ L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜),
-      IsTwoBlockDiagonal ((L.map toMatrix).prod * M * (L'.map toMatrix).prod)
-  := by
-  by_cases H : IsTwoBlockDiagonal M
-  · refine' ⟨List.nil, List.nil, by simpa using H⟩
-  -- we have already proved this when the last coefficient is nonzero
-  by_cases hM : M (inr unit) (inr unit) ≠ 0
-  · exact exists_isTwoBlockDiagonal_of_ne_zero2 M hM
-  -- when the last coefficient is zero but there is a nonzero coefficient on the last row or the
-  -- last column, we will first put this nonzero coefficient in last position, and then argue as
-  -- above.
-  push_neg at hM
-  simp only [not_and_or, IsTwoBlockDiagonal, toBlocks₁₂, toBlocks₂₁, ← Matrix.ext_iff] at H
-  have : ∃ i : Fin r, M (inl i) (inr unit) ≠ 0 ∨ M (inr unit) (inl i) ≠ 0 := by
-    cases' H with H H
-    · contrapose! H
-      rintro i ⟨⟩
-      exact (H i).1
-    · contrapose! H
-      rintro ⟨⟩ j
-      exact (H j).2
-  rcases this with ⟨i, h | h⟩
-  · let M' := transvection (inr Unit.unit) (inl i) 1 * M
-    have hM' : M' (inr unit) (inr unit) ≠ 0 := by simpa [hM]
-    rcases exists_isTwoBlockDiagonal_of_ne_zero2 M' hM' with ⟨L, L', hLL'⟩
-    rw [Matrix.mul_assoc] at hLL'
-    refine' ⟨L ++ [⟨inr unit, inl i, by simp, 1⟩], L', _⟩
-    simp only [List.map_append, List.prod_append, Matrix.mul_one, toMatrix_mk, List.prod_cons,
-      List.prod_nil, List.map, Matrix.mul_assoc (L.map toMatrix).prod]
-    exact hLL'
-  · let M' := M * transvection (inl i) (inr unit) 1
-    have hM' : M' (inr unit) (inr unit) ≠ 0 := by simpa [hM]
-    rcases exists_isTwoBlockDiagonal_of_ne_zero2 M' hM' with ⟨L, L', hLL'⟩
-    refine' ⟨L, ⟨inl i, inr unit, by simp, 1⟩::L', _⟩
-    simp only [← Matrix.mul_assoc, toMatrix_mk, List.prod_cons, List.map]
-    rw [Matrix.mul_assoc (L.map toMatrix).prod]
-    exact hLL'
 
-
-theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
-    (IH :
-      ∀ M : Matrix (Fin r) (Fin r) 𝕜,
-        ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜)) (D₀ : Fin r → 𝕜),
-          (L₀.map toMatrix).prod * M * (L₀'.map toMatrix).prod = diagonal D₀
-    )
-    (M : Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :
-    ∃ (L L' : List (TransvectionStruct (Sum (Fin r) Unit) 𝕜)) (D : Sum (Fin r) Unit → 𝕜),
-      (L.map toMatrix).prod * M * (L'.map toMatrix).prod = diagonal D
-  := by
-  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec2 M with ⟨L₁, L₁', hM⟩
-  let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod
-  let M'' := toBlocks₁₁ M'
-  rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩
-  set c := M' (inr unit) (inr unit)
-  refine'
-    ⟨L₀.map (sumInl Unit) ++ L₁, L₁' ++ L₀'.map (sumInl Unit),
-      Sum.elim D₀ fun _ => M' (inr unit) (inr unit), _⟩
-  suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod * M' * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
-      diagonal (Sum.elim D₀ fun _ => c) by
-    simpa [Matrix.mul_assoc]
-  have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) := by
-    -- porting note: simplified proof, because `congr` didn't work anymore
-    rw [← fromBlocks_toBlocks M', hM.1, hM.2]
-    rfl
-  rw [this]
-  simp [h₀]
-
-
+/-- 第2层引理 -------------------/
 theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2 (n : Type) [Fintype n] --???
     [DecidableEq n] (M : Matrix n n 𝕜) :
 ∃ (L L' : List (TransvectionStruct n 𝕜)) (D : n → 𝕜),
@@ -215,7 +221,7 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_aux2 (n : Type) [
       exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 fun N =>
         IH (Fin r) N (by simp)
 
-
+/-- 第1层引理 -------------------/
 theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 (M : Matrix n n 𝕜) : --???
 ∃ (L L' : List (TransvectionStruct n 𝕜))
 (D : n → 𝕜),
@@ -246,7 +252,6 @@ M
 diagonal D --左上->右下的对角线才有非零的数的方阵
 *
 (L'.map toMatrix).prod
-
   := by
   have h1 := exists_list_transvec_mul_mul_list_transvec_eq_diagonal2 M
   obtain ⟨L, L', D, h⟩ := h1
