@@ -1,4 +1,5 @@
 import Mathlib.LinearAlgebra.Matrix.Transvection
+import Mathlib.Data.Real.Sqrt
 -- 高斯：任意矩阵可化成对角形式 -- 线性方程组的人肉解
 
 
@@ -82,9 +83,21 @@ variable {n p} [Fintype n] [Fintype p]
 
 -- 改成追查3层定理算了，时间不充裕。
 
+    def listTransvecCol2 : List (Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :=
+    List.ofFn fun i : Fin r =>
+      transvection (inl i) (inr unit) <| -M (inl i) (inr unit) / M (inr unit) (inr unit)
+
+    -- def M1 : Matrix (Sum (Fin 1) Unit) (Sum (Fin 1) Unit) ℚ :=
+    --   -- λ i j => if i = inr unit then 1 else if j = inr unit then 2 else 3
+    --   -- ![![2, 2],
+    --     -- ![1, 1]]
+    --   λ i j => if i = inr unit then 1 else 2
+    -- #eval (listTransvecCol2 M1)
+
   -- 某一个很深层，开始出现蜕变的分治引理
   theorem mul_listTransvecRow_last_col2
   (i : Sum (Fin r) Unit) :
+  -- listTransvecRow M).prod 的作用就是？
     (M * (listTransvecRow M).prod) i (inr unit)
     = M i (inr unit)
     := by
