@@ -82,6 +82,41 @@ variable {n p} [Fintype n] [Fintype p]
 
 -- 改成追查3层定理算了，时间不充裕。
 
+  -- 某一个很深层，开始出现蜕变的分治引理
+  theorem mul_listTransvecRow_last_col2
+  (i : Sum (Fin r) Unit) :
+    (M * (listTransvecRow M).prod) i (inr unit)
+    = M i (inr unit)
+    := by
+    have A : (listTransvecRow M).length = r := by simp [listTransvecRow]
+    rw [← List.take_length (listTransvecRow M), A]
+    simpa using mul_listTransvecRow_last_col_take M i le_rfl
+    done
+
+
+
+
+
+  lemma changeTarget2
+  (M: Matrix (Fin r ⊕ Unit) (Fin r ⊕ Unit) 𝕜)
+  (L₀ L₀': List (TransvectionStruct (Fin r) 𝕜))
+  (M': Matrix (Fin r ⊕ Unit) (Fin r ⊕ Unit) 𝕜)
+  (L₁ L₁': List (TransvectionStruct (Fin r ⊕ Unit) 𝕜))
+  (M'_sat1: M' = List.prod (List.map toMatrix L₁) * M * List.prod (List.map toMatrix L₁'))
+  : (L₀.map (toMatrix ∘ sumInl Unit)).prod
+  * M'
+  * (L₀'.map (toMatrix ∘ sumInl Unit)).prod
+  = List.prod (List.map toMatrix (List.map (sumInl Unit) L₀ ++ L₁)) * M *
+    List.prod (List.map toMatrix (L₁' ++ List.map (sumInl Unit) L₀'))
+    := by
+    simp only [List.map_append, List.map_map, List.prod_append]
+    rw [M'_sat1]
+    rw [← mul_assoc]
+    rw [← mul_assoc]
+    rw [← mul_assoc]
+    done
+
+
 /-第3层引理 -------------------/
 -- 可能真正能理解的精髓都在这里，一个递推有关的定理
 -- Sum (Fin r) Unit是什么意思？是加一个位置的意思吗？
@@ -100,8 +135,13 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
+  --???弱化的定理，先能变成块对角矩阵
+  -- 找到底层里面，关键引理是这个：listTransvecCol_mul_mul_listTransvecRow_last_row，
+  -- 从这个引理开始有了 M左右乘某2个项，然后得到特殊结果，比如0.
+  -- mul_listTransvecRow_last_col 和 mul_listTransvecRow_last_col是引理组成的关键引理
+  -- 所以本集内容只介绍这样的精华部分
   have h1 := exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M
-  rcases h1 with ⟨L₁, L₁', hM⟩ --???弱化的定理，先能变成块对角矩阵
+  rcases h1 with ⟨L₁, L₁', hM⟩
   set M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod -- (r+1)*(r+1)
   set M'' := toBlocks₁₁ M' -- 提取对应的 “左上角”子矩阵 r*r
   have h2 := IH M''
@@ -113,29 +153,31 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
     (L₁') ++ (L₀'.map (sumInl Unit)),
     Sum.elim D₀ fun _ => M' (inr unit) (inr unit), -- 把两个向量并起来，得到的对角矩阵
     _⟩
-  have changeTarget2 : (L₀.map (toMatrix ∘ sumInl Unit)).prod
-  * M'
-  * (L₀'.map (toMatrix ∘ sumInl Unit)).prod
-  = List.prod (List.map toMatrix (List.map (sumInl Unit) L₀ ++ L₁)) * M *
-    List.prod (List.map toMatrix (L₁' ++ List.map (sumInl Unit) L₀'))
+  have M'_sat1 : M' = List.prod (List.map toMatrix L₁) * M * List.prod (List.map toMatrix L₁')
+    := by rfl
+  have changeTarget := changeTarget2 M L₀ L₀' M' L₁ L₁' M'_sat1
+  rw [← changeTarget]
+  have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) --todo
     := by
-
-    simp only [List.map_append, List.map_map, List.prod_append]
-
-
-  suffices
-  (L₀.map (toMatrix ∘ sumInl Unit)).prod
-  * M'
-  * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
-      diagonal (Sum.elim D₀ fun _ => c)
-    by
-    simpa [Matrix.mul_assoc]
-  have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) := by
-    -- porting note: simplified proof, because `congr` didn't work anymore
-    rw [← fromBlocks_toBlocks M', hM.1, hM.2]
+    rw [
+    ← fromBlocks_toBlocks M', -- 切成4块组合起来
+    hM.1,
+    hM.2]
     rfl
   rw [this]
-  simp [h₀]
+  simp only [sumInl_toMatrix_prod_mul] --???下面这几个也没仔细理解：
+  simp only [mul_sumInl_toMatrix_prod]
+  simp only [fromBlocks_apply₂₂]
+  simp only [diagonal_apply_eq]
+  simp only [h₀]
+  -- refine' fromBlocks_diagonal D₀ _
+  exact
+    fromBlocks_diagonal
+      D₀
+      fun x ↦
+        (List.prod (List.map toMatrix L₁) * M * List.prod (List.map toMatrix L₁'))
+        (inr ())
+        (inr ())
   done
 
 
