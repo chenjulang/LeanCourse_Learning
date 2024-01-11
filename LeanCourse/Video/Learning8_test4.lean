@@ -12,6 +12,8 @@ import Mathlib.Data.Real.Sqrt
   -- n*n扩充成m*m的矩阵，需要补充三个块
   -- inl是上一行的特殊化：左并
 -- diagonal：是对角矩阵
+set_option linter.unusedVariables false
+
 
 universe u₁ u₂
 
@@ -83,29 +85,63 @@ variable {n p} [Fintype n] [Fintype p]
 
 -- 改成追查3层定理算了，时间不充裕。
 
-    def listTransvecCol2 : List (Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :=
+    /-- 右乘这些矩阵后每一行的最后一列不变-/
+    def listTransvecRow2 : List (Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) :=
     List.ofFn fun i : Fin r =>
-      transvection (inl i) (inr unit) <| -M (inl i) (inr unit) / M (inr unit) (inr unit)
+      transvection (inr unit) (inl i) <| -M (inr unit) (inl i) / M (inr unit) (inr unit)
+    --M=![![1, 2],
+    --    ![3, 4]]
 
-    -- def M1 : Matrix (Sum (Fin 1) Unit) (Sum (Fin 1) Unit) ℚ :=
-    --   -- λ i j => if i = inr unit then 1 else if j = inr unit then 2 else 3
-    --   -- ![![2, 2],
-    --     -- ![1, 1]]
-    --   λ i j => if i = inr unit then 1 else 2
-    -- #eval (listTransvecCol2 M1)
+    -- ![![1, 0],
+    --   ![-3/4, 1]] = M1 -- i=0
+    -- listTransvecRow2 M就是包含上面这两个矩阵的一个列表List
+    -- (listTransvecRow2 M).prod就是 1*M1*M2
+    -- (M * (listTransvecRow2 M).prod)会是什么呢？根据乘法结合律
+    -- ![![1+2*-3/4, 2],
+    --   ![3+4*-3/4, 4]]
+    -- 验证(M * (listTransvecRow2 M).prod) i (inr unit)
+    -- = M i (inr unit)
+    -- 也就是说每一行的最后一列不变
+
 
   -- 某一个很深层，开始出现蜕变的分治引理
-  theorem mul_listTransvecRow_last_col2
-  (i : Sum (Fin r) Unit) :
-  -- listTransvecRow M).prod 的作用就是？
-    (M * (listTransvecRow M).prod) i (inr unit)
-    = M i (inr unit)
-    := by
-    have A : (listTransvecRow M).length = r := by simp [listTransvecRow]
-    rw [← List.take_length (listTransvecRow M), A]
-    simpa using mul_listTransvecRow_last_col_take M i le_rfl
-    done
+      /-- 使得左乘后，除最后一行外，最后一列都为零？-/
+      def listTransvecCol2 : List (Matrix (Sum (Fin r) Unit) (Sum (Fin r) Unit) 𝕜) := --todo
+      List.ofFn fun i : Fin r =>
+        transvection (inl i) (inr unit) <| -M (inl i) (inr unit) / M (inr unit) (inr unit)
+      --M=![![1, 2],
+      --    ![3, 4]]
+      -- ![![1, -2/4],
+      --   ![0, 1]] = M1 -- i=0
+      -- M1 * M =
+      --![![1+-2/4*3, 2+-2/4*4=0],
+      --  ![3, 4]]
 
+      theorem mul_listTransvecRow_last_col2
+      (i : Sum (Fin r) Unit) :
+        (M * (listTransvecRow2 M).prod) i (inr unit)
+        = M i (inr unit)
+        := by
+        have A : (listTransvecRow2 M).length = r := by simp [listTransvecRow2]
+        rw [← List.take_length (listTransvecRow2 M), A]
+        simpa using mul_listTransvecRow_last_col_take M i le_rfl
+        done
+
+
+    theorem MainGoal8 --todo
+    (hM : M (inr unit) (inr unit) ≠ 0)
+    (i : Fin r) :
+    ((listTransvecCol2 M).prod
+    * M
+    * (listTransvecRow M).prod) (inl i) (inr unit)
+    = 0
+      := by
+      have : listTransvecCol2 M = listTransvecCol2 (M * (listTransvecRow M).prod) := by
+        simp [listTransvecCol2, mul_listTransvecRow_last_col]
+      rw [this, Matrix.mul_assoc]
+      apply listTransvecCol_mul_last_col
+      simpa [mul_listTransvecRow_last_col] using hM
+      done
 
 
 
@@ -335,7 +371,7 @@ lemma changeTarget1
     done
 
 /-- 任何矩阵可以写成：三个矩阵的乘积，第一个矩阵的作用效果是一系列的行变换左乘，第二个是一个对角矩阵，第三个是一系列的行变换右乘-/
-theorem MainGoal8
+theorem Not_MainGoal8
 (M : Matrix n n 𝕜)
 :
 ∃ (L L' : List (TransvectionStruct n 𝕜)) -- n 𝕜只是一个取值范围
