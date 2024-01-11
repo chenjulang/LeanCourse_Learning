@@ -128,12 +128,12 @@ variable {n p} [Fintype n] [Fintype p]
         rw [
         ← List.take_length (listTransvecRow2 M),
         A]
-        refine' mul_listTransvecRow_last_col_take M i _
+        refine' mul_listTransvecRow_last_col_take M i _ -- 实际上更核心的应该是mul_listTransvecRow_last_col_take
         simp only [le_refl]
         done
 
 
-    theorem MainGoal8 --todo
+    theorem MainGoal8
     (hM : M (inr unit) (inr unit) ≠ 0)
     (i : Fin r) :
     ((listTransvecCol2 M).prod
@@ -141,11 +141,15 @@ variable {n p} [Fintype n] [Fintype p]
     * (listTransvecRow M).prod) (inl i) (inr unit)
     = 0
       := by
-      have : listTransvecCol2 M = listTransvecCol2 (M * (listTransvecRow M).prod) := by
+      have : listTransvecCol2 M
+      = listTransvecCol2 (M * (listTransvecRow M).prod)
+        := by
         simp [listTransvecCol2, mul_listTransvecRow_last_col]
       rw [this, Matrix.mul_assoc]
       apply listTransvecCol_mul_last_col
-      simpa [mul_listTransvecRow_last_col] using hM
+      simp only [ne_eq]
+      simp only [mul_listTransvecRow_last_col]
+      exact hM
       done
 
 
