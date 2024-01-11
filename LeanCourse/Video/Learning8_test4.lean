@@ -128,7 +128,8 @@ variable {n p} [Fintype n] [Fintype p]
         rw [
         ← List.take_length (listTransvecRow2 M),
         A]
-        refine' mul_listTransvecRow_last_col_take M i _ -- 实际上更核心的应该是mul_listTransvecRow_last_col_take
+        refine' mul_listTransvecRow_last_col_take M i _
+        -- 实际上更核心的应该是mul_listTransvecRow_last_col_take，用归纳法证明的
         simp only [le_refl]
         done
 
