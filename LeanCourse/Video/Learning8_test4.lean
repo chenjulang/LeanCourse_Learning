@@ -85,7 +85,7 @@ variable {n p} [Fintype n] [Fintype p]
 /-第3层引理 -------------------/
 -- 可能真正能理解的精髓都在这里，一个递推有关的定理
 -- Sum (Fin r) Unit是什么意思？是加一个位置的意思吗？
-theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
+theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2
 (IH :
   ∀ M : Matrix (Fin r) (Fin r) 𝕜,
     ∃ (L₀ L₀' : List (TransvectionStruct (Fin r) 𝕜))
@@ -100,20 +100,35 @@ theorem exists_list_transvec_mul_mul_list_transvec_eq_diagonal_induction2 --???
   (L.map toMatrix).prod * M * (L'.map toMatrix).prod
   = diagonal D
   := by
-  rcases exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M with ⟨L₁, L₁', hM⟩ --???弱化的定理，先能变成块对角矩阵
-  let M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod -- (r+1)*(r+1)
-  let M'' := toBlocks₁₁ M' -- 提取对应的 “左上角”子矩阵 r*r
-  rcases IH M'' with ⟨L₀, L₀', D₀, h₀⟩ -- IH和M''得到的结论拿到
+  have h1 := exists_isTwoBlockDiagonal_list_transvec_mul_mul_list_transvec M
+  rcases h1 with ⟨L₁, L₁', hM⟩ --???弱化的定理，先能变成块对角矩阵
+  set M' := (L₁.map toMatrix).prod * M * (L₁'.map toMatrix).prod -- (r+1)*(r+1)
+  set M'' := toBlocks₁₁ M' -- 提取对应的 “左上角”子矩阵 r*r
+  have h2 := IH M''
+  rcases h2 with ⟨L₀, L₀', D₀, h₀⟩ -- IH和M''得到的结论拿到
   set c := M' (inr unit) (inr unit) -- 1*1的矩阵，用0扩充，扩充成(r+1)*(r+1)矩阵
+  -- 表示最右下角的那一项？
   refine' -- 填充Goal的存在假设
-    ⟨L₀.map (sumInl Unit) ++ L₁,
-     L₁' ++ L₀'.map (sumInl Unit),
-    Sum.elim D₀ fun _ => M' (inr unit) (inr unit),
-      _⟩
-  suffices (L₀.map (toMatrix ∘ sumInl Unit)).prod
+    ⟨(L₀.map (sumInl Unit)) ++ (L₁),
+    (L₁') ++ (L₀'.map (sumInl Unit)),
+    Sum.elim D₀ fun _ => M' (inr unit) (inr unit), -- 把两个向量并起来，得到的对角矩阵
+    _⟩
+  have changeTarget2 : (L₀.map (toMatrix ∘ sumInl Unit)).prod
+  * M'
+  * (L₀'.map (toMatrix ∘ sumInl Unit)).prod
+  = List.prod (List.map toMatrix (List.map (sumInl Unit) L₀ ++ L₁)) * M *
+    List.prod (List.map toMatrix (L₁' ++ List.map (sumInl Unit) L₀'))
+    := by
+
+    simp only [List.map_append, List.map_map, List.prod_append]
+
+
+  suffices
+  (L₀.map (toMatrix ∘ sumInl Unit)).prod
   * M'
   * (L₀'.map (toMatrix ∘ sumInl Unit)).prod =
-      diagonal (Sum.elim D₀ fun _ => c) by
+      diagonal (Sum.elim D₀ fun _ => c)
+    by
     simpa [Matrix.mul_assoc]
   have : M' = fromBlocks M'' 0 0 (diagonal fun _ => c) := by
     -- porting note: simplified proof, because `congr` didn't work anymore
