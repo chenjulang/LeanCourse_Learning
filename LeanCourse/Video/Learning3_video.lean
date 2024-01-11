@@ -228,12 +228,19 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     rw [sum_comm]
     rw [sum_comm] -- 这两步sum_comm相当于没变，只改成了x,y
     -- 反向推理
-    refine' sum_bij _ _ _ _ _ -- ???这个需要问一下gpt找到数学世界里的对应定理名称。不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
+    refine' sum_bij _ _ _ _ _
+    -- {s : Finset α} {t : Finset γ} {f : α → β} {g : γ → β}
+    -- (i : ∀ a ∈ s, γ)
+    -- (hi : ∀ a ha, i a ha ∈ t)
+    -- (h : ∀ a ha, f a = g (i a ha))
+    -- (i_inj : ∀ a₁ a₂ ha₁ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)
+    -- (i_surj : ∀ b ∈ t, ∃ a ha, b = i a ha) : ∏ x in s, f x = ∏ x in t, g x
+    -- 不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
     -- 举例：
     -- 假设我们有以下集合和映射：
-    -- 令 α = {1, 2, 3}，即集合 {1, 2, 3}。
-    -- 令 β = {a, b, c}，即集合 {a, b, c}。
-    -- 令 γ = {x, y, z}，即集合 {x, y, z}。
+    -- 令 α = {1, 2, 3}，即集合 {1, 2, 3}。 //s
+    -- 令 β = {a, b, c}，即集合 {a, b, c}。 //
+    -- 令 γ = {x, y, z}，即集合 {x, y, z}。 //t
     -- 定义函数 f: α → β 和 g: γ → β 如下：
     -- 对于 f，我们定义 f(1) = a，f(2) = b，f(3) = c。
     -- 对于 g，我们定义 g(x) = a，g(y) = b，g(z) = c。
@@ -249,9 +256,6 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- i 是满射 (i_surj)： 对于任意 b 属于 {x, y, z}，存在 a 属于 {1, 2, 3}，使得 b = i a。
     -- 这也是满足的，因为 i 的定义覆盖了整个 γ。
     -- 如果这些条件满足，我们可以应用定理，从而得出：
-    -- [
-    -- \prod_{x \in {1, 2, 3}} f(x) = \prod_{x \in {x, y, z}} g(x)
-    -- ]
     -- 即，
     -- [
     -- abc = abc
