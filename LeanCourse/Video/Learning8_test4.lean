@@ -117,14 +117,19 @@ variable {n p} [Fintype n] [Fintype p]
       --![![1+-2/4*3, 2+-2/4*4=0],
       --  ![3, 4]]
 
-      theorem mul_listTransvecRow_last_col2
+      /-- 具体证明为什么右乘listTransvecRow2这些矩阵后每一行的最后一列不变-/
+      theorem mul_listTransvecRow_last_col2 -- *视频里需要重要说明的定理
       (i : Sum (Fin r) Unit) :
         (M * (listTransvecRow2 M).prod) i (inr unit)
         = M i (inr unit)
         := by
-        have A : (listTransvecRow2 M).length = r := by simp [listTransvecRow2]
-        rw [← List.take_length (listTransvecRow2 M), A]
-        simpa using mul_listTransvecRow_last_col_take M i le_rfl
+        have A : (listTransvecRow2 M).length = r -- 列表长度
+          := by simp [listTransvecRow2]
+        rw [
+        ← List.take_length (listTransvecRow2 M),
+        A]
+        refine' mul_listTransvecRow_last_col_take M i _
+        simp only [le_refl]
         done
 
 
