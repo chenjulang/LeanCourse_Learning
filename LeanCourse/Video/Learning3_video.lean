@@ -234,7 +234,8 @@ def printPerms (n : ℕ) : List (List ℕ) :=
     -- (hi : ∀ a ha, i a ha ∈ t)
     -- (h : ∀ a ha, f a = g (i a ha))
     -- (i_inj : ∀ a₁ a₂ ha₁ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)
-    -- (i_surj : ∀ b ∈ t, ∃ a ha, b = i a ha) : ∏ x in s, f x = ∏ x in t, g x
+    -- (i_surj : ∀ b ∈ t, ∃ a ha, b = i a ha) :
+    -- ∏ x in s, f x = ∏ x in t, g x
     -- 不一样的定义域s、t，不同的函数f、g，求和相同，需要什么条件呢。5个条件
     -- 举例：
     -- 假设我们有以下集合和映射：
