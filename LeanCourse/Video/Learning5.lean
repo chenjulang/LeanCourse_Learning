@@ -64,6 +64,18 @@ variable {ω p q r s t : K}
           -- x4= cos(8π/3) + i*sin(8π/3) = cos(2π/3) + i*sin(2π/3) = x1 重复了
           -- 以后也一直重复 x1,x2,x3这3个。
 
+          -- e^(ix) = cos(x) + i sin(x)
+          -- 这里证明一个定理两边多项式相等x^3 - 1 = （x-e^(i(2π) / 3)）*（x-e^(i(2*2π) / 3)）* （x-e^(i(3*2π) / 3)）
+          -- 右边= （x-e^(i(1*2π) / 3)）*（x-e^(i(2*2π) / 3)）* （x-e^(i(3*2π) / 3)）
+          -- 分配律= x^3 - e^(i(2π) / 3)*e^(i(2*2π) / 3)*e^(i(3*2π) / 3) + ...
+          --抽象写法= x^3 - 1 + x*(（2+3）+（1+3）+（1+2）) + x^2*（-1）(3+2+1)
+          -- =  x^3 - 1 + x * (cos(5* 2π/3)+cos(4* 2π/3)+ cos(3* 2π/3)  +  i sin(5* 2π/3) +  i sin(4* 2π/3) +  i sin(3* 2π/3)) +
+          -- x^2* （-1）（cos(3* 2π/3)+cos(2* 2π/3)+cos(1* 2π/3) + i sin(3* 2π/3 + i sin(2* 2π/3）+i sin(1* 2π/3）） -- 关于x轴对称的一对对，对称的奇妙之处
+
+          -- 我们试一下n=4,x^4 - 1 = （x-e^(i(1*2π) / 4)）*（x-e^(i(2*2π) / 4)）* （x-e^(i(3*2π) / 4)） * （x-e^(i(4*2π) / 4)）
+          -- x^4 - 1(这个1只要π的整数倍即得1，不需要2π得整数倍)
+          -- 抽象写法 x^1* （(2+3+4)+(1+3+4)+(1+2+4)+(1+2+3)）
+
           -- 验证一下是否满足：(ω ^ m = 1) ∧ (∀ l : ℕ, ω ^ l = 1  →  m ∣ l)
           -- 此时m=3,
           -- 验证ω=x1，即ω=e^(i(2π) / 3)=cos(2π/3) + i*sin(2π/3) 是否满足，∀ l : ℕ, ω ^ l = 1 ，只有l是m=3的倍数时成立
@@ -94,18 +106,26 @@ variable {ω p q r s t : K}
 --   simpa [cyclotomic_prime, Finset.sum_range_succ] using h1
 -- #print cube_root_of_unity_sum
 
-  theorem cube_root_of_unity_sum2 (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0
+  theorem cube_root_of_unity_sum2
+  (hω : IsPrimitiveRoot ω 3)
+  : 1 + ω + ω ^ 2 = 0
     := by
     let h1 : IsRoot (cyclotomic 3 K) ω
       := by
-      refine' IsPrimitiveRoot.isRoot_cyclotomic _ _ -- ??? ω是3-单位根，可以推出，分圆多项式的根
+      refine' IsPrimitiveRoot.isRoot_cyclotomic _ _ -- 前面的2个根，也是后面多项式1 + x + x^2的根？
+      -- ω ^ 3 = 1
+      -- 现实中已知x^3 - 1 = （x-e^(i(2π) / 3)）*（x-e^(i(2*2π) / 3)）* （x-e^(i(3*2π) / 3)）
+      -- 即(x-ω)(x-ω^2)(x-ω^2) = x^3 - 1
+      -- 两边除以(x-1)，得到(x-ω)(x-ω^2) = 1 + x + x^2
+      -- 得出 (x-ω)(x-ω^2)的根 = 1 + x + x^2的根
+      -- 也就是ω，ω^2= 1 + x + x^2的根
       · exact Nat.succ_pos 2
       · exact hω
       done
       -- exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
     have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
       := by
-      rw [cyclotomic_prime]--???
+      rw [cyclotomic_prime]--看成定义
       refine' congrArg _ _
       rw [Finset.sum_range_succ]
       rw [Finset.sum_range_succ]
@@ -252,7 +272,7 @@ variable {ω p q r s t : K}
     -- simp_rw [eq_sub_iff_add_eq] --替换写法
     done
 
-  /-- 通用的一般形式，判定式为非零，求出三个解 -/
+  /-- 判定式为非零，通用的一般形式，求出三个解 -/
   theorem MainGoal5 -- a b c d任意取
   (ha : a ≠ 0) -- a有一个限制条件
   (hω : IsPrimitiveRoot ω 3)
@@ -313,7 +333,7 @@ variable {ω p q r s t : K}
   -- def c_2 :ℚ :=1
   -- def d_2 :ℚ :=-1/3
 
-  /-- 通用的一般形式，判定式为零，求出三个解 -/
+  /-- 判定式为零，通用的一般形式，求出三个解 -/
   theorem cubic_eq_zero_iff_of_p_eq_zero
   (ha : a ≠ 0)
   (hω : IsPrimitiveRoot ω 3)
