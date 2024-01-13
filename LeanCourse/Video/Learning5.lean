@@ -3,6 +3,9 @@ import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import Mathlib.Data.Polynomial.Eval
 import Mathlib.Data.Real.Sqrt
 
+-- 这集的终极目标是证明一般3次方程的求根公式的充分必要条件。
+-- 也就是，除了验证3个解的合理性以外，还会给出刚好能推出3个根的这个严格证明。
+
 
 namespace testroot3
 
@@ -20,7 +23,7 @@ variable (a b c d : K)
 variable {ω p q r s t : K}
 
 -- 欧拉万岁！！！
--- 1.IsPrimitiveRoot ω k；就是k-单位根,即 (ω ^ k = 1) ∧ (∀ l : ℕ, ω ^ l = 1 → k ∣ l)
+-- 1.IsPrimitiveRoot ω k：就是k-单位根,即 (ω ^ k = 1) ∧ (∀ l : ℕ, ω ^ l = 1  →  k ∣ l)
 -- 2.hω.isRoot_cyclotomic
 --  2.1.cyclotomic n R：n-分圆多项式，系数在R集合里，即
         -- 2.1.1.为什么：复数单位根是z = e^((2πik) / n)：
@@ -28,42 +31,65 @@ variable {ω p q r s t : K}
           -- 欧拉公式是一个重要的数学公式，它描述了复指数函数和三角函数之间的关系。欧拉公式的表达式为：
           -- e^(ix) = cos(x) + i sin(x)
           -- 其中，e是自然对数的底数，i是虚数单位，x是实数。这个公式将指数函数和三角函数联系在一起。
-          -- 现在我们考虑复数单位根，即满足zⁿ = 1的复数。假设z可以表示为z = e^(iθ)，因为是一个任意的复数cos(θ) + i sin(θ)=e^(iθ)
-          -- ，其中θ是实数。我们希望找到满足zⁿ = 1的θ的取值。
-          -- 将z代入zⁿ = 1的方程中，我们得到：
-          -- (e^(iθ))ⁿ = 1
+          -- 现在我们考虑复数单位根，即满足zⁿ = 1的复数。假设z可以表示为z = Ce^(iθ)，C是实数，可以表示的原因是：z是一个任意的复数C(cos(θ) + i sin(θ))=Ce^(iθ)
+          -- ，其中θ是实数。我们希望找到满足zⁿ = 1，即zⁿ =(C^n)e^(iθn)=1中θ的取值，此时n和i已固定。
+          -- zⁿ =(C^n)e^(iθn)=1
           -- 应用指数函数的幂运算法则，我们可以将上述方程改写为：
-          -- e^(inθ) = 1
+
+          -- (C^n)e^(iθn)=1
           -- 根据欧拉公式，左侧的e^(inθ)可以表示为：
-          -- e^(inθ) = cos(nθ) + i sin(nθ)
-          -- 由于右侧等于1，实数部分和复数部分分别相同，我们可以得到两个等式：
+          -- e^(inθ) = cos(nθ) + i sin(nθ) = 1 = 1 + i * 0
+          -- 左边整体就是：(C^n) (cos(nθ) + i sin(nθ)) = (C^n)*cos(nθ) + (C^n)*isin(nθ)  =  1 = 1 + i * 0
+          -- 由于右侧等于1，由于实数部分和复数部分分别对应相同，我们可以得到两个等式：
+          -- (C^n)*cos(nθ) = 1
+          -- (C^n)*isin(nθ)  = 0 -- 小引理：常数(C^n)值只能是1， 因为满足第二行的nθ只能是2πk，即2π的整数倍，代入第一行之后，就是(C^n)= 1
+          -- 实际上就变成了新问题：
           -- cos(nθ) = 1
-          -- sin(nθ) = 0
-          -- 从三角函数的性质可知，当θ取特定值时，cos(nθ) = 1且sin(nθ) = 0成立。其中，
-          -- θ的取值范围是由解方程zⁿ = 1所决定的。
-          -- 我们可以观察到，当nθ = 2πk时，也只有这个时候，其中k是整数，上述两个等式成立。因此，
+          -- isin(nθ)  = 0
+          -- z = Ce^(iθ) = e^(iθ) 因为满足(C^n)= 1的实数，一维数轴上的数C只有1
+
+          -- 我们可以观察到，当nθ = 2πk （360度的整数k倍）时，也只有这个时候，其中k是整数，上述两个等式成立。因此，
           -- 我们可以得到：
-          -- nθ = 2πk
-          -- 将θ表示为θ = (2πk) / n，我们就得到了复数单位根的表达式：
-          -- z = e^(iθ) = e^((2πik) / n)
-          -- 用来计算z^3=1 , 得到 z= e^((2πik) / 3) = e^((2πik) / 3)
-          -- = cos((2πk) / 3) + i sin((2πk) / 3) , 用k=0，1，2，3，4...代入可知
+          -- nθ = 2πk  也就是说，e^(inθ)这个形式的项，只有能改写成e^(i2πk)这个形式下，值为1
+            --  e^(i2πk) = cos(2πk) + i sin(2πk) = 1 + i*0 = 1
+          -- 所有满足的θ可以表示为θ = (2πk) / n，我们就得到了复数单位根的表达式：
+
+          -- z 定义表示为= e^(iθ) = e^((2πik) / n)
+
+          -- 比如计算z^3=1 , 得到 z= e^((2πik) / 3) = e^(i(2πk) / 3)
+          -- e^(i(2πk) / 3)由欧拉公式= cos((2πk) / 3) + i sin((2πk) / 3) , 用k=0，1，2，3，4...代入可知
           -- x1= cos(2π/3) + i*sin(2π/3) ,
           -- x2= cos(4π/3) + i*sin(4π/3)
           -- x3= cos(6π/3) + i*sin(6π/3) = cos(2π) + i*sin(2π) = 1 + i*0
           -- x4= cos(8π/3) + i*sin(8π/3) = cos(2π/3) + i*sin(2π/3) = x1 重复了
-          -- 以后也一直重复 x1,x2,x3这3个“3-单位根”，也只有这三个。
+          -- 以后也一直重复 x1,x2,x3这3个。
+
+          -- 验证一下是否满足：(ω ^ m = 1) ∧ (∀ l : ℕ, ω ^ l = 1  →  m ∣ l)
+          -- 此时m=3,
+          -- 验证ω=x1，即ω=e^(i(2π) / 3)=cos(2π/3) + i*sin(2π/3) 是否满足，∀ l : ℕ, ω ^ l = 1 ，只有l是m=3的倍数时成立
+            -- 我们尝试l=1,2,3不用尝试代入就知道结果为1,4即1，5即2，6即3所以结果也是1，后面都是循环的，所以实际上只需要验证l=1,2
+            -- l=1,2是否满足ω ^ l = 1 呢？我们要证明它不满足，因为e^(i(2π1) / 3) 、 e^(i(2π2) / 3) 都不是 e^(i2πk) 这个2π的整数倍，所以不等于1
+          -- 验证ω=x2，即ω=e^(i(4π) / 3)=cos(4π/3) + i*sin(2π/3) 是否满足，∀ l : ℕ, ω ^ l = 1 ，只有l是m=3的倍数时成立
+            -- 我们尝试l=1,2,3不用尝试代入知道是2π的整数倍，所以就变成了验证次数，i后面的项是否2π的整数倍。
+            -- l=1,2代入可知e^(i(4π) *1/ 3) 、 e^(i(4π)*2 / 3)， 都无法和分母3约掉，即不是整数倍，所以不等于1
+          -- 验证ω=x3，即ω=e^(i(6π) / 3) = e^(i(2π))=1， 这个却是不满足：(ω ^ m = 1) ∧ (∀ l : ℕ, ω ^ l = 1  →  m ∣ l)的，因为l是1，2也满足。
+
+          -- 所以在lean里面定义的IsPrimitiveRoot ω k这个根呢，是去掉1的。
+
           -- 这就是复数单位根的一般形式。它表示了复数单位根与欧拉公式之间的关系，其中k是整数，
           -- 满足0 ≤ k < n。这个形式允许我们通过指数函数来表示复数单位根，从而方便地进行计算和处理。
         -- 2.1.2.为什么：复数单位根是圆周上均匀分布的n个点
-          -- z = e^(iθ) = e^((2πik) / n) 根据欧拉公式e^(iθ) = cos(θ) + i sin(θ)变成
+          -- 由于根形式是z = e^(iθ) = e^((2πik) / n) 根据欧拉公式e^(iθ) = cos(θ) + i sin(θ)变成
           --  这里θ即(2πk) / n， 所以就是 （360度/n）* 1，2，3，4......，
+          -- 也就是z = e^(iθ) = e^((2πik) / n) = cos((2πk) / n) + i sin((2πk) / n) 表示成二维的数就知道
+
 --  2.2.IsRoot p x:就是x代入p的值为0，即p的根
--- 3.cyclotomic_prime p R： p是素数的话, cyclotomic p R = ∑ i in range p, X ^ i
+-- 3.cyclotomic_prime p R：是一个多项式， p是素数, cyclotomic p R = ∑ i in range p, X ^ i
 --    即： p分圆多项式=多项式（∑ i in range p, X ^ i），（X是多项式变量）
 -- 4. Finset.sum_range_succ ： 求和n+1项=求和n项 +（第n+1项）
 
--- theorem cube_root_of_unity_sum (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0 := by -- ???为什么可以这样定义k-单位根的第二个属性：∀ l : ℕ, ζ ^ l = 1 → k ∣ l
+-- theorem cube_root_of_unity_sum (hω : IsPrimitiveRoot ω 3) : 1 + ω + ω ^ 2 = 0 := by
+-- 为什么可以这样定义k-单位根的第二个属性：∀ l : ℕ, ζ ^ l = 1 → k ∣ l ？ 举例说明就知道了
 --   have h1:= hω.isRoot_cyclotomic (by decide)
 --   simpa [cyclotomic_prime, Finset.sum_range_succ] using h1
 -- #print cube_root_of_unity_sum
@@ -72,18 +98,27 @@ variable {ω p q r s t : K}
     := by
     let h1 : IsRoot (cyclotomic 3 K) ω
       := by
-      exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
+      refine' IsPrimitiveRoot.isRoot_cyclotomic _ _ -- ??? ω是3-单位根，可以推出，分圆多项式的根
+      · exact Nat.succ_pos 2
+      · exact hω
+      done
+      -- exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
     have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
       := by
-      rw [cyclotomic_prime]
+      rw [cyclotomic_prime]--???
       refine' congrArg _ _
       rw [Finset.sum_range_succ]
       rw [Finset.sum_range_succ]
       rw [Finset.sum_range_succ]
-      simp only [Finset.range_zero, Finset.sum_empty, pow_zero, zero_add, pow_one]
-    have h3 : (eval ω (1 + X + X ^ 2) = 0) = (1 + ω + ω ^ 2 = 0) -- eval x p是 x代入多项式p的值
+      simp only [Finset.range_zero]
+      simp only [Finset.sum_empty]
+      simp only [pow_zero]
+      simp only [zero_add]
+      simp only [pow_one]
+      done
+    have h3 : (eval ω (1 + X + X ^ 2)=0) = (1 + ω + ω ^ 2 = 0) -- eval x p是: x代入多项式p的值
       := by
-      simp only [eval_add, eval_one, eval_X, eval_pow]
+      simp only [eval_add, eval_one, eval_X, eval_pow] --大概就是代入的过程
     rw [← h3]
     simp only [eval_add, eval_one, eval_X, eval_pow]
     have h4 :IsRoot (cyclotomic 3 K) ω = IsRoot (1 + X + X ^ 2) ω
@@ -217,7 +252,7 @@ variable {ω p q r s t : K}
     -- simp_rw [eq_sub_iff_add_eq] --替换写法
     done
 
-  /-- 通用的一般形式，但判定式为非零，求出三个解 -/
+  /-- 通用的一般形式，判定式为非零，求出三个解 -/
   theorem MainGoal5 -- a b c d任意取
   (ha : a ≠ 0) -- a有一个限制条件
   (hω : IsPrimitiveRoot ω 3)
@@ -278,6 +313,7 @@ variable {ω p q r s t : K}
   -- def c_2 :ℚ :=1
   -- def d_2 :ℚ :=-1/3
 
+  /-- 通用的一般形式，判定式为零，求出三个解 -/
   theorem cubic_eq_zero_iff_of_p_eq_zero
   (ha : a ≠ 0)
   (hω : IsPrimitiveRoot ω 3)
