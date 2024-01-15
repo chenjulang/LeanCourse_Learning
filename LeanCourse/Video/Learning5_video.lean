@@ -147,9 +147,9 @@ variable {ω p q r s t : K}
   (hω : IsPrimitiveRoot ω 3)
   : 1 + ω + ω ^ 2 = 0
     := by
-    let h1 : IsRoot (cyclotomic 3 K) ω -- cyclotomic 3 K代表的是 1+x^1+x^2
+    let h1 : IsRoot (cyclotomic 3 K) ω -- cyclotomic 3 K代表的是 (x-x1)(x-x2)(x-x3)
       := by
-      refine' IsPrimitiveRoot.isRoot_cyclotomic _ _ -- 前面的2个根，也是后面多项式1 + x + x^2的根？
+      refine' IsPrimitiveRoot.isRoot_cyclotomic _ _
       -- 我们就不点进去看了，只感性的证明：
       · exact Nat.succ_pos 2
       · exact hω
@@ -160,6 +160,7 @@ variable {ω p q r s t : K}
       -- 两边除以(x-1)，得到(x-ω)(x-ω^2) = 1 + x + x^2
       -- 得出 (x-ω)(x-ω^2)的根 = 1 + x + x^2的根
       -- 也就是ω，ω^2= 1 + x + x^2的根
+      -- 也就是ω，ω^2,1这三个数= (1 + x + x^2)(x-1)的根 = x^3 - 1的根 = （x-e^(i(2π) / 3)）*（x-e^(i(2*2π) / 3)）* （x-e^(i(3*2π) / 3)）的根= 分圆多项式的根
       done
       -- exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
     have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)
@@ -194,6 +195,7 @@ variable {ω p q r s t : K}
     rw [h7] at h1
     exact h1
     done
+
 
 
 

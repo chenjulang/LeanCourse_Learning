@@ -166,20 +166,21 @@ variable {ω p q r s t : K}
   (hs3 : s ^ 3 = q + r) -- s 从q和r定义出来
   (ht : t * s = p)  -- t 从s和p定义出来
   (x : K) :
-  (x ^ 3 + 3 * p * x - 2 * q = 0)
-    ↔
 
-    (x = s - t
-    ∨
-    x = s * ω - t * ω ^ 2
-    ∨
-    x = s * ω ^ 2 - t * ω)
+  (x ^ 3 + 3 * p * x - 2 * q = 0)
+  ↔
+  (x = s - t
+  ∨
+  x = s * ω - t * ω ^ 2
+  ∨
+  x = s * ω ^ 2 - t * ω)
 
     := by
-    have h₁ : ∀ x a₁ a₂ a₃ : K, x = a₁ ∨ x = a₂ ∨ x = a₃
-    ↔ (x - a₁) * (x - a₂) * (x - a₃) = 0
+    have h₁ : ∀ x a₁ a₂ a₃ : K,
+      x = a₁ ∨ x = a₂ ∨ x = a₃
+      ↔ (x - a₁) * (x - a₂) * (x - a₃) = 0
       := by
-      intros;
+      intros
       simp only [mul_eq_zero]
       simp only [sub_eq_zero]
       simp only [or_assoc]
@@ -189,45 +190,69 @@ variable {ω p q r s t : K}
     have hs_nonzero : s ≠ 0
       := by
       contrapose! hp_nonzero with hs_nonzero
-      linear_combination -1 * ht + t * hs_nonzero -- linear_combination：等号左右分别相加
-    rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)]
+      linear_combination -1 * ht + t * hs_nonzero -- linear_combination：多个等式,等号左右分别相加
+    rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)] -- 为什么要变复杂呢？
     have H := cube_root_of_unity_sum2 hω
-    clear hω
+    clear hω -- 是好习惯吗？清掉用过的条件
+    -- 下面会构造几个线性组合的等式，简称lc
     have lc1: (-q + r + s ^ 3) * s ^ 3
     = (-q + r + s ^ 3) * (q + r)
       := by
       simp only [mul_eq_mul_left_iff]
-      exact mul_eq_mul_left_iff.mp (congrArg (HMul.hMul (-q + r + s ^ 3)) hs3)
+      have lc1_1 := congrArg (HMul.hMul (-q + r + s ^ 3)) hs3
+      exact mul_eq_mul_left_iff.mp (lc1_1)
     have lc2: (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * (t * s)
     = (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * p
       := by
       simp only [mul_eq_mul_left_iff]
-      exact
-        mul_eq_mul_left_iff.mp
-          (congrArg (HMul.hMul (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2)) ht)
-    have lc3: (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
-        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) *
-      s ^ 3 *
+      have lc2_1 := (congrArg (HMul.hMul (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2)) ht)
+      exact mul_eq_mul_left_iff.mp lc2_1
+    have lc3:
+    (
+      x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)
+    )
+    *
+    (s ^ 3)
+    *
     (1 + ω + ω ^ 2)
      =
     (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
-          (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) *
-        s ^ 3 *
-      0
+          (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)
+    )
+    *
+    s ^ 3
+    *
+    0
       := by
-      simp only [neg_mul, neg_sub, mul_zero, mul_eq_zero, zero_lt_three, pow_eq_zero_iff]
+      simp only [neg_mul]
+      simp only [mul_zero]
+      simp only [mul_eq_zero]
+      simp only [pow_eq_zero_iff]
       exact Or.inr H
+    -- clear hs3 ht hs_nonzero H
+    -- 很神奇的变参数防近视过程
+    -- set s_3:= s ^ 3
+    -- set x_3:= x ^ 3
+    -- set px:= p * x
+    -- set x3:= ω ^ 2
+    -- set x4:= s ^ 2 + t ^ 2
+    -- set x5:= 3 + x3 - ω
+    -- set x6:= (-ω * x4 + s * t * x5)
+    -- set x7:= x ^ 2 * (s - t)
+    -- set x8:= 3 * x * x1
     linear_combination
       hr +
       lc1 -
       lc2 +
       lc3
     -- linear_combination -- 原始写法
-    -- hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
-    -- (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
-    --   (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+    --   hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
+    --   (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+    --     (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
     done
 
+  -- #print cubic_basic_eq_zero_iff2
 
   /-- 三次方项系数为1的形式 -/
   theorem cubic_monic_eq_zero_iff2
