@@ -198,7 +198,303 @@ variable {ω p q r s t : K}
 
 
 
+  /-- 去掉二次方项的形式 -/
+  theorem cubic_basic_eq_zero_iff2
+  (hω : IsPrimitiveRoot ω 3) -- p q可以任意取
+  (hp_nonzero : p ≠ 0)
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 从p和q定义出来
+  (hs3 : s ^ 3 = q + r) -- s 从q和r定义出来
+  (ht : t * s = p)  -- t 从s和p定义出来
+  (x : K) :
 
+  (x ^ 3 + 3 * p * x - 2 * q = 0)
+  ↔
+  (x = s - t
+  ∨
+  x = s * ω - t * ω ^ 2
+  ∨
+  x = s * ω ^ 2 - t * ω)
+
+    := by
+    have h₁ : ∀ x a₁ a₂ a₃ : K,
+      x = a₁ ∨ x = a₂ ∨ x = a₃
+      ↔
+      (x - a₁) * (x - a₂) * (x - a₃) = 0
+      := by
+      intros
+      simp only [mul_eq_zero]
+      simp only [sub_eq_zero]
+      simp only [or_assoc]
+    rw [h₁]
+    clear h₁
+    refine' Eq.congr _ rfl
+    have hs_nonzero : s ≠ 0
+      := by
+      contrapose! hp_nonzero with hs_nonzero --contrapose! 是逆否命题 非A→ 非B  换句话说 B→ A
+      linear_combination -1 * ht + t * hs_nonzero -- linear_combination：多个等式,等号左右分别相加
+    rw [← mul_left_inj' (pow_ne_zero 3 hs_nonzero)] -- 为什么要变复杂呢？
+    have H := cube_root_of_unity_sum2 hω
+    clear hω -- 是好习惯吗？清掉用过的条件
+    -- 下面会构造几个线性组合的等式，简称lc
+    have lc1: (-q + r + s ^ 3) * s ^ 3
+    = (-q + r + s ^ 3) * (q + r)
+      := by
+      simp only [mul_eq_mul_left_iff]
+      have lc1_1 := congrArg (HMul.hMul (-q + r + s ^ 3)) hs3
+      exact mul_eq_mul_left_iff.1 (lc1_1)
+    have lc2: (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * (t * s)
+    = (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * p
+      := by
+      simp only [mul_eq_mul_left_iff]
+      have lc2_1 := (congrArg (HMul.hMul (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2)) ht)
+      exact mul_eq_mul_left_iff.mp lc2_1
+    have lc3:
+    (
+      x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+        (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)
+    )
+    *
+    (s ^ 3)
+    *
+    (1 + ω + ω ^ 2)
+     =
+    (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+          (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)
+    )
+    *
+    s ^ 3
+    *
+    0
+      := by
+      simp only [neg_mul]
+      simp only [mul_zero]
+      simp only [mul_eq_zero]
+      -- simp only [pow_eq_zero_iff]
+      exact Or.inr H
+    -- clear hs3 ht hs_nonzero H
+    -- 很神奇的变参数防近视过程
+    -- set s_3:= s ^ 3
+    -- set x_3:= x ^ 3
+    -- set px:= p * x
+    -- set x3:= ω ^ 2
+    -- set x4:= s ^ 2 + t ^ 2
+    -- set x5:= 3 + x3 - ω
+    -- set x6:= (-ω * x4 + s * t * x5)
+    -- set x7:= x ^ 2 * (s - t)
+    -- set x8:= 3 * x * x1
+    linear_combination --???这里抽一集具体算一下为什么等式左右成立，以及为何要这样拆。
+      hr +
+      lc1 -
+      lc2 +
+      lc3
+    -- linear_combination -- 原始写法
+    --   hr + (-q + r + s ^ 3) * hs3 - (3 * x * s ^ 3 + (t * s) ^ 2 + t * s * p + p ^ 2) * ht +
+    --   (x ^ 2 * (s - t) + x * (-ω * (s ^ 2 + t ^ 2) + s * t * (3 + ω ^ 2 - ω)) -
+    --     (-(s ^ 3 - t ^ 3) * (ω - 1) + s ^ 2 * t * ω ^ 2 - s * t ^ 2 * ω ^ 2)) * s ^ 3 * H
+    done
+
+
+   /-- 三次方项系数为1的形式 -/
+  theorem cubic_monic_eq_zero_iff2
+  (hω : IsPrimitiveRoot ω 3) --b c任意取
+  (hp : p = (3 * c - b ^ 2) / 9) -- p 从b和c定义出来
+  (hp_nonzero : p ≠ 0) -- p有一个限制条件
+  (hq : q = (9 * b * c - 2 * b ^ 3 - 27 * d) / 54) -- q 从b和c和d定义出来
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 从q和p定义出来
+  (hs3 : s ^ 3 = q + r) -- s 从r和q定义出来
+  (ht : t * s = p) -- t 从s和p定义出来
+  (x : K)
+  :
+  (x ^ 3 + b * x ^ 2 + c * x + d = 0)
+  ↔
+    x = s - t - b / 3
+    ∨
+    x = s * ω - t * ω ^ 2 - b / 3
+    ∨
+    x = s * ω ^ 2 - t * ω - b / 3
+
+    := by
+    let y := x + b / 3
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _ -- 有倒数的数不为零
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have h₁ : x ^ 3 + b * x ^ 2 + c * x + d -- 这个就是把二次项去掉的核心定理
+    = y ^ 3 + 3 * p * y - 2 * q := by
+      rw [hp, hq]
+      field_simp [h9] -- 所有分母都乘了一遍其实，由y导致的
+      field_simp [h54]
+      ring
+    have h2 := cubic_basic_eq_zero_iff2 hω hp_nonzero hr hs3 ht y
+    rw [h₁, h2]
+    simp only
+    repeat rw [eq_sub_iff_add_eq] -- rw长龙～～～
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- rw [eq_sub_iff_add_eq]
+    -- simp_rw [eq_sub_iff_add_eq] --替换写法
+    done
+
+
+
+  /-- 判定式为非零，通用的一般形式，求出三个解 -/
+  theorem MainGoal5 -- a b c d任意取
+  (ha : a ≠ 0) -- a有一个限制条件
+  (hω : IsPrimitiveRoot ω 3)
+  (hp : p = (3 * a * c - b ^ 2) / (9 * a ^ 2)) -- p 由a,b,c定义出来
+  (hp_nonzero : p ≠ 0) -- 判定式p的一个限制条件
+  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3)) -- q 由a,b,c,d定义出来
+  (hr : r ^ 2 = q ^ 2 + p ^ 3) -- r 由q,p定义出来
+  (hs3 : s ^ 3 = q + r) -- s 由r,q定义出来
+  (ht : t * s = p)  -- t 由s,p定义出来
+  (x : K)
+  :
+
+  (a * x ^ 3 + b * x ^ 2 + c * x + d = 0)
+  ↔
+  x = s - t - b / (3 * a) -- 第一个解
+  ∨
+  x = s * ω - t * ω ^ 2 - b / (3 * a) -- 第二个解
+  ∨
+  x = s * ω ^ 2 - t * ω - b / (3 * a) -- 第三个解
+    := by
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h9 : (9 : K) = 3 ^ 2 := by norm_num
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num -- 模进的感觉
+    have h₁ : a * x ^ 3 + b * x ^ 2 + c * x + d
+    = a * (x ^ 3 + b / a * x ^ 2 + c / a * x + d / a) --a写到分母
+      := by
+      field_simp
+      ring
+    have h₂ : ∀ x,
+    a * x = 0
+    ↔
+    x = 0
+      := by
+      intro x
+      simp [ha]
+    have hp' :
+    p
+    = (3 * (c / a) - (b / a) ^ 2) / 9
+      := by
+      rw [hp]
+      field_simp --将分子上的分母先约分去掉
+      field_simp [h9] --先用h9替换，再去分母的意思
+      ring_nf
+    have hq' : q
+    = (9 * (b / a) * (c / a) - 2 * (b / a) ^ 3 - 27 * (d / a)) / 54
+    := by
+      rw [hq]
+      field_simp
+      field_simp [h54]
+      ring_nf
+    have h3:= cubic_monic_eq_zero_iff2 (b / a) (c / a) (d / a) hω hp' hp_nonzero hq' hr hs3 ht x
+    rw [h₁, h₂, h3] -- h1和h2去掉三次项系数，
+    have h₄ :=
+      calc
+        b / a / 3
+          = b / (a * 3)
+            := by
+            field_simp [ha]
+        _ = b / (3 * a)
+            := by rw [mul_comm]
+    rw [h₄]
+    done
+
+
+
+
+  /-- 判定式为零，通用的一般形式，求出三个解 -/
+  theorem cubic_eq_zero_iff_of_p_eq_zero
+  (ha : a ≠ 0)
+  (hω : IsPrimitiveRoot ω 3)
+  (hpz : 3 * a * c - b ^ 2 = 0) --判定式3 * a * c - b ^ 2 为零
+  (hq : q = (9 * a * b * c - 2 * b ^ 3 - 27 * a ^ 2 * d) / (54 * a ^ 3)) -- q 从a,b,c,d定义而来
+  (hs3 : s ^ 3 = 2 * q) -- s 从q定义而来
+  (x : K) :
+
+  a * x ^ 3 + b * x ^ 2 + c * x + d = 0
+  ↔
+  x = s - b / (3 * a)
+  ∨
+  x = s * ω - b / (3 * a)
+  ∨
+  x = s * ω ^ 2 - b / (3 * a)
+    := by
+    have h₁ : ∀ x a₁ a₂ a₃ : K,
+      x = a₁ ∨ x = a₂ ∨ x = a₃
+      ↔
+      (x - a₁) * (x - a₂) * (x - a₃) = 0
+      := by
+      intros
+      simp only [mul_eq_zero]
+      simp only [sub_eq_zero]
+      simp only [or_assoc]
+    have hi2 : (2 : K) ≠ 0 := nonzero_of_invertible _
+    have hi3 : (3 : K) ≠ 0 := nonzero_of_invertible _
+    have h54 : (54 : K) = 2 * 3 ^ 3 := by norm_num
+    have hb2 : b ^ 2 = 3 * a * c
+      := by
+      rw [sub_eq_zero] at hpz
+      rw [hpz]
+    have hb3 : b ^ 3 = 3 * a * b * c
+      := by
+      rw [pow_succ, hb2]
+      ring
+    have h₂ :=
+      calc
+        a * x ^ 3 + b * x ^ 2 + c * x + d
+        = a * (x + b / (3 * a)) ^ 3 + (c - b ^ 2 / (3 * a)) * x + (d - b ^ 3 * a / (3 * a) ^ 3)
+          :=by
+          field_simp --???为什么可以这样拼凑去掉二次项
+          ring
+        _ = a * (x + b / (3 * a)) ^ 3 + (d - (9 * a * b * c - 2 * b ^ 3) * a / (3 * a) ^ 3)
+          := by
+          simp only [hb2]
+          simp only [hb3]
+          field_simp
+          ring --???
+        _ = a * ((x + b/(3 * a)) ^ 3 - s ^ 3) -- 这整个步骤其实就是把x的二次项，一次项都消除了
+          := by
+          rw [hs3, hq]
+          field_simp [h54]
+          ring_nf --???
+    have h₃ : ∀ x,
+    a * x = 0
+    ↔
+    x = 0
+      := by
+      intro x
+      simp [ha]
+    have h₄ : ∀ x : K,
+    x ^ 3 - s ^ 3
+    = (x - s) * (x - s * ω) * (x - s * ω ^ 2)
+      := by
+      intro x
+      calc
+        x ^ 3 - s ^ 3
+        = (x - s) * (x ^ 2 + x * s + s ^ 2)
+          := by
+          ring
+        _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + (1 + ω + ω ^ 2) * x * s + s ^ 2)
+          := by
+          ring
+        _ = (x - s) * (x ^ 2 - (ω + ω ^ 2) * x * s + ω ^ 3 * s ^ 2)
+          := by
+          rw [hω.pow_eq_one, cube_root_of_unity_sum2 hω]
+          simp
+        _ = (x - s) * (x - s * ω) * (x - s * ω ^ 2)
+          := by
+          ring --???因式分解的来处
+    rw [h₁, h₂, h₃, h₄ (x + b / (3 * a))]
+    ring_nf
 
 
 
