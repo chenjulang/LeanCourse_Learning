@@ -5,6 +5,9 @@ import Std.Data.Nat.Gcd
 
 #print Nat.Coprime
 
+variables (n:ℚ) (n:ℚ)
+
+
 example (m n : Nat) (h : m.Coprime n) : m.gcd n = 1 :=
   h
 
@@ -116,5 +119,8 @@ example {m n k r : ℕ} (nnz : n ≠ 0) (pow_eq : m ^ k = r * n ^ k) {p : ℕ} (
     rw [← eq1, pow_eq, eq2, add_comm, Nat.add_sub_cancel]
   rw [this]
   sorry
+
+
+var
 
 #check multiplicity

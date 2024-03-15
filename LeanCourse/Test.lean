@@ -30,3 +30,9 @@ theorem reduced_row_echelon_form_unique :
   { by_contra contra
     push_neg at contra
     exact hij (contra.symm ▸ not_lt.1 hij) }
+
+首先存在 P is true , 引入一个任意的命题 Q ,
+(P ∨ Q) is true
+{(P ∨ Q) is true} ↔ {情况1.P is true ; 情况2.Q is true ; 情况3.P Q both true}
+此时加入假设 ¬P is true
+排除了上述的情况1和情况3 ， 所以Q is true.换句话说，任意的引入命题Q可以“推出”is true.

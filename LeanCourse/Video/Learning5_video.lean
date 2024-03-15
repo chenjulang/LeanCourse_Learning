@@ -243,10 +243,9 @@
         · exact Nat.succ_pos 2
         · exact hω
         -- ω ^ 3 = 1
-        -- 根据???引理已知x^3 - 1 = 1分圆 * 3分圆 = (x-1) * (x-x1)(x-x2) = （x-1） *  (x^2 + x + 1)
-
+        -- 3分圆 定义= (x-x1)(x-x2)
         -- IsPrimitiveRoot.isRoot_cyclotomic 说的是：
-        -- ω是本原根 → ω是3分圆多项式的根
+        -- ω是3次本原根 → ω是3分圆多项式的根 ； 换句话说，ω是{x1,x2}其中一个，代入多项式(x-x1)(x-x2)当然结果为0.
         done
         -- exact IsPrimitiveRoot.isRoot_cyclotomic (@of_decide_eq_true (0 < 3) (Nat.decLt 0 3) (Eq.refl true)) hω
       have h2 :  IsRoot (cyclotomic 3 K) = IsRoot (1 + X + X ^ 2)

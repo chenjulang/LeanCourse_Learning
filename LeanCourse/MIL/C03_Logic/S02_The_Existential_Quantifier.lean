@@ -71,7 +71,9 @@ example (ubf : FnHasUb f) (ubg : FnHasUb g) : FnHasUb fun x ↦ f x + g x := by
   obtain ⟨b, ubgb⟩ := ubg
   exact ⟨a + b, fnUb_add ubfa ubgb⟩
 
-example (ubf : FnHasUb f) (ubg : FnHasUb g) : FnHasUb fun x ↦ f x + g x := by
+example (ubf : FnHasUb f) (ubg : FnHasUb g)
+: FnHasUb fun x ↦ f x + g x
+:= by
   cases ubf
   case intro a ubfa =>
     cases ubg

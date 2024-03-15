@@ -10,6 +10,8 @@ namespace Matrix
   def n2 : Type := ℕ
   def α2 : Type := ℝ
 
+  -- #check (Finset Nat)
+
   variable
   [Fintype n2]
   [DecidableEq n2]

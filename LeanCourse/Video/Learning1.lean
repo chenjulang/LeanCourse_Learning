@@ -3,6 +3,9 @@ import Mathlib.Data.Real.Sqrt
 -- 十八世纪六十年代 2016 2022年11月30日 lean4
 -- 斐波拉契数列通项公式
 
+-- variable (m:ℕ) (n:ℕ) (q:ℚ)
+-- lemma test001 (h1:q=m/n) : sorry := by sorry
+
 open Real -- 把前缀省略
 #check (sqrt 2:ℝ )
 
@@ -109,3 +112,14 @@ noncomputable section
 
     -- 基于有限的几个公理，可以推出高深的数学。
 end
+
+
+lemma test1 (a b c d e f g h : ℕ) : (d + f) + (h + (a + c)) + (g + e + b) = a + b + c + d + e + f + g + h
+:= by
+  simp only [add_assoc,add_left_comm,add_comm]
+  -- ring
+
+-- lemma test2 : 20+20 =40 :=by decide
+-- #print test2
+
+-- #print test1
