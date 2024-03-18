@@ -1039,7 +1039,7 @@ theorem My_nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPr
                             (zero_mul d))))
                       (PNat.ne_zero n))
                   hd;
-              have ha2 := @Eq.ndrec ℕ (↑n) (fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (Eq.refl (@HPow.hPow R ℕ R instHPow x ↑n = 1)) (a * d) hd
+              let ha2 := @Eq.ndrec ℕ (↑n) (fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (Eq.refl (@HPow.hPow R ℕ R instHPow x ↑n = 1)) (a * d) hd
               -- have ha2_2 : ((@HPow.hPow R ℕ R instHPow x ↑n = 1) = ((x ^ a) ^ d = 1)) ↔ ((fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (a * d))
               --   := by
               --   constructor
@@ -1051,13 +1051,29 @@ theorem My_nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPr
               --     rw [pow_mul]
               --   done
               -- Eq.mpr (id (@Eq.ndrec ℕ (↑n) (fun _a ↦ (x ^ ↑n = 1) = (x ^ _a = 1)) (Eq.refl (x ^ ↑n = 1)) (a * d) hd)) -- type mismatch
-              Eq.mpr (id ha2) -- what? 替换简称就解决了？
-                (Eq.mpr (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1)))
+              let ha3 := @Eq.ndrec R (x ^ (a * d)) (fun _a ↦ (x ^ (a * d) = 1) = (_a = 1)) (Eq.refl (x ^ (a * d) = 1)) ((x ^ a) ^ d) (pow_mul x a d)
+              let ha4 := @mem_primitiveRoots R a _ _ x hazero
+              let ha5: IsPrimitiveRoot x a := by exact isPrimitiveRoot_of_mem_primitiveRoots ha
+              let ha6_1 := @Eq.refl Prop ((x ^ a) ^ d = 1)
+              let ha6 := @id (((x ^ a) ^ d = 1) = (1 ^ d = 1)) ((Eq.mp (propext ha4 ▸ Eq.refl (x ∈ primitiveRoots a R)) ha5).pow_eq_one ▸ Eq.refl ((x ^ a) ^ d = 1))
+              let ha7_1 : (1 ^ d = 1) = (1 ^ d = 1) := (@Eq.refl Prop (1 ^ d = 1))
+              let ha7 := @Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) ha7_1 1 (one_pow d)
+            --   has type
+            --   (1 ^ d = 1) = (1 ^ d = 1) : Prop
+            -- but is expected to have type
+            --   (1 ^ d = 1) = (1 ^ d = 1) : PropLean 4
+              Eq.mpr (id ha2) -- what? 替换简称就解决了？应该只是因为没写详细的问题。
+                (Eq.mpr (id ha3)
                   (Eq.mpr
-                    (id
-                      ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
-                        Eq.refl ((x ^ a) ^ d = 1)))
-                    (Eq.mpr (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1)))))
+                    ha6
+                    -- (id
+                    --   ((Eq.mp (propext ha4 ▸ Eq.refl (x ∈ primitiveRoots a R)) ha5).pow_eq_one ▸ Eq.refl ((x ^ a) ^ d = 1))
+                    -- )
+                      -- ha4: typeclass instance problem is stuck, it is often due to metavariables  IsDomain ?m.3928398
+                      -- ha: application type mismatch ,  IsPrimitiveRoot x a 和 x ∈ primitiveRoots a R 同一个意思也要我写一下，服了～～
+                    (Eq.mpr (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1)))
+                )
+              )
 
   · apply le_of_eq
     rw [h.card_nthRootsFinset, Finset.card_biUnion]
