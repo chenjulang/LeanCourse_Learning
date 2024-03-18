@@ -98,3 +98,123 @@ fun {R} [CommRing R] [IsDomain R] {ζ} {n} h ↦
     1.intro x 取出任意一个元素
     2.
   7.2.但是元素个数不小于别的：
+
+
+
+theorem My_nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPrimitiveRoot ζ n) :
+    nthRootsFinset n R = (Nat.divisors ↑n).biUnion fun i => primitiveRoots i R
+  := by
+  symm
+  apply Finset.eq_of_subset_of_card_le
+  · intro x
+    apply id
+    apply Eq.mpr
+    have h1:= (id
+      (implies_congr (Eq.refl (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R))
+        (congrArg (Membership.mem x) (Multiset.toFinset_eq (nthRoots_nodup h)).symm)))
+    have auxlemma_34 : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
+      := by sorry
+    have auxlemma_36 : ∀ {n m : ℕ}, (n ∈ Nat.divisors m) = (n ∣ m ∧ m ≠ 0)
+      := by sorry
+    have auxlemma_38 : ∀ (n : ℕ+), ( ((n:ℕ) = 0) = False)
+      := by simp only [PNat.ne_zero, forall_const]
+    -- have auxlemma_38_n := auxlemma_38 n -- 最终符合的是长这样的，
+    -- have auxlemma_38_n : (¬(n : ℕ) = 0) = ¬False := by simp only [PNat.ne_zero,
+    --   not_false_eq_true] -- 不报错，但不是想要的
+    -- have test38: ∀ (n : ℕ+), (n = 0) = False -- 注意：这样写会报错:failed to synthesize instance
+    -- have test38 (n : ℕ+) : (n : ℕ) ≠ 0 := n.2.ne' -- 这样写不会
+    -- have test38 : ∀ (n : ℕ+), (n:ℕ) = 0 = False -- 这样也不会。总结就是：缺了条件,就报错failed to synthesize
+    have auxlemma_40 : (¬False) = True
+      := by simp only
+    have auxlemma_37 : ∀ (p : Prop), (p ∧ True) = p
+      := by simp only [and_true, forall_const]
+    have auxlemma_28
+    : ∀ {α : Type u_4} {a : α} {s : Multiset α} {nd : Multiset.Nodup s}, (@Membership.mem α (Finset α) instMembershipFinset a { val := s, nodup := nd } ) = (a ∈ s)  -- invalid notion {} 是因为缺少一些前缀，信息不详细
+      := by simp only [mem_mk, implies_true, forall_const]
+    -- (Multiset.toFinset_eq (nthRoots_nodup h)).symm
+        -- ∀ {α : Type u_4} {a : α} {s : Multiset α} {nd : Multiset.Nodup s}, (a ∈ { val := s, nodup := nd }) = (a ∈ s)
+          -- := by sorry
+    have auxlemma_35: ∀ {R : Type u_4} [inst : CommRing R] [inst_2 : IsDomain R] {n : ℕ},
+      0 < n → ∀ {a x : R}, (x ∈ nthRoots n a) = (x ^ n = a)
+      := by
+      simp only [eq_iff_iff]
+      exact fun {R} [CommRing R] [IsDomain R] {n} a {a_1 x} ↦ mem_nthRoots a
+    have auxlemma_39: ∀ (n : ℕ+), (0 < (n:ℕ )) = True
+      := by simp only [PNat.pos, forall_const]
+    have auxlemma_41 : ∀ {α : Type} [inst : CanonicallyOrderedAddCommMonoid α] {a : α}, (a ≤ 0) = (a = 0)
+      := by simp only [nonpos_iff_eq_zero, forall_const, implies_true]
+
+    -- 注意：分析print的时候，会发现有些参数可能是原证明中没出现的，要记下来，比如auxlemma_35'后面的"1 x"
+    -- have testaaa1 := (of_eq_true (auxlemma_39 n)) -- : 0 < ↑n
+    -- have testaaa2 := @auxlemma_35 R _ _ _ (of_eq_true (auxlemma_39 n)) -- : ∀ {a x : R}, (x ∈ nthRoots (↑n) a) = (x ^ ↑n = a)
+    have auxlemma_35'_39 := @auxlemma_35 R _ _ _ (of_eq_true (auxlemma_39 n)) 1 x-- 注意：typeclass instance problem is stuck: 用全参数@来解决，要自动推断的写个“_”即可
+    have auxlemma_28' := @auxlemma_28 R x (nthRoots (↑n) 1) (nthRoots_nodup h)
+    -- @Eq.trans -- 验证:不用
+    -- Prop  -- 验证:不用
+    -- (x ∈ { val := nthRoots (↑n) 1, nodup := nthRoots_nodup h })  -- 验证:不用
+    -- (x ∈ nthRoots (↑n) 1)  -- 验证:不用
+    -- (x ^ ↑n = 1)  -- 验证:不用
+    -- «lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.28 -- 验证：: (x ∈ { val := nthRoots (↑n) 1, nodup := (_ : Multiset.Nodup (nthRoots (↑n) 1)) }) = (x ∈ nthRoots (↑n) 1)，就是已知的auxlemma_28'
+    -- («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.35 -- 验证: (x ∈ nthRoots (↑n) 1) = (x ^ ↑n = 1)，也就是已知的auxlemma_35'_39
+      -- (of_eq_true («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.39 n)))
+    -- : (x ∈ { val := nthRoots (↑n) 1, nodup := (_ : Multiset.Nodup (nthRoots (↑n) 1)) }) = (x ^ ↑n = 1)
+    have testaaa3 := @Eq.trans Prop
+      (@Membership.mem R (Finset R) instMembershipFinset x { val := nthRoots (↑n) 1, nodup := @nthRoots_nodup R _ _ ζ (↑n) h }) -- 报错inst : inst全部替换成_即可
+      (x ∈ nthRoots (↑n) 1)
+      (@Eq R (@HPow.hPow R ℕ R instHPow x ↑n) 1 ) -- 报错就参照print信息写详细。
+      auxlemma_28'
+      auxlemma_35'_39
+    have h2:=
+      (Eq.mpr
+        (id
+          (implies_congr
+            (auxlemma_34.trans
+              (congrArg Exists
+                (_root_.funext fun a ↦
+                  congrFun
+                    (congrArg And
+                      ((auxlemma_36.trans
+                            (congrArg (And (a ∣ ↑n))
+                              ((congrArg Not (auxlemma_38 n)).trans -- 报错：function expected at , 是因为引理auxlemma_38写错了，少了很多括号，有括号请多写括号。
+                                auxlemma_40))).trans
+                        (auxlemma_37 (a ∣ ↑n))))
+                    (x ∈ primitiveRoots a R))))
+            (auxlemma_28.trans auxlemma_35'_39)))
+        fun a ↦
+        Exists.casesOn a fun a h ↦
+          And.casesOn h fun left ha ↦
+            Exists.casesOn left fun d hd ↦
+              let_fun hazero :=
+                Mathlib.Tactic.Contrapose.mtr
+                  (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d)))) fun ha0 ↦
+                    Eq.mpr
+                      (id
+                        (congrArg (Ne ↑n)
+                          ((congrFun
+                                (congrArg HMul.hMul
+                                  (id
+                                    (Eq.mp auxlemma_41
+                                      ha0)))
+                                d).trans
+                            (zero_mul d))))
+                      (PNat.ne_zero n))
+                  hd;
+              Eq.mpr (id (hd ▸ Eq.refl (x ^ ↑n = 1)))
+                (Eq.mpr (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1)))
+                  (Eq.mpr
+                    (id
+                      ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
+                        Eq.refl ((x ^ a) ^ d = 1)))
+                    (Eq.mpr (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1)))))
+
+  · apply le_of_eq
+    rw [h.card_nthRootsFinset, Finset.card_biUnion]
+    · nth_rw 1 [← Nat.sum_totient n]
+      refine' sum_congr rfl _
+      simp only [Nat.mem_divisors]
+      rintro k ⟨⟨d, hd⟩, -⟩
+      rw [mul_comm] at hd
+      rw [(h.pow n.pos hd).card_primitiveRoots]
+    · intro i _ j _ hdiff
+      exact disjoint hdiff
+#print nthRoots_one_eq_biUnion_primitiveRoots'
