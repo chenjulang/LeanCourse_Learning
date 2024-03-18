@@ -1035,25 +1035,51 @@
 --         x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h)) ) =
 --         ((∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1)
 --         := by
---           -- todo 拆解
 --           have h2_1_1: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
 --           := by
---             have aaa_34 : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
---               := by
---               simp only [mem_biUnion] -- 证明最好换一行，不然后面可能引用失败。
 --             have h2_1_1_1: (∃ x_1 ∈ Nat.divisors ↑n, x ∈ primitiveRoots x_1 R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
---             := sorry
---               -- @congrArg (ℕ → Prop) Prop (fun x_1 ↦ x_1 ∈ Nat.divisors ↑n ∧ x ∈ primitiveRoots x_1 R)
---               -- (fun x_1 ↦ x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R) Exists
---               -- (_root_.funext fun a ↦
---               --   congrFun
---               --     (congrArg And
---               --       ((auxLemma_36.trans
---               --             (congrArg (And (a ∣ ↑n))
---               --               ((congrArg Not (auxLemma_38 n)).trans
---               --                 auxLemma_40))).trans
---               --         (auxLemma_37 (a ∣ ↑n))))
---               --     (x ∈ primitiveRoots a R))
+--             := by
+--               have h2_1_1_1_1: (fun x_1 ↦ x_1 ∈ Nat.divisors ↑n ∧ x ∈ primitiveRoots x_1 R) = fun x_1 ↦ x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
+--               := by
+--                 apply @_root_.funext ℕ (fun x ↦ Prop) (fun x_1 ↦ x_1 ∈ Nat.divisors ↑n ∧ x ∈ primitiveRoots x_1 R) (fun x_1 ↦ x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R)
+--                 intro a
+--                 have h2_1_1_1_1_1 : And (a ∈ Nat.divisors ↑n) = And (a ∣ ↑n)
+--                 := by
+--                   have h2_1_1_1_1_1_1 : (a ∈ Nat.divisors ↑n) = (a ∣ ↑n)
+--                   := by simp only [Nat.mem_divisors, Nat.isUnit_iff, ne_eq, PNat.ne_zero,
+--                     not_false_eq_true, and_true]  -- 这是最后几行了，看到很简单，直接simp了。
+--                     -- exact @Eq.trans
+--                     --   Prop
+--                     --   (a ∈ Nat.divisors ↑n)
+--                     --   (a ∣ ↑n ∧ True)
+--                     --   (a ∣ ↑n)
+--                     --   (auxLemma_36.trans
+--                     --     (congrArg (And (a ∣ ↑n))
+--                     --       ((congrArg Not (auxLemma_38 n)).trans
+--                     --         auxLemma_40)))
+--                     --   (auxLemma_37 (a ∣ ↑n))
+--                     -- sorry
+--                   exact @congrArg
+--                     Prop
+--                     (Prop → Prop)
+--                     (a ∈ Nat.divisors ↑n)
+--                     (a ∣ ↑n)
+--                     And
+--                     h2_1_1_1_1_1_1
+--                 exact @congrFun
+--                   Prop
+--                   (fun b ↦ Prop)
+--                   (And (a ∈ Nat.divisors ↑n))
+--                   (And (a ∣ ↑n))
+--                   h2_1_1_1_1_1
+--                   (x ∈ primitiveRoots a R)
+--               exact @congrArg
+--                 (ℕ → Prop)
+--                 Prop
+--                 (fun x_1 ↦ x_1 ∈ Nat.divisors ↑n ∧ x ∈ primitiveRoots x_1 R)
+--                 (fun x_1 ↦ x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R)
+--                 Exists
+--                 h2_1_1_1_1
 --             exact @Eq.trans Prop
 --               (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
 --               (∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R)
