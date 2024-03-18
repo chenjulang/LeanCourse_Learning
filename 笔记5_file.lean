@@ -1008,7 +1008,7 @@
 --       := by simp only [mem_mk, implies_true, forall_const]
 --     -- (Multiset.toFinset_eq (nthRoots_nodup h)).symm
 --         -- ∀ {α : Type u_4} {a : α} {s : Multiset α} {nd : Multiset.Nodup s}, (a ∈ { val := s, nodup := nd }) = (a ∈ s)
---           -- := by sorry
+--           -- := by
 --     have auxlemma_35: ∀ {R : Type u_4} [inst : CommRing R] [inst_2 : IsDomain R] {n : ℕ},
 --       0 < n → ∀ {a x : R}, (x ∈ nthRoots n a) = (x ^ n = a)
 --       := by
@@ -1092,16 +1092,13 @@
 --               -- @id (((x ^ a) ^ d = 1) = (1 ^ d = 1))
 --               -- ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
 --               --   Eq.refl ((x ^ a) ^ d = 1))
---               have h2_2_5_1_2 : 1 ^ d = 1 := sorry
+--               have h2_2_5_1_2 : 1 ^ d = 1
+--                 := by
+--                 have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) := @id ((1 ^ d = 1) = (1 = 1)) (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (@Eq.refl Prop (1 ^ d = 1)) 1 (one_pow d) ) -- 傻瓜报错，同类还报错。
+--                 sorry
 --               --  @Eq.mpr (1 ^ d = 1) (1 = 1) (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1)
---               -- symm at h2_2_5_1_1
 --               have h2_2_5_1_3 := @Eq.mpr _ _ h2_2_5_1_1 h2_2_5_1_2
 --               exact h2_2_5_1_3
---             -- @Eq.mpr ((x ^ a) ^ d = 1) (1 ^ d = 1)
---             --   (id
---             --     ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
---             --       Eq.refl ((x ^ a) ^ d = 1)))
---             --   (Eq.mpr (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1))
 --             exact @Eq.mpr (x ^ (a * d) = 1) ((x ^ a) ^ d = 1) (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1))) h2_2_5_1
 --         exact @Eq.mpr _ _ h2_2_4 h2_2_5
 --       exact Eq.mpr h2_1 h2_2
