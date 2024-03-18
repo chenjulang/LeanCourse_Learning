@@ -1103,10 +1103,7 @@
 --             --       Eq.refl ((x ^ a) ^ d = 1)))
 --             --   (Eq.mpr (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1))
 --             exact @Eq.mpr (x ^ (a * d) = 1) ((x ^ a) ^ d = 1) (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1))) h2_2_5_1
---         rw [h2_2_5] at h2_2_4
---         -- symm at h2_2_4
---         have eq1_1: 1=1 :=by rfl
---         exact @Eq.mpr _ _ h2_2_4 eq1_1
+--         exact @Eq.mpr _ _ h2_2_4 h2_2_5
 --       exact Eq.mpr h2_1 h2_2
 --     have h3 := id (Eq.mpr h1 h2)
 --     exact h3
