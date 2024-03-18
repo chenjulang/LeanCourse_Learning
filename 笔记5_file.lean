@@ -973,8 +973,7 @@
 --     --
 --     -- 引理的原命题：
 --     --
---     have auxlemma_34 : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
---       := by simp only [mem_biUnion]
+
 --     have auxlemma_36 : ∀ {n m : ℕ}, (n ∈ Nat.divisors m) = (n ∣ m ∧ m ≠ 0)
 --       := by simp only [Nat.mem_divisors, Nat.isUnit_iff, ne_eq, forall_const]
 --     have auxlemma_38 : ∀ (n : ℕ+), ( ((n:ℕ) = 0) = False)
@@ -1027,6 +1026,9 @@
 --     --   (@Eq R (@HPow.hPow R ℕ R instHPow x ↑n) 1 ) -- 报错就参照print信息写详细。
 --     --   auxlemma_28'
 --     --   auxlemma_35'_39
+--     have auxlemma_34' : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
+--       := by
+--       simp only [mem_biUnion] -- 证明最好换一行，不然后面可能引用失败。
 --     have h2: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) → x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))
 --     := by
 --       have h2_1: ((x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) →
@@ -1036,24 +1038,28 @@
 --           -- todo 拆解
 --           have h2_1_1: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
 --           := by
-
---             -- exact Eq.trans Prop
---             -- (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
---             -- (∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R)
---             -- (∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R)
---             -- «lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.34
---             -- (congrArg Exists
---             --   (_root_.funext fun a ↦
---             --     congrFun
---             --       (congrArg And
---             --         ((«lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.36.trans
---             --               (congrArg (And (a ∣ ↑n))
---             --                 ((congrArg Not («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.38 n)).trans
---             --                   «lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.40))).trans
---             --           («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.37 (a ∣ ↑n))))
---             --       (x ∈ primitiveRoots a R)))
---             sorry
---           -- todo 拆解
+--             have aaa_34 : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
+--               := by
+--               simp only [mem_biUnion] -- 证明最好换一行，不然后面可能引用失败。
+--             have h2_1_1_1: (∃ x_1 ∈ Nat.divisors ↑n, x ∈ primitiveRoots x_1 R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
+--             := sorry
+--               -- @congrArg (ℕ → Prop) Prop (fun x_1 ↦ x_1 ∈ Nat.divisors ↑n ∧ x ∈ primitiveRoots x_1 R)
+--               -- (fun x_1 ↦ x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R) Exists
+--               -- (_root_.funext fun a ↦
+--               --   congrFun
+--               --     (congrArg And
+--               --       ((auxLemma_36.trans
+--               --             (congrArg (And (a ∣ ↑n))
+--               --               ((congrArg Not (auxLemma_38 n)).trans
+--               --                 auxLemma_40))).trans
+--               --         (auxLemma_37 (a ∣ ↑n))))
+--               --     (x ∈ primitiveRoots a R))
+--             exact @Eq.trans Prop
+--               (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
+--               (∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R)
+--               (∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R)
+--               auxlemma_34'
+--               h2_1_1_1
 --           have h2_1_2: (x ∈ ((@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) ) = (((@HPow.hPow R ℕ R instHPow x ↑n )) = 1)
 --           := by
 --             exact @Eq.trans Prop (x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) (x ∈ nthRoots (↑n) 1) (((@HPow.hPow R ℕ R instHPow x ↑n ))= 1) auxlemma_28
