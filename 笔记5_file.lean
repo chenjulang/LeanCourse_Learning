@@ -970,20 +970,6 @@
 --       )
 --       have h1_4 := id h1_3
 --       exact h1_4
---     -- 原证明：
---     -- := (
---     --     id
---     --     (implies_congr
---     --       (Eq.refl
---     --         (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
---     --       )
---     --       (congrArg
---     --         (Membership.mem x)
---     --         (Multiset.toFinset_eq (nthRoots_nodup h)).symm
---     --       )
---     --     )
---     --   )
-
 --     --
 --     -- 引理的原命题：
 --     --
@@ -1048,9 +1034,31 @@
 --         ((∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1)
 --         := by
 --           -- todo 拆解
---           have h2_1_1: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R := sorry
+--           have h2_1_1: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
+--           := by
+
+--             -- exact Eq.trans Prop
+--             -- (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
+--             -- (∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R)
+--             -- (∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R)
+--             -- «lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.34
+--             -- (congrArg Exists
+--             --   (_root_.funext fun a ↦
+--             --     congrFun
+--             --       (congrArg And
+--             --         ((«lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.36.trans
+--             --               (congrArg (And (a ∣ ↑n))
+--             --                 ((congrArg Not («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.38 n)).trans
+--             --                   «lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.40))).trans
+--             --           («lake-packages».mathlib.Mathlib.RingTheory.RootsOfUnity.Basic._auxLemma.37 (a ∣ ↑n))))
+--             --       (x ∈ primitiveRoots a R)))
+--             sorry
 --           -- todo 拆解
---           have h2_1_2: (x ∈ ((@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) ) = (((@HPow.hPow R ℕ R instHPow x ↑n )) = 1) := sorry
+--           have h2_1_2: (x ∈ ((@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) ) = (((@HPow.hPow R ℕ R instHPow x ↑n )) = 1)
+--           := by
+--             exact @Eq.trans Prop (x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) (x ∈ nthRoots (↑n) 1) (((@HPow.hPow R ℕ R instHPow x ↑n ))= 1) auxlemma_28
+--               (auxlemma_35
+--                 (of_eq_true (auxlemma_39 n)))
 --           exact implies_congr h2_1_1 h2_1_2
 --       have h2_2: (∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1
 --         := by
@@ -1064,7 +1072,8 @@
 --         have h2_2_3 := @Exists.casesOn ℕ (fun c ↦ ↑n = a * c) (fun x_1 ↦ (@HPow.hPow R ℕ R instHPow x ↑n ) = 1) left
 --         apply h2_2_3
 --         intro d hd
---         let hazero := Mathlib.Tactic.Contrapose.mtr
+--         -- todo 拆解
+--         have hazero := Mathlib.Tactic.Contrapose.mtr
 --           (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d))))
 --             fun ha0 ↦
 --             Eq.mpr
