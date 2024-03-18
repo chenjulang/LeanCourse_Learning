@@ -1052,7 +1052,6 @@
 --           -- todo 拆解
 --           have h2_1_2: (x ∈ ((@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))) ) = (((@HPow.hPow R ℕ R instHPow x ↑n )) = 1) := sorry
 --           exact implies_congr h2_1_1 h2_1_2
---       -- todo 拆散h2_2
 --       have h2_2: (∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1
 --         := by
 --         intro a
@@ -1065,7 +1064,6 @@
 --         have h2_2_3 := @Exists.casesOn ℕ (fun c ↦ ↑n = a * c) (fun x_1 ↦ (@HPow.hPow R ℕ R instHPow x ↑n ) = 1) left
 --         apply h2_2_3
 --         intro d hd
---         -- todo 拆解hazero
 --         let hazero := Mathlib.Tactic.Contrapose.mtr
 --           (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d))))
 --             fun ha0 ↦
@@ -1088,11 +1086,11 @@
 --         := by
 --             have h2_2_5_1 : (x ^ a) ^ d = 1
 --             := by
---               have h2_2_5_1_1 : ((x ^ a) ^ d = 1) = (1 ^ d = 1) := sorry
---               -- @id (((x ^ a) ^ d = 1) = (1 ^ d = 1))
---               -- ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
---               --   Eq.refl ((x ^ a) ^ d = 1))
-
+--               have h2_2_5_1_1 : ((x ^ a) ^ d = 1) = (1 ^ d = 1)
+--               := by
+--                 -- exact @Eq.ndrec R (x ^ a) (fun _a ↦ ((x ^ a) ^ d = 1) = (_a ^ d = 1)) (Eq.refl ((x ^ a) ^ d = 1)) 1
+--                 --   (Eq.mp (propext (@mem_primitiveRoots R a _ _ x hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha').pow_eq_one
+--                 sorry -- 傻瓜报错，同类还报错。
 --               have h2_2_5_1_2 : 1 ^ d = 1
 --                 := by
 --                 have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) :=
