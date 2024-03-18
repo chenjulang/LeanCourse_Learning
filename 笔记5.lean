@@ -218,3 +218,88 @@ theorem My_nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPr
     · intro i _ j _ hdiff
       exact disjoint hdiff
 #print nthRoots_one_eq_biUnion_primitiveRoots'
+
+
+
+正在处理：
+
+-- 原证明：
+exact (Eq.mpr
+
+  (id
+    (implies_congr
+      (auxlemma_34.trans
+        (congrArg Exists
+          (_root_.funext fun a ↦
+            congrFun
+              (congrArg And
+                ((auxlemma_36.trans
+                      (congrArg (And (a ∣ ↑n))
+                        ((congrArg Not (auxlemma_38 n)).trans -- 报错：function expected at , 是因为引理auxlemma_38写错了，少了很多括号，有括号请多写括号。
+                          auxlemma_40))).trans
+                  (auxlemma_37 (a ∣ ↑n))))
+              (x ∈ primitiveRoots a R))))
+      (auxlemma_28.trans auxlemma_35'_39))
+  )
+
+  fun a ↦
+  Exists.casesOn a fun a h ↦
+    And.casesOn h fun left ha ↦
+      Exists.casesOn left fun d hd ↦
+        let_fun hazero :=
+          Mathlib.Tactic.Contrapose.mtr
+            (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d)))) fun ha0 ↦
+              Eq.mpr
+                (id
+                  (congrArg (Ne ↑n)
+                    ((congrFun
+                          (congrArg HMul.hMul
+                            (id
+                              (Eq.mp auxlemma_41
+                                ha0)))
+                          d).trans
+                      (zero_mul d))))
+                (PNat.ne_zero n))
+            hd;
+        let ha2 := @Eq.ndrec ℕ (↑n) (fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (Eq.refl (@HPow.hPow R ℕ R instHPow x ↑n = 1)) (a * d) hd
+        -- have ha2_2 : ((@HPow.hPow R ℕ R instHPow x ↑n = 1) = ((x ^ a) ^ d = 1)) ↔ ((fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (a * d))
+        --   := by
+        --   constructor
+        --   · intro eq1
+        --     simp only [eq_iff_iff]
+        --     rw [hd]
+        --   · intro eq2
+        --     rw [hd]
+        --     rw [pow_mul]
+        --   done
+        -- Eq.mpr (id (@Eq.ndrec ℕ (↑n) (fun _a ↦ (x ^ ↑n = 1) = (x ^ _a = 1)) (Eq.refl (x ^ ↑n = 1)) (a * d) hd)) -- type mismatch
+        let ha3 := @Eq.ndrec R (x ^ (a * d)) (fun _a ↦ (x ^ (a * d) = 1) = (_a = 1)) (Eq.refl (x ^ (a * d) = 1)) ((x ^ a) ^ d) (pow_mul x a d)
+        let ha4 := @mem_primitiveRoots R a _ _ x hazero
+        let ha5: IsPrimitiveRoot x a := by exact isPrimitiveRoot_of_mem_primitiveRoots ha
+        let ha6_1 := @Eq.refl Prop ((x ^ a) ^ d = 1)
+        -- let ha6 := @id (((x ^ a) ^ d = 1) = (1 ^ d = 1)) ((Eq.mp (propext ha4 ▸ Eq.refl (x ∈ primitiveRoots a R)) ha5).pow_eq_one ▸ Eq.refl ((x ^ a) ^ d = 1))
+        let ha7_1 : (1 ^ d = 1) = (1 ^ d = 1) := (@Eq.refl Prop (1 ^ d = 1))
+        -- let ha7 := @Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) ha7_1 1 (one_pow d)
+        let ha8 := @Eq.refl Prop ((x ^ a) ^ d = 1)
+        -- let ha8':  ((x ^ a) ^ d = 1) = ((x ^ a) ^ d = 1) :=
+        let ha9 := (@Eq.ndrec R (x ^ a) (fun _a ↦ ((x ^ a) ^ d = 1) = (_a ^ d = 1)) (Eq.refl ((x ^ a) ^ d = 1)) 1
+                  (Eq.mp (@Eq.ndrec Prop (x ∈ primitiveRoots a R) (fun _a ↦ (x ∈ primitiveRoots a R) = _a) (Eq.refl (x ∈ primitiveRoots a R))
+                    (IsPrimitiveRoot x a) (propext (mem_primitiveRoots hazero))) ha).pow_eq_one)
+        let ha10:(1 ^ d = 1) = (1 ^ d = 1) := (@Eq.refl Prop (1 ^ d = 1))
+        -- has type
+        --   (1 ^ d = 1) = (1 ^ d = 1) : Prop
+        -- but is expected to have type
+        --   (1 ^ d = 1) = (1 ^ d = 1) : Prop -- 相同的type却出错了？
+        Eq.mpr (id ha2) -- what? 替换简称就解决了？应该只是因为没写详细的问题。
+          (Eq.mpr (id ha3)
+            (Eq.mpr
+            -- todo 这里开始出错：
+              (
+                @id (((x ^ a) ^ d = 1) = (1 ^ d = 1))
+                ha9
+              )
+                -- ha4: typeclass instance problem is stuck, it is often due to metavariables  IsDomain ?m.3928398
+                -- ha: application type mismatch ,  IsPrimitiveRoot x a 和 x ∈ primitiveRoots a R 同一个意思也要我写一下，服了～～
+              (Eq.mpr (id (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (ha10) 1 (one_pow d))) (Eq.refl 1)))
+          )
+)
