@@ -1039,7 +1039,19 @@ theorem My_nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPr
                             (zero_mul d))))
                       (PNat.ne_zero n))
                   hd;
-              Eq.mpr (id (@Eq.ndrec ℕ (↑n) (fun _a ↦ (x ^ ↑n = 1) = (x ^ _a = 1)) (Eq.refl (x ^ ↑n = 1)) (a * d) hd)) -- type mismatch
+              have ha2 := @Eq.ndrec ℕ (↑n) (fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (Eq.refl (@HPow.hPow R ℕ R instHPow x ↑n = 1)) (a * d) hd
+              -- have ha2_2 : ((@HPow.hPow R ℕ R instHPow x ↑n = 1) = ((x ^ a) ^ d = 1)) ↔ ((fun _a ↦ (@HPow.hPow R ℕ R instHPow x ↑n = 1) = (x ^ _a = 1)) (a * d))
+              --   := by
+              --   constructor
+              --   · intro eq1
+              --     simp only [eq_iff_iff]
+              --     rw [hd]
+              --   · intro eq2
+              --     rw [hd]
+              --     rw [pow_mul]
+              --   done
+              -- Eq.mpr (id (@Eq.ndrec ℕ (↑n) (fun _a ↦ (x ^ ↑n = 1) = (x ^ _a = 1)) (Eq.refl (x ^ ↑n = 1)) (a * d) hd)) -- type mismatch
+              Eq.mpr (id ha2) -- what? 替换简称就解决了？
                 (Eq.mpr (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1)))
                   (Eq.mpr
                     (id
