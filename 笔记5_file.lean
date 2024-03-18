@@ -1104,23 +1104,25 @@
 --         have h2_2_3 := @Exists.casesOn ℕ (fun c ↦ ↑n = a * c) (fun x_1 ↦ (@HPow.hPow R ℕ R instHPow x ↑n ) = 1) left
 --         apply h2_2_3
 --         intro d hd
---         -- todo 拆解
---         have hazero := Mathlib.Tactic.Contrapose.mtr
---           (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d))))
---             fun ha0 ↦
---             Eq.mpr
---               (id
---                 (congrArg (Ne ↑n)
---                   ((congrFun
---                         (congrArg HMul.hMul
---                           (id
---                             (Eq.mp
---                               auxlemma_41
---                               ha0)))
---                         d).trans
---                     (zero_mul d))))
---               (PNat.ne_zero n))
---           hd
+--         have hazero:0 < a
+--         := by
+--           exact PNat.pos_of_div_pos left
+--         --  Mathlib.Tactic.Contrapose.mtr
+--         --   (Eq.mpr (id (implies_congr (Mathlib.Tactic.PushNeg.not_lt_eq 0 a) (Eq.refl (↑n ≠ a * d))))
+--         --     fun ha0 ↦
+--         --     Eq.mpr
+--         --       (id
+--         --         (congrArg (Ne ↑n)
+--         --           ((congrFun
+--         --                 (congrArg HMul.hMul
+--         --                   (id
+--         --                     (Eq.mp
+--         --                       auxlemma_41
+--         --                       ha0)))
+--         --                 d).trans
+--         --             (zero_mul d))))
+--         --       (PNat.ne_zero n))
+--         --   hd
 --         have h2_2_4: ((@HPow.hPow R ℕ R instHPow x ↑n ) = 1) = (x ^ (a * d) = 1) := @id (( ((@HPow.hPow R ℕ R instHPow x ↑n ) )= 1) = (x ^ (a * d) = 1)) (@Eq.ndrec ℕ (n) (fun _a ↦ (((@HPow.hPow R ℕ R instHPow x ↑n ))= 1) = (x ^ _a = 1)) (Eq.refl (((@HPow.hPow R ℕ R instHPow x ↑n )) = 1)) (a * d) hd )
 --         let ha': IsPrimitiveRoot x a := by exact isPrimitiveRoot_of_mem_primitiveRoots ha
 --         have h2_2_5  : x ^ (a * d) = 1
