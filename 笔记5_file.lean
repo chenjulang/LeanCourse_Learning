@@ -1092,11 +1092,14 @@
 --               -- @id (((x ^ a) ^ d = 1) = (1 ^ d = 1))
 --               -- ((Eq.mp (propext (mem_primitiveRoots hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha).pow_eq_one ▸
 --               --   Eq.refl ((x ^ a) ^ d = 1))
+
 --               have h2_2_5_1_2 : 1 ^ d = 1
 --                 := by
---                 have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) := @id ((1 ^ d = 1) = (1 = 1)) (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (@Eq.refl Prop (1 ^ d = 1)) 1 (one_pow d) ) -- 傻瓜报错，同类还报错。
---                 sorry
---               --  @Eq.mpr (1 ^ d = 1) (1 = 1) (id (one_pow d ▸ Eq.refl (1 ^ d = 1))) (Eq.refl 1)
+--                 have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) :=
+--                   -- @id ((1 ^ d = 1) = (1 = 1)) (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (@Eq.refl Prop (1 ^ d = 1)) 1 (one_pow d) )
+--                   sorry -- 傻瓜报错，同类还报错。
+--                 have oneEqOne : (1 = 1) := rfl
+--                 exact @Eq.mpr _ _ h2_2_5_1_2_1 (oneEqOne)
 --               have h2_2_5_1_3 := @Eq.mpr _ _ h2_2_5_1_1 h2_2_5_1_2
 --               exact h2_2_5_1_3
 --             exact @Eq.mpr (x ^ (a * d) = 1) ((x ^ a) ^ d = 1) (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1))) h2_2_5_1

@@ -228,7 +228,8 @@ exact (Eq.mpr
 
   (id
     (implies_congr
-      (auxlemma_34.trans
+
+      (auxlemma_34.trans --
         (congrArg Exists
           (_root_.funext fun a ↦
             congrFun
@@ -239,10 +240,13 @@ exact (Eq.mpr
                           auxlemma_40))).trans
                   (auxlemma_37 (a ∣ ↑n))))
               (x ∈ primitiveRoots a R))))
-      (auxlemma_28.trans auxlemma_35'_39))
+
+      (auxlemma_28.trans auxlemma_35'_39)) --
+
   )
 
-  fun a ↦
+  fun a ↦ --
+
   Exists.casesOn a fun a h ↦
     And.casesOn h fun left ha ↦
       Exists.casesOn left fun d hd ↦
@@ -302,4 +306,5 @@ exact (Eq.mpr
                 -- ha: application type mismatch ,  IsPrimitiveRoot x a 和 x ∈ primitiveRoots a R 同一个意思也要我写一下，服了～～
               (Eq.mpr (id (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (ha10) 1 (one_pow d))) (Eq.refl 1)))
           )
+
 )
