@@ -78,26 +78,27 @@ fun {R} [CommRing R] [IsDomain R] {ζ} {n} h ↦
                             Eq.refl (φ k = card (primitiveRoots k R))))
                         (Eq.refl (φ k))))))))).symm
 
+938-1161 进度：1029 拆解后会不会出现难度很高的引理呢？
 1.命题描述：
   theorem nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPrimitiveRoot ζ n) :
     nthRootsFinset n R = (Nat.divisors ↑n).biUnion fun i => primitiveRoots i R
 2.IsPrimitiveRoot ζ n：ζ是本原的n-单位根；换句话说，ζ能生成所有的n-复数单位根。
 3.nthRootsFinset n R：表示x^n=1 这个方程的所有复数根的集合。
   即e^(i2kπ/n)，k=1,2,3,4...。由于循环其实就只有n个。
-4.primitiveRoots i R：指的是3中的集合（这里记为A）里面，是本原的那些元素；
+4.primitiveRoots i R：指的是"3."中的集合（这里记为A）里面，是本原的那些元素；
   换句话说，能通过复合（自我相乘）生成集合A所有元素的那些元素。
 5.(Nat.divisors n)：指的是n的所有因子的集合B。
 6.(Nat.divisors ↑n).biUnion fun i => primitiveRoots i R：是3个新集合C1,C2,C3并集的结果。
-    整个的意思是首先也是5中的集合B，
+    整个的意思是首先B也是"5."中的集合B，
     对于B中所有元素比如有{b1,b2,b3},
-    都通过映射fun i => primitiveRoots i R，各得到一个集合，共3个集合C1,C2,C3。
+    都通过映射fun i => primitiveRoots i R，各得到一个本原根集合，共3个集合C1,C2,C3。
     将3个新集合C1,C2,C3并集结果。
 证明阶段：
-7.eq_of_subset_of_card_le反推法，只需2个条件：1.集合被别的包含，2.但是元素个数不小于别的。
-  7.1.集合被别的包含：
+7.eq_of_subset_of_card_le反推法，只需2个条件：1.s ⊆ t，2.s元素个数不小于t的。
+  7.1 s ⊆ t：
     1.intro x 取出任意一个元素
     2.
-  7.2.但是元素个数不小于别的：
+  7.2 但是元素个数不小于别的：
 
 
 
