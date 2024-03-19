@@ -1026,14 +1026,19 @@
 --     --   (@Eq R (@HPow.hPow R ℕ R instHPow x ↑n) 1 ) -- 报错就参照print信息写详细。
 --     --   auxlemma_28'
 --     --   auxlemma_35'_39
---     have auxlemma_34' : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R
+--     have auxlemma_34' : (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ a ∈ Nat.divisors ↑n, x ∈ primitiveRoots a R -- 全场mvp原来藏在这里。被并集包括则存在，存在则被并集包括。人类的直觉比较难到达。
 --       := by
 --       simp only [mem_biUnion] -- 证明最好换一行，不然后面可能引用失败。
 --     have h2: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) → x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h))
 --     := by
---       have h2_1: ((x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) →
---         x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h)) ) =
---         ((∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1)
+--       have h2_1:
+--         ((x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R)
+--         →
+--         x ∈ (@Finset.mk R (nthRoots (↑n) 1) (@nthRoots_nodup R _ _ ζ (↑n) h)) )
+--         =
+--         ((∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R)
+--         →
+--         (@HPow.hPow R ℕ R instHPow x ↑n ) = 1)
 --         := by
 --           have h2_1_1: (x ∈ Finset.biUnion (Nat.divisors ↑n) fun i ↦ primitiveRoots i R) = ∃ x_1, x_1 ∣ ↑n ∧ x ∈ primitiveRoots x_1 R
 --           := by
@@ -1092,7 +1097,7 @@
 --               (auxlemma_35
 --                 (of_eq_true (auxlemma_39 n)))
 --           exact implies_congr h2_1_1 h2_1_2
---       have h2_2: (∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1
+--       have h2_2: (∃ a, a ∣ ↑n ∧ x ∈ primitiveRoots a R) → (@HPow.hPow R ℕ R instHPow x ↑n ) = 1 -- 精髓在这里，前面h2_1就是在扯淡一堆等价说法
 --         := by
 --         intro a
 --         have h2_2_1 := @Exists.casesOn ℕ (fun a ↦ a ∣ ↑n ∧ x ∈ primitiveRoots a R) (fun x_1 ↦ (@HPow.hPow R ℕ R instHPow x ↑n ) = 1) a
@@ -1127,38 +1132,40 @@
 --         let ha': IsPrimitiveRoot x a := by exact isPrimitiveRoot_of_mem_primitiveRoots ha
 --         have h2_2_5  : x ^ (a * d) = 1
 --         := by
---             have h2_2_5_1 : (x ^ a) ^ d = 1
+--           have h2_2_5_1 : (x ^ a) ^ d = 1
+--           := by
+--             have h2_2_5_1_1 : ((x ^ a) ^ d = 1) = (1 ^ d = 1)
 --             := by
---               have h2_2_5_1_1 : ((x ^ a) ^ d = 1) = (1 ^ d = 1)
+--               -- exact @Eq.ndrec R (x ^ a) (fun _a ↦ ((x ^ a) ^ d = 1) = (_a ^ d = 1)) (Eq.refl ((x ^ a) ^ d = 1)) 1
+--               --   (Eq.mp (propext (@mem_primitiveRoots R a _ _ x hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha').pow_eq_one
+--               sorry -- 傻瓜报错，同类还报错。
+--             have h2_2_5_1_2 : 1 ^ d = 1
 --               := by
---                 -- exact @Eq.ndrec R (x ^ a) (fun _a ↦ ((x ^ a) ^ d = 1) = (_a ^ d = 1)) (Eq.refl ((x ^ a) ^ d = 1)) 1
---                 --   (Eq.mp (propext (@mem_primitiveRoots R a _ _ x hazero) ▸ Eq.refl (x ∈ primitiveRoots a R)) ha').pow_eq_one
+--               have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) :=
+--                 -- @id ((1 ^ d = 1) = (1 = 1)) (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (@Eq.refl Prop (1 ^ d = 1)) 1 (one_pow d) )
 --                 sorry -- 傻瓜报错，同类还报错。
---               have h2_2_5_1_2 : 1 ^ d = 1
---                 := by
---                 have h2_2_5_1_2_1:(1 ^ d = 1) = (1 = 1) :=
---                   -- @id ((1 ^ d = 1) = (1 = 1)) (@Eq.ndrec R (1 ^ d) (fun _a ↦ (1 ^ d = 1) = (_a = 1)) (@Eq.refl Prop (1 ^ d = 1)) 1 (one_pow d) )
---                   sorry -- 傻瓜报错，同类还报错。
---                 have oneEqOne : (1 = 1) := rfl
---                 exact @Eq.mpr _ _ h2_2_5_1_2_1 (oneEqOne)
---               have h2_2_5_1_3 := @Eq.mpr _ _ h2_2_5_1_1 h2_2_5_1_2
---               exact h2_2_5_1_3
---             exact @Eq.mpr (x ^ (a * d) = 1) ((x ^ a) ^ d = 1) (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1))) h2_2_5_1
+--               have oneEqOne : (1 = 1) := rfl
+--               exact @Eq.mpr _ _ h2_2_5_1_2_1 (oneEqOne)
+--             have h2_2_5_1_3 := @Eq.mpr _ _ h2_2_5_1_1 h2_2_5_1_2
+--             exact h2_2_5_1_3
+--           exact @Eq.mpr (x ^ (a * d) = 1) ((x ^ a) ^ d = 1) (id (pow_mul x a d ▸ Eq.refl (x ^ (a * d) = 1))) h2_2_5_1
 --         exact @Eq.mpr _ _ h2_2_4 h2_2_5
 --       exact Eq.mpr h2_1 h2_2
 --     have h3 := id (Eq.mpr h1 h2)
 --     exact h3
 --   · apply le_of_eq
---     rw [h.card_nthRootsFinset, Finset.card_biUnion]
---     · nth_rw 1 [← Nat.sum_totient n]
---       refine' sum_congr rfl _
+--     rw [h.card_nthRootsFinset, Finset.card_biUnion] -- 这里拆成两个目标
+--     · nth_rw 1 [← Nat.sum_totient n] -- 这个是主证明
+--       refine' sum_congr rfl _ -- 遗留的_条件，在下一行开始证明：
 --       simp only [Nat.mem_divisors]
 --       rintro k ⟨⟨d, hd⟩, -⟩
 --       rw [mul_comm] at hd
 --       rw [(h.pow n.pos hd).card_primitiveRoots]
---     · intro i _ j _ hdiff
+--     · intro i _ j _ hdiff -- 这个是拆开时遗留的补充条件证明，很有条理吧。
 --       exact disjoint hdiff
 -- #print nthRoots_one_eq_biUnion_primitiveRoots'
+
+-- -- #check primitiveRoots
 
 -- /-- `nthRoots n` as a `Finset` is equal to the union of `primitiveRoots i R` for `i ∣ n`
 -- if there is a primitive root of unity in `R`. -/

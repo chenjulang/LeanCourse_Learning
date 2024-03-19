@@ -78,7 +78,26 @@ fun {R} [CommRing R] [IsDomain R] {ζ} {n} h ↦
                             Eq.refl (φ k = card (primitiveRoots k R))))
                         (Eq.refl (φ k))))))))).symm
 
-938-1161 进度：1029 拆解后会不会出现难度很高的引理呢？
+定理相当于冯克勤的P.136 (6)
+938-1161 拆解后从里往外看定理就行云流水了。形式化数学的魅力和优点：将学习已知数学的学习曲线无限拉平。
+z^n = 1
+e^(ix) = cos(x) + isin(x)
+z = e^(i2k₂π/n) k₂=1,2,3,4...
+
+n=3的复数根： e^(i2π/3)，e^(i4π/3)，e^(i2π)=e^(0)=1
+//
+n=1的本原根：e^(i2π)=1
+n=3的本原根：e^(i2π/3)，e^(i4π/3)
+
+n=4的复数根： e^(i2π/4)，e^(i4π/4)=e^(iπ)，e^(i6π/4), e^(i2π)=1
+n=1的本原根：e^(i2π)=1
+n=2的本原根：e^(i2π/2)=e^(iπ)
+n=4的本原根：e^(i2π/4) , e^(i6π/4)
+
+
+
+
+
 1.命题描述：
   theorem nthRoots_one_eq_biUnion_primitiveRoots' {ζ : R} {n : ℕ+} (h : IsPrimitiveRoot ζ n) :
     nthRootsFinset n R = (Nat.divisors ↑n).biUnion fun i => primitiveRoots i R
