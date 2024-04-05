@@ -1,6 +1,9 @@
 import Mathlib.LinearAlgebra.Basis
 import LeanCourse.Video.Learning4
 
+-- 学习策略：从已知到未知，逐个符号解释意思，就能解锁所有符号结构的使用了。分解到最细的知识点就是成功了。
+-- 基的变换： basis_toMatrix_mul_linearMap_toMatrix_mul_basis_toMatrix
+
 -- 向量空间的基 -- 这集跳过，不做视频。材料不足。
 -- 最终目标:任何向量可以由基线性组合得到，这节很容易的一个定理。
 universe u
