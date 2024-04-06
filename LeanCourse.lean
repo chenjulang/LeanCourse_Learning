@@ -48,3 +48,6 @@ import LeanCourse.MIL.C11_Integration_and_Measure_Theory.solutions.Solutions_S01
 import LeanCourse.MIL.C11_Integration_and_Measure_Theory.solutions.Solutions_S02_Measure_Theory
 import LeanCourse.MIL.C11_Integration_and_Measure_Theory.solutions.Solutions_S03_Integration
 import LeanCourse.Test
+import LeanCourse.LADR3.C1.S1_A
+import LeanCourse.LADR3.C1.S1_B
+import LeanCourse.LADR3.C1.S1_C
