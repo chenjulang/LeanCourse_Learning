@@ -123,3 +123,5 @@ lemma test1 (a b c d e f g h : ℕ) : (d + f) + (h + (a + c)) + (g + e + b) = a 
 -- #print test2
 
 -- #print test1
+
+-- #minimize_imports
