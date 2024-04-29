@@ -24,6 +24,9 @@ require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"mai
 -- require MIL from git "https://github.com/avigad/mathematics_in_lean_source.git"
 require LADR3 from git "https://github.com/martincmartin/linear_algebra_done_right.git"
 
+-- require FM2024 from git "https://github.com/ImperialCollegeLondon/formalising-mathematics-2024.git"
+
+
 
 -- require Duper from git "https://github.com/leanprover-community/duper.git" @ "v0.0.5"
 
