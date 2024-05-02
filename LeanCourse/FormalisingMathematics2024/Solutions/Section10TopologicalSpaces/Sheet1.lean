@@ -93,6 +93,9 @@ example (X : Type) [TopologicalSpace X] : IsOpen (∅ : Set X) := by
 
 -- The reals are a topological space. Let's check Lean knows this already
 #synth TopologicalSpace ℝ
+#check TopologicalSpace ℝ
+
+
 
 -- Let's make it from first principles.
 
@@ -105,7 +108,10 @@ def Real.IsOpen (s : Set ℝ) : Prop :=
 lemma Real.isOpen_univ : Real.IsOpen (Set.univ : Set ℝ) := by
   intro x hx
   use 37
-  norm_num
+  apply And.intro
+  · norm_num
+  · intros a1 h1
+    simp only [Set.mem_univ]
 
 -- will AI be able to write these proofs one day? The proof feels kind of natural
 -- and obvious but I still had to write a lot of it manually
@@ -113,7 +119,10 @@ lemma Real.isOpen_inter (s t : Set ℝ) (hs : IsOpen s) (ht : IsOpen t) : IsOpen
   intro x hx
   obtain ⟨δs, δspos, hs⟩ := hs x (by aesop)
   obtain ⟨δt, δtpos, ht⟩ := ht x (by aesop)
-  use min δs δt, by positivity
+  use min δs δt
+  -- use min δs δt ,by positivity -- method1
+  constructor -- method2
+  · positivity
   rintro y ⟨h1, h2⟩
   constructor
   · apply hs

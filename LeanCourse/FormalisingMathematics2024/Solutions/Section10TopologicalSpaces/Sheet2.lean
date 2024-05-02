@@ -37,7 +37,7 @@ example (X Y Z : Type) [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpa
 
 example (X Y Z : Type) [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
     (f : X → Y) (g : Y → Z) (hf : Continuous f) (hg : Continuous g) : Continuous (g ∘ f) := by
-  -- There's a tactic for continuity proofs by the way
+  -- There's a tactic for continuity proofs ,by the way
   continuity
 
 example (X Y Z : Type) [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
