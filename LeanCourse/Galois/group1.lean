@@ -195,6 +195,35 @@ namespace Mygroup1 -- 最适合入门的版本。
 
   end add_semmi_group
 
+  section monoid
+
+    class monoid (A : Type) extends semigroup A, has_one A :=
+    (one_mul : ∀a:A, one * a = a)
+    (mul_one : ∀a:A, a * one = a)
+
+    theorem one_mul : ∀ {A : Type} [self : monoid A] (a : A), self.one * a = a := by apply monoid.one_mul
+    theorem mul_one [self : monoid A] (a : A) : a * self.one = a := by apply monoid.mul_one
+
+    class comm_monoid (A : Type) extends monoid A, comm_semigroup A
+
+  end monoid
+
+
+  section group_def
+
+    class group (A : Type) extends monoid A, has_inv A :=
+      (mul_left_inv : ∀a:A, a⁻¹ * a = has_one.one)
+
+  end group_def
+
+  section group
+
+    variable [s : group A]
+
+    theorem mul.left_inv (a : A) : a⁻¹ * a = s.one := by apply group.mul_left_inv
+
+  end group
+
 
 
 end Mygroup1
