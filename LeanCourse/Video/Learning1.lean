@@ -1,4 +1,5 @@
-import Paperproof
+import ProofWidgets.Presentation.Expr
+import ProofWidgets.Component.Panel.SelectionPanel
 import Mathlib.Data.Real.Sqrt
 -- 十八世纪六十年代 2016 2022年11月30日 lean4
 -- 斐波拉契数列通项公式
@@ -6,6 +7,7 @@ import Mathlib.Data.Real.Sqrt
 -- variable (m:ℕ) (n:ℕ) (q:ℚ)
 -- lemma test001 (h1:q=m/n) : sorry := by sorry
 
+open ProofWidgets
 open Real -- 把前缀省略
 #check (sqrt 2:ℝ )
 
@@ -75,12 +77,13 @@ noncomputable section
     simp [ψ]
     simp [sub_sq]
     field_simp
-    ring
+    show_term ring
     done
 
   theorem coe_fib_eq (n : ℕ)
   : ((fib n) : ℝ) = (ϕ ^ n - ψ ^ n) / (ϕ - ψ)
   := by
+    -- with_panel_widgets [SelectionPanel]
     induction n using Nat.two_step_induction
     case zero =>
       simp only [pow_zero]

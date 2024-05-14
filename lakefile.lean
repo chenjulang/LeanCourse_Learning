@@ -19,6 +19,9 @@ require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"@"v4.2.0"
 
 require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
+require proofwidgets from git "https://github.com/leanprover-community/ProofWidgets4"@"v0.0.3"
+
+require MATH681CourseProject from git "https://github.com/davidowe/MATH681CourseProject.git"
 
 
 -- require MIL from git "https://github.com/avigad/mathematics_in_lean_source.git"

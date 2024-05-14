@@ -67,4 +67,5 @@ example (X : Type) (hX : 5 ≤ Cardinal.mk X) : ¬IsSolvable (Equiv.Perm X) :=
 example : ∃ x : ℂ, IsAlgebraic ℚ x ∧ ¬IsSolvableByRad ℚ x :=
   sorry
 
+-- #check wellFounded_lt
 -- See the file `archive.100-theorems-list.16_abel_ruffini`.

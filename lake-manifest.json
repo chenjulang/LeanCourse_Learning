@@ -34,6 +34,14 @@
     "inputRev?": null,
     "inherited": false}},
   {"git":
+   {"url": "https://github.com/davidowe/MATH681CourseProject.git",
+    "subDir?": null,
+    "rev": "e10017f72a99d15359aa2af5336edc349a9c9949",
+    "opts": {},
+    "name": "MATH681CourseProject",
+    "inputRev?": null,
+    "inherited": false}},
+  {"git":
    {"url": "https://github.com/leanprover-community/quote4",
     "subDir?": null,
     "rev": "a387c0eb611857e2460cf97a8e861c944286e6b2",
