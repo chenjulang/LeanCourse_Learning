@@ -1,3 +1,5 @@
+import Mathlib.Tactic.Core
+
 set_option checkBinderAnnotations false
 set_option autoImplicit true
 
@@ -140,20 +142,13 @@ namespace Mygroup1 -- 最适合入门的版本。
     class right_cancel_semigroup (A : Type) extends semigroup A :=
       (mul_right_cancel : ∀a b c:A, a * b = c * b → a = c)
 
-    -- theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
-    --   a * b = c * b → a = c :=
-    -- !right_cancel_semigroup.mul_right_cancel
-
-
-
-    --//
-    --//
-    --//
-
-
-
+    theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
+      a * b = c * b → a = c :=
+    by apply right_cancel_semigroup.mul_right_cancel
 
   end mul_semmi_group
+
+
 
   section add_semmi_group
 
@@ -161,8 +156,42 @@ namespace Mygroup1 -- 最适合入门的版本。
     class add_semigroup (A : Type) extends (has_add A) :=
     (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
 
+    @[simp]
     theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
     by apply add_semigroup.add_assoc
+
+    class add_comm_semigroup (A : Type) extends add_semigroup A :=
+    (add_comm : ∀a b, add a b = add b a)
+
+    @[simp]
+    theorem add.comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
+    by apply add_comm_semigroup.add_comm
+    @[simp]
+    theorem add.left_comm [s : add_comm_semigroup A] (a b c : A) :
+      a + (b + c) = b + (a + c) :=
+    by
+      rw [add.comm]
+      rw [add.assoc]
+      rw [add.comm A a c]
+    @[simp]
+    theorem add.right_comm [s : add_comm_semigroup A] (a b c : A) : (a + b) + c = (a + c) + b :=
+    by
+      simp only [comm, left_comm]
+
+    class add_left_cancel_semigroup (A : Type) extends add_semigroup A :=
+      (add_left_cancel : ∀a b c, add a b = add a c → b = c)
+
+    @[simp]
+    theorem add.left_cancel [s : add_left_cancel_semigroup A] {a b c : A} :
+      a + b = a + c → b = c :=
+    by apply add_left_cancel_semigroup.add_left_cancel
+
+    class add_right_cancel_semigroup (A : Type) extends add_semigroup A :=
+      (add_right_cancel : ∀a b c, add a b = add c b → a = c)
+
+    theorem add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
+      a + b = c + b → a = c :=
+    by apply add_right_cancel_semigroup.add_right_cancel
 
   end add_semmi_group
 
