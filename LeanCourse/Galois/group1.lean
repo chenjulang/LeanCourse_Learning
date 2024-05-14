@@ -1,4 +1,10 @@
 set_option checkBinderAnnotations false
+set_option autoImplicit true
+
+-- 代码只是一种具象，你大可以不用深究代码的逻辑，因为语言规则本身是人为规定的，你抽象的连贯的思想才是关键且唯一重要的。
+
+
+
 
 -- namespace Mygroup4
 
@@ -70,34 +76,96 @@ namespace Mygroup1 -- 最适合入门的版本。
   variable (A : Type)
 
   class has_mul1 (A : Type) where
-    mul2 : A → A → A
+    (mul2 : A → A → A)
   class has_add (A : Type) :=
     (add : A → A → A)
+  class has_one (A : Type) where
+    (one : A)
+  class has_zero (A : Type) :=
+    (zero : A)
+  class has_inv  (A : Type) :=
+    (inv : A → A)
+  class has_neg  (A : Type) :=
+   (neg : A → A)
 
   infixl:70 " * "   => has_mul1.mul2
   infixl:65 " + "   => has_add.add
+  postfix:max "⁻¹"  => has_inv.inv
+  postfix:75 "-"    => has_neg.neg
+  -- notation 1   := !has_one.one
+  -- notation 0   := !has_zero.zero
 
-  /-- 乘法_半群 = 乘法映射+乘法映射的结合律 -/
-  class semigroup (A : Type) extends (has_mul1 A) where
-    mul3_assoc : ∀a b c : A, (a * b) * c = a * (b * c)
+  section mul_semmi_group
 
-  -- theorem mul.assoc2 (A : Type) [semigroup A] (a b c : A)
-  -- : (a * b) * c =
-  --   a * (b * c)
-  -- := by
-  --   apply semigroup.mul3_assoc
-  theorem mul_assoc2 (A : Type) [semigroup A] (a b c : A)
-  : (a * b) * c =
-    a * (b * c)
-  := by
-    apply semigroup.mul3_assoc
+    /-- 乘法_半群 = 乘法映射+乘法映射的结合律 -/
+    class semigroup (A : Type) extends (has_mul1 A) where
+      mul3_assoc : ∀a b c : A, (a * b) * c = a * (b * c)
 
-  /-- 加法_半群 = 加法映射+加法映射的结合律 -/
-  class add_semigroup (A : Type) extends (has_add A) :=
-  (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
+    -- theorem mul.assoc2 (A : Type) [semigroup A] (a b c : A)
+    -- : (a * b) * c =
+    --   a * (b * c)
+    -- := by
+    --   apply semigroup.mul3_assoc
+    theorem mul_assoc (A : Type) [semigroup A] (a b c : A)
+    : (a * b) * c =
+      a * (b * c)
+    := by
+      apply semigroup.mul3_assoc
 
-  theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
-  by apply add_semigroup.add_assoc
+    class comm_semigroup (A : Type) extends semigroup A where
+      (mul_comm : ∀a b:A , a * b = b * a)
+
+    theorem mul.comm [s : comm_semigroup A] (a b : A) : a * b = b * a :=
+    by apply comm_semigroup.mul_comm
+    theorem mul.left_comm [s : comm_semigroup A] (a b c : A) : a * (b * c) = b * (a * c) :=
+    by
+      rw [comm_semigroup.mul_comm]
+      rw [mul_assoc]
+      rw [comm_semigroup.mul_comm c a]
+      done
+    theorem mul.right_comm [s : comm_semigroup A] (a b c : A) : (a * b) * c = (a * c) * b :=
+    by
+      rw [mul_assoc]
+      rw [comm_semigroup.mul_comm b c]
+      rw [← mul_assoc]
+      done
+
+    class left_cancel_semigroup (A : Type) extends semigroup A :=
+      (mul_left_cancel : ∀a b c:A,  a * b = a * c → b = c)
+
+    theorem mul.left_cancel [s : left_cancel_semigroup A] {a b c : A} :
+      a * b = a * c → b = c :=
+    by apply left_cancel_semigroup.mul_left_cancel
+
+    class right_cancel_semigroup (A : Type) extends semigroup A :=
+      (mul_right_cancel : ∀a b c:A, a * b = c * b → a = c)
+
+    -- theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
+    --   a * b = c * b → a = c :=
+    -- !right_cancel_semigroup.mul_right_cancel
+
+
+
+    --//
+    --//
+    --//
+
+
+
+
+  end mul_semmi_group
+
+  section add_semmi_group
+
+    /-- 加法_半群 = 加法映射+加法映射的结合律 -/
+    class add_semigroup (A : Type) extends (has_add A) :=
+    (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
+
+    theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
+    by apply add_semigroup.add_assoc
+
+  end add_semmi_group
+
 
 
 end Mygroup1
