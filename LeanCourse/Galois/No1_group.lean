@@ -6,8 +6,6 @@ set_option autoImplicit true
 -- 代码只是一种具象，你大可以不用深究代码的逻辑，因为语言规则本身是人为规定的，你抽象的连贯的思想才是关键且唯一重要的。
 
 
-
-
 -- namespace Mygroup4
 
 --   variable (A : Type)
