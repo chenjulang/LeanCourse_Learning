@@ -89,5 +89,11 @@ namespace my_quotient_group3
 
   def quotient := my_Quot3 (lcoset_setoid2 H).1
 
+  -- opaque add1 : Nat
+  -- constant myVar : Nat
+  -- 在某个具体的上下文中使用 myVar
+  -- def example : Nat := myVar + 1
+
+
   -- #check QuotientGroup
 end my_quotient_group3
